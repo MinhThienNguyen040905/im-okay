@@ -19,11 +19,11 @@ Tài liệu hiện có:
 
 ## Bắt đầu thiết kế
 
-Đọc [`design/stitch/00-HUONG-DAN.md`](design/stitch/00-HUONG-DAN.md), sau đó:
+Đọc [`design/stitch/00-BAT-DAU-O-DAY.md`](design/stitch/00-BAT-DAU-O-DAY.md), sau đó:
 
 1. Tạo một project Stitch duy nhất.
-2. Đưa project brief và UX flows lên canvas.
-3. Import `design/stitch/DESIGN.md`.
+2. Mở “Start with your design” và upload `design/stitch/DESIGN.md`.
+3. Dán nội dung Additional instructions đã chuẩn bị sẵn.
 4. Thiết kế ba anchor screens.
 5. Tạo variants, chọn hướng và tiếp tục theo từng user flow.
 
@@ -35,4 +35,3 @@ Tài liệu hiện có:
 - Redis/BullMQ.
 - Expo Push Notifications.
 - Gmail SMTP trong MVP.
-

@@ -2,7 +2,7 @@
 
 Chọn đúng screen cần sửa. Thay các phần trong ngoặc vuông trước khi gửi.
 
-Chỉnh **[component hoặc khu vực]** trong **[screen ID và tên]**.
+Trong Stitch Web, chọn screen **[tên screen đang hiển thị]**, sau đó chỉnh **[component hoặc khu vực]**.
 
 **VẤN ĐỀ HIỆN TẠI:**
 
@@ -21,4 +21,3 @@ Chỉnh **[component hoặc khu vực]** trong **[screen ID và tên]**.
 - Các quyết định đã được duyệt ở màn hình neo.
 
 Không generate lại toàn bộ screen. Trả về một updated screen và mô tả ngắn phần đã thay đổi.
-
