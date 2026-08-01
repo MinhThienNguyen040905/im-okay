@@ -6,7 +6,7 @@ I’m Okay là ứng dụng safety check-in dành cho người sống một mìn
 
 ## Trạng thái dự án
 
-Dự án đang ở giai đoạn xác định sản phẩm và thiết kế giao diện bằng Google Stitch.
+Dự án đang ở cuối giai đoạn xác định sản phẩm/thiết kế và chuẩn bị scaffold source code. Stitch đã có 12 màn hình mobile app và 5 màn hình responsive web; prototype và QA accessibility/responsive vẫn cần hoàn tất trước khi export chính thức.
 
 Tài liệu hiện có:
 
@@ -16,6 +16,8 @@ Tài liệu hiện có:
 - 5 prompt responsive web cho người thân.
 - Prompt variants, targeted edits, prototype và accessibility QA.
 - Project-specific Codex skill.
+- [Master roadmap từ thiết kế đến production](docs/DEVELOPMENT-ROADMAP.md).
+- Implementation plans: [Mobile](docs/plans/01-MOBILE-APP.md), [Contact web](docs/plans/02-CONTACT-WEB.md), [Backend API](docs/plans/03-BACKEND-API.md), [Worker/notifications](docs/plans/04-WORKER-NOTIFICATIONS.md), [Data/infra/DevOps](docs/plans/05-DATA-INFRA-DEVOPS.md) và [QA/security/release](docs/plans/06-QA-SECURITY-RELEASE.md).
 
 ## Bắt đầu thiết kế
 

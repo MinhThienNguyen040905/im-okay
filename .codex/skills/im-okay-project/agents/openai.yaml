@@ -1,4 +1,4 @@
 interface:
-  display_name: "Im Okay Project"
-  short_description: "Build and maintain the Im Okay safety app"
-  default_prompt: "Use $im-okay-project to implement the next reliable feature for the Im Okay app."
+  display_name: "I’m Okay Project"
+  short_description: "Phát triển an toàn toàn bộ dự án I’m Okay"
+  default_prompt: "Use $im-okay-project to implement the next roadmap item safely and verify it end to end."

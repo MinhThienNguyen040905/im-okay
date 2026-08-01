@@ -1,147 +1,225 @@
 ---
 name: im-okay-project
-description: Xây dựng và duy trì ứng dụng I’m Okay, một hệ thống điểm danh an toàn cho người sống một mình. Dùng skill này khi phân tích, thiết kế, triển khai, kiểm thử hoặc review bất kỳ phần nào của mobile app, backend, worker, cơ sở dữ liệu, push notification, Gmail, quy trình check-in, cảnh báo quá hạn, liên hệ tin cậy, SOS, bảo mật hoặc khả năng mở rộng nhà cung cấp thông báo của dự án.
+description: Xây dựng, duy trì và vận hành dự án I’m Okay — ứng dụng safety check-in cho người sống một mình. Dùng skill này khi lập kế hoạch, đọc ngữ cảnh, thiết kế Stitch, code/review mobile app hoặc responsive contact web, xây NestJS API/worker, Prisma/PostgreSQL, Redis/BullMQ, Supabase Auth, check-in, deadline, alert escalation, trusted contacts, invitation/response token, SOS, snooze, drill, push notification, Gmail, test, security, privacy, observability, deploy, release hoặc mở rộng provider của repository I’m Okay.
 ---
 
 # I’m Okay Project
 
-## Hiểu mục tiêu sản phẩm
+## 1. Sứ mệnh
 
-Xây dựng một ứng dụng “safety check-in”: người dùng định kỳ xác nhận mình vẫn an toàn. Nếu không xác nhận trước thời hạn, backend tự động nhắc người dùng và thông báo cho các liên hệ tin cậy.
+Xây dựng một hệ thống safety check-in đáng tin cậy: người dùng định kỳ xác nhận mình vẫn an toàn; nếu không xác nhận trước deadline, backend nhắc người dùng và cảnh báo các liên hệ tin cậy.
+
+Luôn ưu tiên theo thứ tự:
+
+1. Độ tin cậy và tính đúng đắn của quy trình cảnh báo.
+2. Bảo vệ dữ liệu, token và quyền truy cập.
+3. Thao tác check-in đơn giản, rõ trạng thái.
+4. Hạn chế báo động giả và cho phép đính chính.
+5. Khả năng phục hồi khi worker, Redis hoặc provider gặp sự cố.
+6. Tách nhà cung cấp thông báo khỏi nghiệp vụ cốt lõi.
+
+Không mô tả I’m Okay là thiết bị y tế, dịch vụ cứu hộ, hệ thống giám sát hay giải pháp bảo đảm cứu mạng. Dùng ngôn ngữ trung thực: đây là công cụ hỗ trợ kết nối người dùng với những người họ tin tưởng.
+
+## 2. Bắt đầu mỗi session
+
+Trước khi đề xuất hoặc sửa code:
+
+1. Xác định repo root bằng `git rev-parse --show-toplevel`; không phụ thuộc working directory giả định.
+2. Đọc `README.md`, `docs/DEVELOPMENT-ROADMAP.md`, owner plan liên quan trong `docs/plans/` và `git status --short`; không đọc cả sáu plan nếu task chỉ thuộc một hệ thống.
+3. Kiểm tra source, migration, test và ADR hiện có trước khi dùng kiến trúc mục tiêu trong skill này.
+4. Xác định giai đoạn roadmap hiện tại và chỉ làm hạng mục được yêu cầu.
+5. Phân loại thay đổi: product/design, client, API, domain, data, queue/worker, provider, security/privacy, test hay operations.
+6. Nêu rõ giả định có thể ảnh hưởng deadline, dữ liệu hoặc hành vi cảnh báo.
+
+Không ghi đè thay đổi chưa liên quan trong dirty worktree. Không deploy, gửi notification thật, thay secret, push GitHub hoặc thao tác production nếu người dùng chưa yêu cầu.
+
+## 3. Nguồn sự thật và cách đọc tài liệu
 
 Ưu tiên theo thứ tự:
 
-1. Bảo đảm quy trình cảnh báo đáng tin cậy.
-2. Giữ thao tác điểm danh thật đơn giản.
-3. Hạn chế báo động giả.
-4. Bảo vệ dữ liệu cá nhân và vị trí.
-5. Cho phép thay nhà cung cấp thông báo mà không sửa nghiệp vụ cốt lõi.
+1. Invariant an toàn, bảo mật và phạm vi trong skill này.
+2. Code, migration và automated test đang chạy.
+3. ADR trong `docs/adr/`; ADR mới có thể thay thế quyết định kiến trúc cũ.
+4. `docs/DEVELOPMENT-ROADMAP.md` cho milestone, phụ thuộc và release gate; owner plan trong `docs/plans/` cho task, test và Definition of Done của từng hệ thống.
+5. Product/UX/design docs trong `design/stitch/`.
+6. `.stitch/metadata.json` và `.stitch/designs/` cho ID, HTML và preview tải từ Stitch; đây là generated/local artifacts, không phải production source.
 
-Không mô tả I’m Okay là thiết bị y tế, dịch vụ cứu hộ hoặc hệ thống bảo đảm cứu mạng. Luôn thể hiện đây là công cụ hỗ trợ kết nối người dùng với người họ tin tưởng.
+Khi có xung đột:
 
-## Phạm vi MVP hiện tại
+- Không tự ý nới lỏng invariant an toàn.
+- Tin code/test cho hành vi hiện tại, nhưng nêu rõ nếu nó lệch product spec.
+- Thay đổi framework, provider, state machine, schema cốt lõi hoặc retention bằng ADR; không chỉ sửa roadmap.
+- Hỏi người dùng khi xung đột là một lựa chọn sản phẩm thật sự, không thể suy ra an toàn.
+
+### Routing tài liệu
+
+- Lập kế hoạch/tiến độ xuyên hệ thống: đọc `docs/DEVELOPMENT-ROADMAP.md`.
+- Mobile M01–M12, Expo, auth client, check-in UX, contacts, SOS, history/settings: đọc `docs/plans/01-MOBILE-APP.md`.
+- Contact web W01–W05 và public-link UX: đọc `docs/plans/02-CONTACT-WEB.md`.
+- NestJS API, domain command/query, auth, transaction, OpenAPI: đọc `docs/plans/03-BACKEND-API.md`.
+- BullMQ, scheduling, reconciliation, Expo Push, Gmail và provider: đọc `docs/plans/04-WORKER-NOTIFICATIONS.md`.
+- Monorepo, Prisma/PostgreSQL, Redis, CI/CD, environment, backup/deploy: đọc `docs/plans/05-DATA-INFRA-DEVOPS.md`.
+- E2E, security/privacy, accessibility, observability, alpha/beta/release: đọc `docs/plans/06-QA-SECURITY-RELEASE.md`.
+- Task chạm nhiều hệ thống: đọc master và chỉ các owner plan bị tác động; ghi rõ phụ thuộc/contract trước khi code.
+- Product scope/copy: đọc `design/stitch/03-PROJECT-BRIEF.md` và `02-ADDITIONAL-INSTRUCTIONS.md`.
+- User flow/navigation: đọc `design/stitch/04-UX-FLOWS.md`.
+- Visual tokens/component: đọc `design/stitch/DESIGN.md`.
+- Stitch screen/status: đọc `design/stitch/05-SCREEN-TRACKER.md` và `.stitch/metadata.json` nếu tồn tại.
+- Từ Stitch sang code: lấy đúng screen bằng metadata/MCP, đọc HTML và xem screenshot; không coi HTML sinh ra là production code.
+- Thay đổi kiến trúc: đọc toàn bộ ADR liên quan và source hiện tại.
+
+## 4. Trạng thái dự án hiện tại
+
+Tại mốc 2026-08-01:
+
+- Repository ở giai đoạn product/design, chưa có source app/backend.
+- Stitch project `I’m Okay Safety System`, ID `9249994988754984867`, private.
+- Design system asset `assets/cbd4d1ec489847ac84e45f592436c1f3`.
+- Đã chọn 12 mobile screens M01–M12 và 5 web screens W01–W05.
+- Prototype, state variants, font scaling và responsive QA chưa hoàn tất.
+- M11/M12 truy xuất được theo screen ID dù API danh sách canvas có thể chưa hiển thị.
+- Preview M01/W02 có thể bị cache trước targeted edit; đọc tracker/metadata trước khi QA lại.
+
+Không giữ phần này như progress tracker vĩnh viễn. Sau mỗi milestone lớn, cập nhật README/roadmap và rút gọn mốc này nếu đã lỗi thời.
+
+## 5. Phạm vi MVP
 
 Triển khai:
 
-- Ứng dụng Android và iOS bằng React Native/Expo.
-- Đăng nhập và quản lý hồ sơ.
-- Thêm tối đa ba liên hệ tin cậy; yêu cầu liên hệ xác nhận lời mời.
-- Chọn chu kỳ 24, 36 hoặc 48 giờ.
-- Điểm danh bằng nút “Tôi vẫn ổn”.
-- Hiển thị lần điểm danh cuối và thời hạn kế tiếp.
-- Gửi push notification nhắc người dùng.
-- Gửi email cảnh báo bằng Gmail SMTP.
-- Cho người nhận mở liên kết bảo mật và phản hồi mà không cần cài app.
-- Chuyển cảnh báo sang liên hệ tiếp theo nếu chưa có ai nhận xử lý.
-- Tạm hoãn bảo vệ với thời gian tự bật lại.
-- Lưu lịch sử check-in, cảnh báo, lần gửi và phản hồi.
-- Cung cấp chế độ diễn tập cảnh báo không gây hiểu nhầm là sự cố thật.
+- Android/iOS bằng Expo + React Native + TypeScript.
+- Responsive contact web mở từ email, không bắt cài app/đăng nhập.
+- Supabase Auth: email và Google.
+- Hồ sơ, timezone IANA và safety plan.
+- Chu kỳ 24, 36 hoặc 48 giờ; mặc định sản phẩm 36 giờ.
+- Tối đa ba trusted contacts, có invitation acceptance.
+- Check-in “Tôi vẫn ổn”, last check-in và next deadline.
+- Expo Push nhắc người dùng.
+- Gmail SMTP/App Password cho invitation/alert email trong MVP.
+- Alert escalation nếu chưa có contact nhận xử lý.
+- Snooze có thời hạn, SOS có guard, drill, history và settings.
+- Audit, delivery log, retry, reconciliation và observability.
 
-Chưa triển khai:
+Ngoài MVP trừ khi người dùng yêu cầu mở rộng:
 
-- SMS, Zalo ZNS, WhatsApp hoặc cuộc gọi tự động.
+- SMS, Zalo ZNS, WhatsApp, voice/call automation.
 - Tự động liên hệ cơ quan cấp cứu.
-- Theo dõi vị trí liên tục.
-- Ghi âm tự động.
-- Nhận diện khuôn mặt, theo dõi bước chân hoặc smartwatch.
-- AI đánh giá tình trạng người dùng.
-- Thanh toán và gói thuê bao.
+- Theo dõi vị trí liên tục, ghi âm, khuôn mặt, bước chân, smartwatch.
+- AI đánh giá tình trạng.
+- Thanh toán/gói thuê bao.
 
-Để sẵn interface và trạng thái dữ liệu cho SMS/voice nhưng dùng adapter `disabled` trong MVP. Không tạo tích hợp giả hoặc gửi request ra nhà cung cấp chưa được cấu hình.
+Có thể định nghĩa interface và data status cho SMS/voice, nhưng provider phải là `disabled`; không hiển thị chúng trong MVP UI và không gửi request giả.
 
-## Dùng quy tắc thời hạn duy nhất
+## 6. Kiến trúc mặc định
 
-Luôn định nghĩa:
+```text
+Expo mobile        Expo responsive contact web
+      \                    /
+       \---- NestJS API --/
+                |
+        PostgreSQL/Supabase
+                |
+          Redis/BullMQ
+                |
+          NestJS worker
+          |-- Expo Push
+          |-- Gmail
+          |-- SMS disabled
+          `-- Voice disabled
+```
+
+Dùng:
+
+- pnpm workspaces + Turborepo.
+- `apps/mobile`, `apps/contact-web`, `apps/api`, `apps/worker`.
+- `packages/domain`, `packages/contracts`, `packages/ui`, `packages/config` khi có consumer thực.
+- Expo Router cho mobile và contact web; tách deployable để public link không phụ thuộc bundle/app auth.
+- TanStack Query cho server state; local state chỉ khi cần.
+- React Hook Form + Zod cho form/client validation.
+- NestJS REST API với OpenAPI.
+- Supabase Auth và hosted PostgreSQL.
+- Prisma cho schema, migration và server data access.
+- BullMQ + Redis cho delayed jobs/retry; worker tách API.
+- Expo Push Notifications và Nodemailer/Gmail trong MVP.
+- Sentry cho mobile, web, API và worker.
+
+Không cho client ghi trực tiếp `alerts`, `alert_steps`, `alert_responses`, `notification_deliveries` hoặc `audit_logs`. Mọi mutation nghiệp vụ đi qua API.
+
+Nếu source/ADR sau này đã chọn công nghệ khác, không scaffold lại mù quáng. Đọc ADR, nêu trade-off và chỉ migration khi người dùng chấp thuận phạm vi thay đổi.
+
+## 7. Invariant deadline và alert
+
+### Deadline duy nhất
 
 ```text
 nextDeadlineAt = lastCheckInAt + checkInInterval
 ```
 
-Hiểu “36 giờ” là cảnh báo tại thời điểm 36 giờ kể từ lần check-in gần nhất, không phải 36 giờ sau khi đã trễ một lịch điểm danh khác.
+“36 giờ” nghĩa là deadline sau 36 giờ kể từ check-in hợp lệ gần nhất. Không hiểu là 36 giờ sau một lịch trung gian. Tập trung phép tính trong pure domain service; không rải công thức ở client, controller và worker.
 
-Với chu kỳ 36 giờ mặc định, dùng timeline ban đầu:
+Timeline mặc định cho chu kỳ 36 giờ:
 
 ```text
-24h  nhắc nhẹ bằng push
-32h  nhắc khẩn bằng push
-35h  cảnh báo còn một giờ bằng push + email cho chính người dùng
-36h  kích hoạt alert và email liên hệ ưu tiên thứ nhất
-38h  chưa ai nhận xử lý thì email các liên hệ còn lại
+24h  push nhắc nhẹ
+32h  push nhắc khẩn
+35h  push + email cho chính người dùng
+36h  trigger alert + email contact ưu tiên 1
+38h  nếu chưa acknowledged, email các contact còn lại
 ```
 
-Cho phép điều chỉnh timeline sau khi có dữ liệu thử nghiệm, nhưng không rải công thức tính thời gian ở nhiều nơi. Tập trung toàn bộ phép tính trong domain service và kiểm thử nó độc lập.
+Timeline có thể được điều chỉ bằng config/versioned policy và test, không bằng magic numbers trong job handler.
 
-## Mô hình trạng thái
-
-Tách trạng thái kế hoạch bảo vệ khỏi trạng thái một cảnh báo.
+### State machine
 
 ```text
 SafetyPlan: inactive | active | snoozed
 
 Alert:
 scheduled -> warning -> triggered -> acknowledged -> resolved
-                   \-> cancelled
+                  \-> cancelled
 ```
 
-Áp dụng các quy tắc:
+Bất biến:
 
-- Chỉ một alert chưa kết thúc được tồn tại cho mỗi safety plan.
-- Một check-in hợp lệ phải cập nhật deadline và hủy các job chưa chạy của chu kỳ cũ.
-- Không tự động đánh dấu `resolved` chỉ vì email đã được gửi.
-- `delivered` chỉ mô tả trạng thái kênh gửi; `acknowledged` nghĩa là một người đã nhận xử lý.
-- Cho phép người dùng hủy alert trước khi gửi cho liên hệ.
-- Sau khi đã gửi cho liên hệ, lưu audit log và gửi thông báo đính chính nếu người dùng xác nhận an toàn.
+- Chỉ một alert chưa kết thúc trên mỗi safety plan.
+- Chỉ domain service được quyết định state transition; controller/worker gọi service.
+- Check-in hợp lệ phải cập nhật deadline và làm stale/cancel job chu kỳ cũ.
+- Job khi chạy phải nạp state hiện tại từ PostgreSQL; không tin payload cũ.
+- `sent`/`delivered` là trạng thái kênh; không đồng nghĩa `acknowledged`.
+- Email đã gửi không tự động resolve alert.
+- User có thể cancel trước khi contact được báo.
+- Sau khi đã báo contact, mọi correction/cancel phải có audit và notification đính chính phù hợp.
+- Snooze luôn có `ends_at`; không có snooze vô thời hạn.
+- SOS và drill dùng cùng hạ tầng tin cậy nhưng phải phân biệt `source/type` và copy.
 
-## Dùng kiến trúc mục tiêu
+## 8. Transaction, queue và idempotency
 
-```text
-Expo mobile/web
-      |
-      v
-NestJS REST API ------ PostgreSQL/Supabase
-      |
-      v
-Redis/BullMQ ------ NestJS worker
-                       |-- Expo Push
-                       |-- Gmail Email
-                       |-- SMS adapter (disabled)
-                       `-- Voice adapter (disabled)
-```
-
-Dùng:
-
-- TypeScript trong toàn bộ repository.
-- Expo + Expo Router cho mobile và trang phản hồi mở từ deep link.
-- TanStack Query cho server state; chỉ dùng local state library khi thực sự cần.
-- React Hook Form + Zod cho form và validation.
-- NestJS REST API; sinh OpenAPI schema cho các endpoint công khai.
-- Supabase Auth và hosted PostgreSQL.
-- Prisma cho schema, migration và truy cập dữ liệu từ backend.
-- BullMQ + Redis cho delayed job, retry và worker tách biệt.
-- Expo Push Notifications trong MVP.
-- Nodemailer với Gmail SMTP/App Password trong MVP.
-- Sentry cho lỗi mobile, API và worker.
-
-Không để mobile ghi trực tiếp các bảng nghiệp vụ quan trọng như `alerts`, `notification_deliveries` hoặc `audit_logs`, kể cả khi Supabase có REST API tự sinh. Đi qua backend để giữ các bất biến nghiệp vụ.
-
-## Coi PostgreSQL là nguồn sự thật
-
-Lưu deadline và trạng thái chính trong PostgreSQL. Chỉ dùng Redis/BullMQ để thực thi công việc.
+PostgreSQL là source of truth. BullMQ là executor có thể dựng lại.
 
 Khi check-in:
 
-1. Xác thực người dùng và safety plan đang hoạt động.
-2. Khóa hoặc dùng transaction để chống hai check-in đồng thời.
-3. Ghi một `check_ins` record với idempotency key.
-4. Cập nhật `last_check_in_at` và `next_deadline_at`.
-5. Kết thúc alert cũ nếu phù hợp.
-6. Sau khi transaction commit, tạo lại các delayed job.
+1. Xác thực actor và safety plan.
+2. Dùng transaction cùng row lock hoặc optimistic version để chống race.
+3. Insert `check_ins` với idempotency key có unique constraint.
+4. Update `last_check_in_at` và `next_deadline_at`.
+5. Transition alert cũ nếu hợp lệ.
+6. Ghi audit/outbox trong cùng transaction.
+7. Sau commit, enqueue lại job; reconciliation bù nếu enqueue thất bại.
 
-Chạy một reconciliation job định kỳ để tìm deadline hoặc alert chưa có job tương ứng. Phải có khả năng dựng lại toàn bộ queue từ dữ liệu PostgreSQL sau khi Redis bị mất.
+Job handler:
 
-## Thiết kế notification adapter
+- Hoạt động theo at-least-once.
+- Dùng stable idempotency key theo business action, recipient, channel và policy version.
+- Kiểm tra stale job bằng deadline/alert version.
+- Ghi attempt và sanitized error.
+- Retry exponential backoff; phân biệt permanent/transient error.
+- Đưa job hết retry vào dead-letter/failed set có metric và runbook.
+- Không coi retry là alert hoặc delivery mới.
 
-Giữ nghiệp vụ cảnh báo độc lập với nhà cung cấp:
+Chạy reconciliation định kỳ để tìm deadline/alert thiếu job, job không còn hợp lệ và delivery stuck. Phải test kịch bản Redis trống.
+
+## 9. Notification provider
+
+Dùng interface tương đương:
 
 ```ts
 type NotificationChannel = 'push' | 'email' | 'sms' | 'voice';
@@ -152,22 +230,18 @@ interface NotificationProvider {
 }
 ```
 
-Định tuyến qua `NotificationDispatcher`; không gọi Expo hoặc Nodemailer trực tiếp từ alert domain service.
+Luôn đi qua `NotificationDispatcher`; alert domain không import Expo SDK hoặc Nodemailer.
 
-Mỗi lần gửi phải có:
+Mỗi delivery tối thiểu có:
 
-- `notification_delivery.id`
-- `idempotency_key`
-- `provider`
-- `provider_message_id` nếu có
-- `status`: queued, sent, delivered, failed hoặc unknown
-- số lần thử và lỗi gần nhất
+- `id`, `idempotency_key`, `channel`, `provider`.
+- `recipient_ref` an toàn; tránh nhân bản PII không cần thiết.
+- `provider_message_id` nếu có.
+- `status`: `queued | sent | delivered | failed | unknown`.
+- `attempt_count`, `last_attempt_at`, `last_error_code`, sanitized detail.
+- `template_key`, `template_version`, correlation/alert ID.
 
-Xử lý job theo nguyên tắc at-least-once nhưng ngăn tác dụng phụ trùng bằng idempotency key. Không coi retry là một lần cảnh báo mới.
-
-## Cấu hình Gmail cho MVP
-
-Dùng Gmail chỉ như một adapter tạm thời. Đọc bí mật từ môi trường:
+Gmail MVP:
 
 ```text
 GMAIL_USER=
@@ -176,21 +250,19 @@ EMAIL_FROM_NAME=I'm Okay
 PUBLIC_APP_URL=
 ```
 
-Không commit App Password, access token hoặc địa chỉ email cá nhân vào source. Yêu cầu bật xác minh hai bước trên tài khoản Google trước khi tạo App Password.
+- Bật Google 2-Step Verification trước khi tạo App Password.
+- Không commit App Password/token/email cá nhân.
+- Gmail `accepted` chỉ chuyển delivery thành `sent`; không suy ra đã đọc.
+- Bọc trong `GmailEmailProvider` để có thể thay bằng SES/Resend.
 
-Bao bọc Gmail trong `GmailEmailProvider` để sau này thay bằng Resend, Amazon SES hoặc nhà cung cấp khác mà không đổi alert workflow. Ghi trạng thái `sent` khi Gmail chấp nhận yêu cầu; không suy diễn rằng người nhận đã đọc.
+Expo Push:
 
-## Xử lý push notification
+- Lưu nhiều device token/user với platform, last seen và enabled state.
+- Disable token khi receipt nói token không còn hợp lệ.
+- Push chỉ là reminder channel trong MVP.
+- Local notification có thể bổ trợ UX nhưng không quyết định deadline/alert.
 
-Lưu nhiều device token cho một người dùng. Theo dõi platform, thời điểm cập nhật và trạng thái token. Vô hiệu hóa token khi nhà cung cấp báo token không còn hợp lệ.
-
-Không dùng local notification hoặc tác vụ nền trên điện thoại làm bộ đếm chính. Mobile có thể lên lịch nhắc cục bộ như lớp phụ trợ, nhưng backend phải quyết định deadline và phát cảnh báo.
-
-Push chỉ là kênh nhắc trong MVP. Ghi rõ giới hạn này trong UI onboarding: ứng dụng cần Internet và push có thể bị chặn bởi cài đặt hệ điều hành.
-
-## Bắt đầu với mô hình dữ liệu
-
-Tạo tối thiểu các entity:
+## 10. Mô hình dữ liệu tối thiểu
 
 ```text
 users
@@ -206,78 +278,192 @@ notification_deliveries
 audit_logs
 ```
 
-Lưu mọi timestamp ở UTC và chuyển sang múi giờ người dùng khi hiển thị. Lưu `timezone` dạng IANA, ví dụ `Asia/Ho_Chi_Minh`. Không lưu deadline chỉ bằng giờ/phút địa phương.
+Quy tắc:
 
-Không xóa cứng check-in, alert hoặc delivery log qua API người dùng. Khi cần quyền xóa dữ liệu, dùng quy trình riêng có audit và chính sách lưu giữ rõ ràng.
+- Dùng UTC cho timestamp; IANA timezone như `Asia/Ho_Chi_Minh` cho hiển thị/tính lịch có chủ ý.
+- Không lưu deadline chỉ bằng giờ/phút local.
+- Dùng database unique constraint cho invariant, không chỉ check trong app.
+- Không hard-delete check-in, alert, delivery hoặc audit qua API thông thường.
+- Account deletion là workflow riêng có retention/anonymization policy và audit.
+- Migration tiến về phía trước; không sửa migration đã chạy trên shared environment.
+- Seed/test data dùng danh tính giả; không dùng email/số điện thoại cá nhân.
 
-## Bảo vệ liên kết phản hồi
+## 11. Public invitation và alert link
 
-Cho liên hệ phản hồi qua URL dùng một lần hoặc token có hạn. Chỉ lưu hash của token trong database. Giới hạn quyền của link vào đúng alert và đúng contact.
+- Sinh token đủ entropy bằng CSPRNG; chỉ lưu hash.
+- Token có expiry, scope đúng invitation/alert/contact/action và có thể revoke.
+- One-time action phải atomically consume token; GET không được thay đổi state.
+- Rate limit và tránh phân biệt chi tiết token không tồn tại/hết hạn.
+- Dùng HTTPS, CSP phù hợp, `Referrer-Policy: no-referrer`, `noindex` và không nhúng third-party analytics trên token page mặc định.
+- Không log URL/token; scrub query/route params trong Sentry.
+- Chỉ hiển thị dữ liệu tối thiểu. Không lộ vị trí, dữ liệu sức khỏe, địa chỉ hoặc toàn bộ danh sách contact.
+- Xác minh chữ ký chính thức cho webhook provider nếu sau này có webhook.
 
-Không để link công khai hiển thị dữ liệu y tế, vị trí hoặc toàn bộ danh sách liên hệ. Khi cần chia sẻ vị trí trong tương lai, hiển thị thời điểm thu thập và hết hạn quyền xem.
+## 12. UX và chuyển Stitch sang code
 
-Xác minh webhook từ mọi nhà cung cấp bằng chữ ký chính thức. Áp dụng rate limit cho đăng nhập, check-in, gửi lại lời mời và phản hồi alert.
-
-## Thiết kế trải nghiệm
-
-Giữ màn hình chính tập trung vào:
+Trang chủ phải làm rõ trong khoảng ba giây:
 
 ```text
 Bạn có ổn không?
 [ Tôi vẫn ổn ]
 Lần xác nhận gần nhất
-Thời hạn kế tiếp
+Thời hạn tiếp theo
 ```
 
-Yêu cầu xác nhận mạnh hơn khi tắt bảo vệ, thay đổi liên hệ hoặc hủy cảnh báo đã kích hoạt; không bắt nhập PIN cho mọi check-in.
+Quy tắc UX:
 
-Mọi chế độ snooze phải có `ends_at`. Không cung cấp snooze vô thời hạn trên màn hình chính. Phân biệt rõ “diễn tập” và “cảnh báo thật” trong tiêu đề, màu sắc và nội dung email.
+- Chỉ một primary CTA trên mỗi screen.
+- Warning, alert, SOS và drill phân biệt bằng icon + wording + color.
+- SOS yêu cầu giữ ba giây hoặc accessible two-step alternative.
+- Xác nhận mạnh khi tắt bảo vệ, xóa contact hoặc hủy alert đã gửi; không bắt PIN cho check-in thường.
+- Offline không hiển thị check-in thành công giả.
+- Touch target tối thiểu 48×48, focus rõ, screen-reader label đầy đủ và layout chịu font scaling.
+- Copy tiếng Việt tự nhiên, đúng dấu, bình tĩnh, không đổ lỗi.
 
-Đáp ứng khả năng truy cập: vùng bấm lớn, tương phản tốt, không chỉ dùng màu để biểu đạt trạng thái và hỗ trợ trình đọc màn hình.
+Khi code từ Stitch:
 
-## Kiểm thử các rủi ro trước
+1. Đọc tracker/metadata và lấy đúng selected screen qua Stitch MCP nếu cần.
+2. Xem screenshot để hiểu visual intent; đọc HTML để tham khảo hierarchy, spacing và content.
+3. Chuyển `DESIGN.md` thành typed design tokens; không rải hex/radius trong screen code.
+4. Tách screen thành semantic component và state; không copy generated HTML/CSS nguyên khối.
+5. Dùng data giả/chế độ Storybook hoặc preview trước khi nối API.
+6. Implement loading, empty, error, offline, disabled và accessibility state.
+7. So sánh visual với Stitch ở viewport yêu cầu, nhưng ưu tiên usability/accessibility hơn pixel-copy có lỗi.
+8. Cập nhật tracker khi code làm lộ design gap; sửa selected screen thay vì tạo visual direction mới tùy tiện.
 
-Viết unit test cho:
+## 13. Quy trình triển khai theo loại thay đổi
 
-- Mọi preset 24/36/48 giờ.
-- Múi giờ và thay đổi timezone.
-- Check-in ngay trước hoặc đúng lúc deadline.
-- Hai request check-in đồng thời.
-- Snooze hết hạn.
-- Hủy alert sau khi một phần notification đã gửi.
+### Feature nghiệp vụ
 
-Viết integration test cho:
+1. Viết acceptance criteria và xác định invariant.
+2. Viết/cập nhật pure domain test.
+3. Cập nhật schema/migration nếu cần.
+4. Implement repository/service trong transaction boundary.
+5. Implement API contract và authorization.
+6. Implement queue/provider side effect sau commit.
+7. Nối client state và error handling.
+8. Chạy unit, integration và E2E liên quan.
 
-- API -> database -> queue -> worker.
-- Retry Gmail/Expo nhưng không gửi trùng.
-- Worker restart giữa lúc xử lý job.
+### Schema/migration
+
+1. Kiểm tra data shape và migration hiện có.
+2. Ưu tiên additive/expand-contract migration.
+3. Backfill bằng job/script idempotent nếu dữ liệu lớn.
+4. Không drop/rename cột đang được consumer dùng trong cùng release.
+5. Test migration từ database trống và snapshot gần production.
+
+### Notification/provider
+
+1. Viết provider contract test với fake.
+2. Map transient/permanent errors rõ ràng.
+3. Thêm timeout, retry và idempotency trước smoke test thật.
+4. Dùng test account/recipient chuyên dụng.
+5. Không gửi thật trong CI mặc định.
+6. Cập nhật runbook/quota/cost khi provider thay đổi.
+
+### Bug alert/deadline
+
+1. Dừng và tái hiện bằng clock kiểm soát; không test bằng sleep thật.
+2. Kiểm tra DB state, audit, queue và delivery theo cùng correlation ID.
+3. Xác định race/retry/stale job/timezone trước khi sửa UI.
+4. Thêm regression test thất bại trước hoặc cùng fix.
+5. Nếu đã ảnh hưởng production, giữ audit và viết incident note; không che bằng xóa log.
+
+### Deploy/release
+
+1. Kiểm tra environment target và diff migration.
+2. Chạy CI, smoke test staging và backup/restore checkpoint.
+3. Deploy API/worker theo thứ tự tương thích schema.
+4. Xác minh health, queue lag, reconciliation, push/email smoke.
+5. Rollout client theo nhóm; theo dõi error/notification metrics.
+6. Rollback code bằng version cũ; không rollback migration phá dữ liệu nếu chưa có kế hoạch được kiểm chứng.
+
+## 14. Kiểm thử rủi ro
+
+Unit bắt buộc:
+
+- Preset 24/36/48 giờ và timeline policy.
+- UTC/timezone/DST và thay đổi timezone.
+- Check-in ngay trước, đúng và sau deadline.
+- Hai check-in đồng thời/idempotent retry.
+- Mọi alert transition hợp lệ và không hợp lệ.
+- Snooze expiry, SOS guard và drill labeling.
+- Cancel/correction sau khi một phần notification đã gửi.
+
+Integration bắt buộc:
+
+- API → DB → outbox/queue → worker.
+- Retry Expo/Gmail qua fake mà không gửi trùng.
+- Worker restart trong khi xử lý.
 - Redis trống và reconciliation dựng lại job.
-- Liên hệ thứ nhất không phản hồi và hệ thống chuyển tiếp.
-- Token phản hồi hết hạn hoặc đã dùng.
+- Contact ưu tiên không phản hồi và escalation.
+- Invitation/response token hết hạn, đã dùng, revoke và concurrent submit.
+- User check-in sau khi contact đã nhận alert.
 
-Không dùng Gmail hoặc Expo thật trong test mặc định. Cung cấp fake provider ghi lại request; chỉ chạy smoke test bên ngoài khi có biến môi trường chuyên dụng.
+Client/E2E bắt buộc:
 
-## Tuân theo quy trình khi thay đổi dự án
+- Onboarding resume và auth expiry.
+- Push denied/disabled.
+- Check-in success, offline, timeout và duplicate tap.
+- Dynamic font/screen reader/focus order.
+- Web link ở 390/768/1440 px.
+- SOS accidental tap và accessible alternative.
 
-1. Đọc skill này và kiểm tra source hiện có trước khi đề xuất kiến trúc mới.
-2. Xác định thay đổi thuộc mobile, API, worker, data hay notification.
-3. Viết hoặc cập nhật domain invariant và test trước phần tích hợp dễ lỗi.
-4. Dùng migration tiến về phía trước; không phá dữ liệu người dùng hiện có.
-5. Tách nhà cung cấp khỏi nghiệp vụ bằng interface.
-6. Chạy lint, typecheck, unit test và integration test liên quan.
-7. Ghi rõ giới hạn an toàn còn tồn tại khi bàn giao.
+Dùng fake clock và fake provider trong test mặc định. Chỉ smoke test provider thật khi có env flag và recipient chuyên dụng.
 
-Không thêm AI, SMS, voice, vị trí liên tục hoặc thanh toán chỉ vì chúng có trong roadmap. Chỉ triển khai khi người dùng yêu cầu mở rộng phạm vi.
+## 15. Security, privacy và observability
 
-## Xác định hoàn thành
+- Xác minh auth/ownership trên mọi private resource; không tin ID từ client.
+- Rate limit login, check-in, invitation resend, SOS và public response.
+- Validate input bằng Zod/class-validator tại boundary; escape template output.
+- Không log authorization header, cookie, public token, App Password, email body hay dữ liệu vị trí/sức khỏe.
+- Dùng correlation ID xuyên API, job, delivery và audit.
+- Sentry scrub PII; analytics chỉ thu dữ liệu cần thiết.
+- Theo dõi API error/latency, worker heartbeat, queue lag, deadline thiếu job, reconciliation repair và provider failure.
+- Backup PostgreSQL và diễn tập restore; không chỉ tin vào cấu hình backup.
+- Tạo runbook cho provider outage, queue backlog, Redis loss, migration fail và public-token incident.
 
-Chỉ coi một tính năng cảnh báo hoàn thành khi:
+## 16. Definition of Done
 
-- Có trạng thái và bất biến nghiệp vụ rõ ràng.
-- Chạy trên backend, không phụ thuộc app đang mở.
-- Có idempotency và retry phù hợp.
-- Có audit log cho tác vụ quan trọng.
-- Có test đường thành công và ít nhất một đường lỗi.
-- Không làm lộ bí mật hoặc dữ liệu của contact.
-- UI mô tả trung thực giới hạn của hệ thống.
+Một feature thông thường hoàn thành khi:
 
+- Acceptance criteria và authorization rule được đáp ứng.
+- Loading/empty/error/offline state hợp lý.
+- Lint, format, typecheck, unit/integration test liên quan xanh.
+- Migration, OpenAPI, docs và roadmap được cập nhật nếu cần.
+- Không lộ secret/PII; accessibility được kiểm tra.
+
+Feature cảnh báo/notification chỉ hoàn thành khi thêm:
+
+- State/invariant rõ và chạy trên backend khi app đóng.
+- Transaction/idempotency/retry/stale-job handling.
+- Audit log và correlation ID.
+- Test đường thành công, provider fail, worker restart và duplicate attempt.
+- UI nói trung thực trạng thái kênh và giới hạn hệ thống.
+
+Không đánh dấu complete chỉ vì code compile hoặc email provider trả `accepted`.
+
+## 17. Kiểm tra và bàn giao cho session sau
+
+Khi repository đã scaffold, chạy các lệnh tương đương do root `package.json` quy định, dự kiến:
+
+```text
+pnpm lint
+pnpm format:check
+pnpm typecheck
+pnpm test
+pnpm test:integration
+pnpm build
+```
+
+Không bịa lệnh nếu repo chưa scaffold; đọc scripts thực tế trước khi chạy.
+
+Trước khi kết thúc một thay đổi lớn:
+
+1. Ghi rõ kết quả, file đã thay đổi và test đã chạy.
+2. Nêu test chưa chạy hoặc giới hạn còn lại.
+3. Cập nhật owner plan trong `docs/plans/` khi task/test/Definition of Done thay đổi; chỉ cập nhật `docs/DEVELOPMENT-ROADMAP.md` khi milestone/gate/dependency thay đổi.
+4. Cập nhật `README.md` khi trạng thái dự án hoặc setup thay đổi.
+5. Cập nhật Stitch tracker/metadata khi selected design thay đổi.
+6. Tạo/cập nhật ADR khi quyết định kiến trúc thay đổi.
+7. Không commit/push/deploy trừ khi yêu cầu bao gồm hành động đó.
