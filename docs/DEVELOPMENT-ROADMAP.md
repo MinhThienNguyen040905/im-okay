@@ -25,7 +25,7 @@ Không nhân bản task chi tiết vào master. Khi thay đổi một hệ thố
 
 ## 2. Trạng thái hiện tại
 
-Mốc tham chiếu: 2026-08-01.
+Mốc tham chiếu: 2026-08-02.
 
 | Hạng mục | Trạng thái | Nguồn theo dõi |
 |---|---|---|
@@ -33,10 +33,10 @@ Mốc tham chiếu: 2026-08-01.
 | Design system | Đã tạo | `design/stitch/DESIGN.md` |
 | Mobile screens | Đã chọn M01–M12 | `design/stitch/05-SCREEN-TRACKER.md` |
 | Contact web screens | Đã chọn W01–W05 | `design/stitch/05-SCREEN-TRACKER.md` |
-| Prototype/state variants | Chưa hoàn tất | Stitch tracker |
+| Navigation contract/state variants | Mobile MA0 hoàn tất; Stitch không hỗ trợ link canvas | Stitch tracker |
 | Responsive/accessibility QA | Chưa hoàn tất | Stitch tracker |
-| Monorepo/source code | Chưa scaffold | Plan 05 |
-| Mobile/web/API/worker | Chưa triển khai | Plan 01–04 |
+| Monorepo/source code | Đã có workspace tối thiểu và `apps/mobile`; DI1 chưa hoàn tất | Plan 01, 05 |
+| Mobile/web/API/worker | Mobile MA1 hoàn tất; web/API/worker chưa scaffold | Plan 01–04 |
 | Staging/production | Chưa tạo | Plan 05–06 |
 
 ## 3. Phạm vi MVP
@@ -127,7 +127,7 @@ Monorepo + local infra + CI
 
 Owner plans: 01, 02, 06.
 
-- Nối prototype cho các flow chính.
+- Chốt navigation contract không có đường cụt cho các flow chính; click-through được triển khai và kiểm thử trong app/web vì Stitch Web không hỗ trợ link giữa các screen độc lập.
 - Hoàn thiện loading/offline/error/expired/resolved variants.
 - QA mobile font scaling và web 390/768/1440 px.
 - Chốt ADR cho monorepo, web runtime, auth, queue, email và hosting.
@@ -304,4 +304,3 @@ Chỉ mở roadmap mới sau khi MVP ổn định và người dùng yêu cầu.
 - Thanh toán.
 
 Không tự động thêm AI đánh giá tình trạng hoặc liên hệ cơ quan cấp cứu.
-

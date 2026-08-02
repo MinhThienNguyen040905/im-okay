@@ -1,0 +1,27 @@
+{
+  "expo": {
+    "name": "I'm Okay",
+    "slug": "im-okay",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "imokay",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.imokay.app"
+    },
+    "android": {
+      "package": "com.imokay.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#F7FAF9"
+      },
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": true
+    },
+    "plugins": ["expo-router", "@sentry/react-native/expo"],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

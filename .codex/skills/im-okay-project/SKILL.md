@@ -70,15 +70,20 @@ Khi có xung đột:
 
 ## 4. Trạng thái dự án hiện tại
 
-Tại mốc 2026-08-01:
+Tại mốc 2026-08-02:
 
-- Repository ở giai đoạn product/design, chưa có source app/backend.
+- Mobile MA0 và MA1 đã hoàn tất; source Expo nằm ở `apps/mobile`.
+- Workspace pnpm/Turborepo hiện là phần tối thiểu cho mobile; DI1 chưa hoàn tất ba app còn lại, shared config và CI.
+- Mobile dùng Expo SDK 57, React Native 0.86, Expo Router `src/app`, TypeScript strict, Jest và React Native Testing Library.
+- Typed public env, design tokens, shared components, root error boundary, Sentry/log scrub và navigation shell đã có; xem `docs/adr/0001-mobile-foundation.md`.
+- Root route hiện tạm vào main tabs; MA2 phải thay bằng session/onboarding restoration.
+- Android/iOS export, lint, typecheck và MA1 test đã xanh tại thời điểm bàn giao.
+- Backend, contact web và worker chưa có source.
 - Stitch project `I’m Okay Safety System`, ID `9249994988754984867`, private.
 - Design system asset `assets/cbd4d1ec489847ac84e45f592436c1f3`.
 - Đã chọn 12 mobile screens M01–M12 và 5 web screens W01–W05.
-- Prototype, state variants, font scaling và responsive QA chưa hoàn tất.
-- M11/M12 truy xuất được theo screen ID dù API danh sách canvas có thể chưa hiển thị.
-- Preview M01/W02 có thể bị cache trước targeted edit; đọc tracker/metadata trước khi QA lại.
+- Mobile state variants, font scaling pass và navigation contract đã hoàn tất; Stitch Web không hỗ trợ cross-screen prototype links.
+- Responsive/accessibility QA cho contact web vẫn chưa hoàn tất.
 
 Không giữ phần này như progress tracker vĩnh viễn. Sau mỗi milestone lớn, cập nhật README/roadmap và rút gọn mốc này nếu đã lỗi thời.
 

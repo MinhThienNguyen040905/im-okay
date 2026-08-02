@@ -1,12 +1,20 @@
-# QA prototype theo flow
+# QA navigation theo flow
 
-Trong Stitch Web, nối các screen đã chọn theo những flow sau, sau đó review prototype end-to-end:
+Stitch Web không hỗ trợ nối interaction giữa các screen độc lập. Dùng tài liệu này làm navigation contract cho Expo Router/contact-web routes và làm checklist review runtime/E2E:
 
-- Onboarding: `M01 Chào mừng` → `M02 Đăng nhập` → `M03 Thông tin cơ bản` → `M04 Thiết lập check-in` → `M05 Quyền thông báo` → `M06 Trang chủ`.
+- Onboarding: `M01 Giới thiệu` → `M02 Đăng nhập` → `M03 Thiết lập hồ sơ` → `M04 Quyền thông báo` → `M05 Kế hoạch an toàn` → `M06 Trang chủ`.
 - Thêm người liên hệ: `M06 Trang chủ` → `M07 Người liên hệ tin cậy` → `M08 Mời người liên hệ` → `W01 Chấp nhận lời mời` → quay lại `M07` với trạng thái đã chấp nhận.
 - Xử lý cảnh báo: `M09 Cảnh báo đang hoạt động` → `W02 Chi tiết cảnh báo` → `W03 Xác nhận sẽ kiểm tra` → `W04 Cập nhật tình hình` → `W05 Hoàn tất`.
-- SOS: `M06 Trang chủ` → giữ nút SOS 3 giây → `M10 SOS đã gửi` → `W02 Chi tiết cảnh báo` → tiếp tục flow xử lý cảnh báo.
-- Quản lý: dùng bottom navigation để chuyển giữa `M06 Trang chủ`, `M07 Người liên hệ tin cậy`, `M11 Lịch sử` và `M12 Cài đặt`.
+- SOS: `M06 Trang chủ` → `M10 Trợ giúp khẩn cấp` → giữ nút 3 giây hoặc dùng xác nhận hai bước → `SOS - Đã gửi yêu cầu trợ giúp` → `M09 Cảnh báo` hoặc `W02 Chi tiết cảnh báo` theo vai trò.
+- Quản lý: bottom navigation chỉ chuyển giữa `M06 Trang chủ`, `M11 Lịch sử` và `M12 Cài đặt`. `M07–M10` là màn hình con và dùng Back/Close.
+
+Acceptance checks:
+
+- Mỗi CTA chính, Back/Close, retry, cancel và terminal state có đích đến xác định.
+- Không có trạng thái lỗi/offline nào báo thành công giả hoặc rơi vào dead end.
+- Auth expired quay lại route hợp lệ sau đăng nhập; mặc định M06.
+- SOS sent cho phép về M06 hoặc xem M09 accepted-for-sending.
+- Các transition được kiểm thử trên runtime; không coi preview từng screen của Stitch là bằng chứng click-through.
 
 Kiểm tra:
 

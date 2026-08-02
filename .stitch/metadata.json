@@ -35,6 +35,34 @@
     { "screenId": "c5aa18185035476d9f02f993f6d7cea3", "reason": "Illustration asset M01 có text bị cắt" },
     { "screenId": "85a624e5e16f4aad9d30191e12875ad4", "reason": "Illustration asset M01 không chữ, bản được chọn" }
   ],
+  "stateAssets": [
+    { "sourceCode": "M06", "sourceScreenId": "481b794256684316a57f73d7e0bd682b", "states": ["submitting", "success", "offline-failure", "loading", "push-disabled"], "generatedCount": 5 },
+    { "sourceCode": "M04", "sourceScreenId": "2470598ae39d42068a089332f1e8f15b", "states": ["permission-denied", "permission-disabled-later"], "generatedCount": 2 },
+    { "sourceCode": "M02", "sourceScreenId": "8e5b2b6aaeef4e8d92b26f60b2e91185", "states": ["session-expired"], "generatedCount": 1 },
+    { "sourceCode": "M09", "sourceScreenId": "d073d9ee2ca4448e932885f9ee34bb3d", "states": ["triggering", "accepted-for-sending", "partial-channel-failure", "correction-pending", "cancelled-before-send"], "generatedCount": 5 },
+    { "sourceCode": "M10", "sourceScreenId": "9ea098fa3ea64810a7eea0e7e0985911", "states": ["hold-in-progress", "accessible-two-step"], "generatedCount": 2 },
+    { "sourceCode": "M10", "screenId": "cd6ac89b2b7f41a08bc8cbbb11a29161", "title": "SOS - Đã gửi yêu cầu trợ giúp - I'm Okay", "states": ["sos-accepted-for-sending"], "generatedCount": 1 }
+  ],
+  "ma0": {
+    "status": "completed-navigation-contract",
+    "performedAt": "2026-08-02",
+    "stateDesignCount": 16,
+    "accessibilityPass": {
+      "status": "completed-by-stitch-mcp",
+      "screenCodes": ["M01", "M02", "M03", "M04", "M05", "M06", "M07", "M08", "M09", "M10", "M11", "M12"],
+      "requirements": ["360-390px", "200%-text-scaling", "48px-touch-targets", "safe-areas", "screen-reader-status", "icon-plus-wording"]
+    },
+    "prototype": {
+      "mapping": "design/stitch/06-MA0-DESIGN-READINESS.md",
+      "status": "unsupported-by-stitch-covered-by-navigation-contract",
+      "reason": "Verified on 2026-08-02 through connected Chrome Browser and the official Stitch Controls documentation: Stitch Web supports screen selection, movement, editing, annotation, per-screen preview, code/export and download, but not cross-screen prototype links.",
+      "implementationTarget": "Expo Router navigation plus runtime E2E"
+    },
+    "localArtifactRefresh": {
+      "status": "blocked-by-sandbox-network",
+      "note": "Remote get_screen succeeded for M01-M12 after edit; local HTML/PNG remain pre-MA0 snapshots."
+    }
+  },
   "canvasValidation": {
     "validatedAt": "2026-08-01",
     "selectedProductScreens": 17,
@@ -45,5 +73,5 @@
     ],
     "note": "M11 và M12 truy xuất được qua get_screen; list_screens/get_project chưa đồng bộ hai screen instance này."
   },
-  "lastSyncedAt": "2026-08-01T14:10:00Z"
+  "lastSyncedAt": "2026-08-02T02:51:26Z"
 }

@@ -1,0 +1,22 @@
+{
+  "name": "im-okay",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@11.18.0",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "dev:mobile": "pnpm --filter @im-okay/mobile start",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "typecheck": "turbo run typecheck"
+  },
+  "devDependencies": {
+    "prettier": "3.9.6",
+    "turbo": "2.10.8"
+  }
+}

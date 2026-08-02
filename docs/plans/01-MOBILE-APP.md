@@ -84,26 +84,37 @@ apps/mobile/src/
 
 ### MA0 — Design readiness
 
-- [ ] Nối prototype M01→M06, M06→M07/M09/M10/M11/M12.
-- [ ] Chốt state check-in success/error/offline/loading.
-- [ ] Chốt push denied/disabled và auth expired.
-- [ ] Chốt SOS hold progress và accessible two-step alternative.
-- [ ] QA M01/M02…M12 với font scaling.
+- [x] Chốt navigation contract M01→M06, M06→M07/M09/M10/M11/M12. Đã kiểm chứng qua Stitch Web và tài liệu Controls chính thức rằng Stitch không hỗ trợ nối cross-screen prototype; contract này sẽ được hiện thực bằng Expo Router và kiểm thử E2E.
+- [x] Chốt state check-in success/error/offline/loading.
+- [x] Chốt push denied/disabled và auth expired.
+- [x] Chốt SOS hold progress và accessible two-step alternative.
+- [x] QA M01/M02…M12 với font scaling bằng Stitch accessibility consistency pass; runtime verification tiếp tục ở MA7.
 
 Exit: tracker mobile sẵn sàng implementation; không còn luồng cốt lõi phải tự thiết kế trong lúc code.
 
+Biên bản và mapping MA0: `design/stitch/06-MA0-DESIGN-READINESS.md`.
+
 ### MA1 — App foundation
 
-- [ ] Scaffold Expo/Expo Router và TypeScript strict.
-- [ ] Thêm typed environment config cho public client values.
-- [ ] Implement theme/tokens, typography, spacing, icon wrapper.
-- [ ] Implement Button, Input, Card, Badge, Screen, ErrorState, LoadingState.
-- [ ] Thiết lập root error boundary, Sentry và sanitized logging.
-- [ ] Tạo auth/onboarding/main route groups.
-- [ ] Tạo bottom tabs: Trang chủ, Lịch sử, Cài đặt.
-- [ ] Thiết lập unit/component test và preview fixture.
+- [x] Scaffold Expo/Expo Router và TypeScript strict.
+- [x] Thêm typed environment config cho public client values.
+- [x] Implement theme/tokens, typography, spacing, icon wrapper.
+- [x] Implement Button, Input, Card, Badge, Screen, ErrorState, LoadingState.
+- [x] Thiết lập root error boundary, Sentry và sanitized logging.
+- [x] Tạo auth/onboarding/main route groups.
+- [x] Tạo bottom tabs: Trang chủ, Lịch sử, Cài đặt.
+- [x] Thiết lập unit/component test và preview fixture.
 
 Exit: app chạy iOS/Android, navigation shell hoạt động, shared component có accessibility labels.
+
+Hoàn tất ngày 02/08/2026 tại `apps/mobile` với Expo SDK 57. Bằng chứng kiểm chứng:
+
+- `expo install --check`: dependency tương thích.
+- TypeScript, ESLint và 7 test case trong 5 suite đều xanh.
+- Expo Router integration test mở `/history` và xác nhận ba bottom tab.
+- `expo export --platform android` và `expo export --platform ios` đều bundle thành công.
+- Sentry mặc định tắt khi chưa có DSN; public env được validate và telemetry scrub token/PII.
+- ADR: `docs/adr/0001-mobile-foundation.md`.
 
 ### MA2 — Auth và onboarding M01–M05
 
@@ -233,7 +244,6 @@ E2E:
 
 ## 8. Bước tiếp theo
 
-1. Hoàn tất MA0 trong Stitch.
-2. Chờ scaffold workspace từ Plan 05.
-3. Implement MA1 song song với API foundation.
-
+1. Triển khai MA2 theo navigation contract MA0 và thay root redirect tạm bằng session/onboarding restoration.
+2. Phối hợp API foundation cho `/me`, `/me/devices`, `/safety-plan`; không hard-code deadline ở client.
+3. Hoàn tất DI1 cho ba app còn lại, shared config và CI; workspace hiện chỉ có phần tối thiểu để chạy mobile.

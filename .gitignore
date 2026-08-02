@@ -1,31 +1,37 @@
 # Dependencies
 node_modules/
 
-# Environment and secrets
-.env
-.env.*
-!.env.example
-
-# Build output
+# Build output and Expo / React Native
 dist/
 build/
 .expo/
 .next/
+web-build/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Tests and tooling
 coverage/
+.turbo/
 
 # Generated Stitch exports
 .stitch/designs/
 
-# Logs
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+
+# Editors and OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+.idea/
+.vscode/
 *.log
 npm-debug.log*
 yarn-debug.log*
 pnpm-debug.log*
-
-# Editors and OS
-.vscode/
-.idea/
-.DS_Store
-Thumbs.db
-Desktop.ini
-
