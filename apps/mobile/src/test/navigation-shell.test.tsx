@@ -2,6 +2,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Slot } from "expo-router";
 import { renderRouter, screen } from "expo-router/testing-library";
 
+import MainTabsLayout from "@/app/(main)/_layout";
+import HistoryScreen from "@/app/(main)/history";
+
 jest.mock("@/features/auth/AuthProvider", () => ({
   useAuth: () => ({
     session: {
@@ -29,8 +32,11 @@ describe("navigation shell", () => {
   it("opens the History tab from a deep link", async () => {
     await renderRouter(
       {
-        appDir: "src/app",
-        overrides: { _layout: TestRootLayout },
+        _layout: TestRootLayout,
+        "(main)/_layout": MainTabsLayout,
+        "(main)/index": () => null,
+        "(main)/history": HistoryScreen,
+        "(main)/settings": () => null,
       },
       { initialUrl: "/history" },
     );

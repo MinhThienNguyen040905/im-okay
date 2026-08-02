@@ -23,6 +23,7 @@ export default function WelcomeScreen() {
             label="Bắt đầu thiết lập"
             loading={continueMutation.isPending}
             onPress={() => continueMutation.mutate()}
+            testID="welcome-start-button"
           />
           <Button
             accessibilityLabel="Tôi đã có tài khoản"

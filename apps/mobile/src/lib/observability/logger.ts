@@ -1,6 +1,6 @@
 const REDACTED = "[REDACTED]";
 const SENSITIVE_KEY =
-  /authorization|cookie|password|secret|token|email|phone|address|location|dsn/i;
+  /authorization|cookie|password|secret|token|email|phone|address|location|dsn|(?:^|_)(?:user|profile|contact|recipient)(?:_?id|_?name|_?email|_?phone)$|(?:^|_)(?:user|display|device)?name$/i;
 const EMAIL_VALUE = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi;
 const BEARER_VALUE = /\bBearer\s+[A-Z0-9._~+/-]+=*/gi;
 const TOKEN_QUERY_VALUE = /([?&](?:token|code|key|secret)=)[^&\s]+/gi;

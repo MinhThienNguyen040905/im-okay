@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Redirect, useRouter } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
@@ -13,6 +13,7 @@ import {
   Screen,
 } from "@/components";
 import { env } from "@/config/env";
+import { useAccessibilityFocus } from "@/features/accessibility/focus";
 import { AlertAcceptedState } from "@/features/alerts/AlertAcceptedState";
 import { createAlertsApi } from "@/features/alerts/api";
 import {
@@ -42,6 +43,8 @@ const SosContent = ({ session }: { session: AuthSession }) => {
   const queryClient = useQueryClient();
   const router = useRouter();
   const [twoStep, setTwoStep] = useState(false);
+  const { focus: focusTwoStep, ref: twoStepTitleRef } =
+    useAccessibilityFocus<Text>("Bước hai trên hai, xác nhận gửi SOS.");
   const [accepted, setAccepted] = useState<AlertContextSnapshot | null>(null);
   const queryKey = alertContextQueryKey(session.user.id);
 
@@ -55,6 +58,10 @@ const SosContent = ({ session }: { session: AuthSession }) => {
   const { refetch } = contextQuery;
   const refresh = useCallback(() => void refetch(), [refetch]);
   useAlertContextRefresh(refresh);
+
+  useEffect(() => {
+    if (twoStep) focusTwoStep();
+  }, [focusTwoStep, twoStep]);
 
   const sosMutation = useMutation({
     mutationFn: async () => {
@@ -193,7 +200,12 @@ const SosContent = ({ session }: { session: AuthSession }) => {
         </>
       ) : (
         <Card style={styles.twoStepCard}>
-          <Text accessibilityRole="header" style={styles.twoStepTitle}>
+          <Text
+            accessible
+            accessibilityRole="header"
+            ref={twoStepTitleRef}
+            style={styles.twoStepTitle}
+          >
             Bước 2/2 · Xác nhận gửi SOS
           </Text>
           <Text style={styles.twoStepBody}>

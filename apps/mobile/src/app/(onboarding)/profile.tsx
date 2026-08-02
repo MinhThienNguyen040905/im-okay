@@ -64,6 +64,7 @@ export default function ProfileScreen() {
           label="Lưu và tiếp tục"
           loading={mutation.isPending}
           onPress={handleSubmit((values) => mutation.mutate(values))}
+          testID="profile-save-button"
         />
       }
     >
@@ -93,6 +94,7 @@ export default function ProfileScreen() {
               onBlur={field.onBlur}
               onChangeText={field.onChange}
               placeholder="Ví dụ: Minh"
+              testID="profile-name-input"
               value={field.value}
             />
           )}

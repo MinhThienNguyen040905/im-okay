@@ -26,16 +26,16 @@ Thứ tự sửa lỗi:
 
 ## 3. Test pyramid và ownership
 
-| Lớp | Mục tiêu | Owner chính |
-|---|---|---|
-| Static | Format, lint, typecheck, schema/OpenAPI drift | Mỗi plan + CI |
-| Unit | Domain math/state, validation, component behavior | Plan 01–04 |
-| Integration | API→DB→queue→worker/provider fake | Plan 03–04 |
-| Contract | OpenAPI clients, error/projection/template data | Plan 01–04 |
-| Component | Mobile/web state, accessibility, interaction | Plan 01–02 |
-| E2E | User/contact journeys trên staging | Plan 06 |
-| Resilience | Redis loss, worker restart, provider timeout, restore | Plan 04–06 |
-| Smoke thật | Expo/Gmail với test recipients | Plan 04/06 |
+| Lớp         | Mục tiêu                                              | Owner chính   |
+| ----------- | ----------------------------------------------------- | ------------- |
+| Static      | Format, lint, typecheck, schema/OpenAPI drift         | Mỗi plan + CI |
+| Unit        | Domain math/state, validation, component behavior     | Plan 01–04    |
+| Integration | API→DB→queue→worker/provider fake                     | Plan 03–04    |
+| Contract    | OpenAPI clients, error/projection/template data       | Plan 01–04    |
+| Component   | Mobile/web state, accessibility, interaction          | Plan 01–02    |
+| E2E         | User/contact journeys trên staging                    | Plan 06       |
+| Resilience  | Redis loss, worker restart, provider timeout, restore | Plan 04–06    |
+| Smoke thật  | Expo/Gmail với test recipients                        | Plan 04/06    |
 
 Dùng fake clock và fake providers trong default test. Không chờ 24/36/48 giờ thật.
 
@@ -197,6 +197,11 @@ Chốt ngưỡng SLO/alert sau staging data; không bịa con số production kh
 - [ ] Accessibility/responsive/performance test.
 - [ ] Known limitations, release checklist và runbooks.
 
+Mobile MA7 đã chuẩn bị phần repository: PII/link hardening, EAS profiles, Maestro fixture
+smoke, device matrix và release/rollback runbook. Xem `docs/adr/0007-mobile-release-hardening.md`,
+`docs/qa/MOBILE-MA7-MATRIX.md` và `docs/release/MOBILE-RELEASE-RUNBOOK.md`. Các checkbox QR3/QR4
+vẫn mở vì đây là gate toàn hệ thống trên staging, không chỉ mobile source.
+
 Exit: không cò blocker/critical; full alert/correction/recovery flow được chứng minh.
 
 ### QR5 — Internal alpha
@@ -260,4 +265,3 @@ Ghi con số đã đo vào ADR/SLO document; không chọn budget không có bas
 1. Thiết lập QR1 cùng monorepo/CI.
 2. Hoàn tất design accessibility/state QA trước khi code hàng loạt.
 3. Tạo threat model/retention ADR trước khi public token và beta được mở.
-

@@ -272,13 +272,36 @@ Bằng chứng kiểm chứng client MA6:
 
 ### MA7 — Hardening và release
 
-- [ ] Dynamic font, VoiceOver/TalkBack, focus order và reduced motion.
-- [ ] Device matrix Android/iOS, light/dark behavior theo spec.
-- [ ] Deep/universal links an toàn; app không nhận public token không cần thiết.
-- [ ] Sentry release/source maps và PII scrub.
-- [ ] E2E onboarding/check-in/offline/SOS guard.
-- [ ] Build profile local/staging/production và store signing trong secret manager.
-- [ ] TestFlight/Google Play Internal Testing, staged rollout và rollback plan.
+- [x] Hardening runtime cho dynamic font, semantic/live region, modal focus và reduced motion.
+- [ ] Chạy VoiceOver/TalkBack, external-keyboard focus và font 200% trên device matrix thật.
+- [x] Khóa light behavior theo selected spec và tạo matrix Android/iOS có pass criteria.
+- [ ] Thực thi matrix trên Android/iOS internal build và ghi build ID/thiết bị/kết quả.
+- [x] Incoming/deep link allowlist an toàn; mobile từ chối public contact token và route lạ.
+- [x] Sentry event/log PII scrub, Expo plugin và Metro source-map integration đã cấu hình.
+- [ ] Build staging với Sentry secret rồi xác minh source map upload/symbolication thật.
+- [x] Maestro fixture smoke cho onboarding→check-in→restart; Jest bao phủ offline/timeout và SOS guard.
+- [ ] Chạy remote E2E offline/SOS/alert trên staging với fault injection và test contact đã accept.
+- [x] Tạo EAS profile local/staging/production, release runbook và ranh giới secret/signing.
+- [ ] Thiết lập EAS/store credential trong secret manager và tạo internal build đã ký.
+- [x] Tạo staged-rollout/hold/rollback plan.
+- [ ] Upload và nghiệm thu TestFlight/Google Play Internal Testing.
+
+Phần hardening có thể chứng minh trong repository hoàn tất ngày 02/08/2026. External
+acceptance chưa hoàn tất vì repository chưa có backend/staging, EAS project/credential,
+Sentry project secret, store account, test recipient đã consent hay biên bản thiết bị thật. Không có
+build/submit/deploy nào được thực hiện trong giai đoạn này.
+
+Bằng chứng MA7:
+
+- ADR: `docs/adr/0007-mobile-release-hardening.md`.
+- Device/accessibility matrix: `docs/qa/MOBILE-MA7-MATRIX.md`.
+- Build, signing, internal testing và rollback runbook: `docs/release/MOBILE-RELEASE-RUNBOOK.md`.
+- EAS profiles: `apps/mobile/eas.json`; Maestro smoke: `apps/mobile/.maestro`.
+- ESLint, TypeScript, 105 test case trong 33 suite, `expo install --check` và `expo-doctor`
+  20/20 đều xanh.
+- `expo export --platform all` bundle thành công cho Android, iOS và web.
+- Sentry source-map upload thật có chủ ý chưa chạy do không có
+  `SENTRY_AUTH_TOKEN`/org/project trong workspace.
 
 ## 5. Trạng thái và error contract cần hỗ trợ
 
@@ -337,5 +360,6 @@ E2E:
    chạy accelerated warning/SOS/drill/correction E2E trên staging.
 6. Triển khai BA7 history/settings projection, account-data workflow và recent-auth policy; đối
    chiếu OpenAPI rồi chạy remote acceptance MA6.
-7. Tiếp tục MA7 accessibility/device/E2E/release hardening sau khi backend integration có thể chạy.
+7. Thực thi các external gate MA7 theo matrix/runbook sau khi backend staging, EAS/Sentry/store
+   credential và test recipient đã sẵn sàng.
 8. Hoàn tất DI1 cho ba app còn lại, shared config và CI.

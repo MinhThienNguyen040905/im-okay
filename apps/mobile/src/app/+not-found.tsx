@@ -14,7 +14,7 @@ export default function NotFoundScreen() {
       <Button
         accessibilityLabel="Quay về trang chủ"
         label="Về trang chủ"
-        onPress={() => router.replace("/(main)")}
+        onPress={() => router.replace("/")}
       />
     </Screen>
   );

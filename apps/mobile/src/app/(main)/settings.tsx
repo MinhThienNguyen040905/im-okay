@@ -53,15 +53,29 @@ type SettingsRowProps = {
   danger?: boolean;
 };
 
-const SettingsRow = ({ icon, label, value, onPress, danger }: SettingsRowProps) => {
+const SettingsRow = ({
+  icon,
+  label,
+  value,
+  onPress,
+  danger,
+}: SettingsRowProps) => {
   const content = (
     <>
-      <AppIcon color={danger ? colors.danger : colors.textSecondary} name={icon} size={20} />
+      <AppIcon
+        color={danger ? colors.danger : colors.textSecondary}
+        name={icon}
+        size={20}
+      />
       <View style={styles.rowCopy}>
-        <Text style={[styles.rowLabel, danger && styles.dangerText]}>{label}</Text>
-        {value ? <Text numberOfLines={1} style={styles.rowValue}>{value}</Text> : null}
+        <Text style={[styles.rowLabel, danger && styles.dangerText]}>
+          {label}
+        </Text>
+        {value ? <Text style={styles.rowValue}>{value}</Text> : null}
       </View>
-      {onPress ? <AppIcon color={colors.textSecondary} name="chevron-right" size={20} /> : null}
+      {onPress ? (
+        <AppIcon color={colors.textSecondary} name="chevron-right" size={20} />
+      ) : null}
     </>
   );
   if (!onPress) return <View style={styles.settingsRow}>{content}</View>;
@@ -77,7 +91,9 @@ const SettingsRow = ({ icon, label, value, onPress, danger }: SettingsRowProps) 
   );
 };
 
-const sectionTitle = (label: string) => <Text style={styles.sectionTitle}>{label}</Text>;
+const sectionTitle = (label: string) => (
+  <Text style={styles.sectionTitle}>{label}</Text>
+);
 
 const friendlyError = (error: unknown) =>
   error instanceof SettingsApiError &&
@@ -116,8 +132,11 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
   const api = useMemo(() => createSettingsApi(session), [session]);
   const [displayNameEdit, setDisplayName] = useState<string | null>(null);
   const [timezoneEdit, setTimezone] = useState<string | null>(null);
-  const [intervalHoursEdit, setIntervalHours] = useState<SettingsInterval | null>(null);
-  const [pushPermission, setPushPermission] = useState<PushDecision>(draft.pushDecision);
+  const [intervalHoursEdit, setIntervalHours] =
+    useState<SettingsInterval | null>(null);
+  const [pushPermission, setPushPermission] = useState<PushDecision>(
+    draft.pushDecision,
+  );
   const [formError, setFormError] = useState<string | null>(null);
   const [resultMessage, setResultMessage] = useState<string | null>(null);
 
@@ -129,14 +148,25 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
   const { refetch: refetchSettings } = settingsQuery;
 
   const displayName =
-    displayNameEdit ?? settingsQuery.data?.profile.displayName ?? draft.displayName ?? "";
+    displayNameEdit ??
+    settingsQuery.data?.profile.displayName ??
+    draft.displayName ??
+    "";
   const timezone =
-    timezoneEdit ?? settingsQuery.data?.profile.timezone ?? draft.timezone ?? "UTC";
+    timezoneEdit ??
+    settingsQuery.data?.profile.timezone ??
+    draft.timezone ??
+    "UTC";
   const intervalHours =
-    intervalHoursEdit ?? settingsQuery.data?.safetyPlan.intervalHours ?? draft.intervalHours ?? 36;
+    intervalHoursEdit ??
+    settingsQuery.data?.safetyPlan.intervalHours ??
+    draft.intervalHours ??
+    36;
 
   const refreshDeviceState = useCallback(() => {
-    void getPushPermission().then(setPushPermission).catch(() => undefined);
+    void getPushPermission()
+      .then(setPushPermission)
+      .catch(() => undefined);
   }, []);
   useEffect(() => {
     refreshDeviceState();
@@ -160,7 +190,9 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
       void queryClient.invalidateQueries({
         queryKey: safetyStatusQueryKey(session.user.id),
       });
-      void queryClient.invalidateQueries({ queryKey: historyQueryKey(session.user.id) });
+      void queryClient.invalidateQueries({
+        queryKey: historyQueryKey(session.user.id),
+      });
       setDisplayName(null);
       setTimezone(null);
       setIntervalHours(null);
@@ -171,8 +203,13 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
   );
 
   const profileMutation = useMutation({
-    mutationFn: () => api.updateProfile({ displayName: displayName.trim(), timezone: timezone.trim() }),
-    onSuccess: (projection) => applyProjection(projection, "Máy chủ đã cập nhật hồ sơ và lịch an toàn."),
+    mutationFn: () =>
+      api.updateProfile({
+        displayName: displayName.trim(),
+        timezone: timezone.trim(),
+      }),
+    onSuccess: (projection) =>
+      applyProjection(projection, "Máy chủ đã cập nhật hồ sơ và lịch an toàn."),
   });
   const planMutation = useMutation({
     mutationFn: () => api.updateSafetyPlan(intervalHours),
@@ -184,32 +221,50 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
   });
   const disableMutation = useMutation({
     mutationFn: async () => {
-      const key = await getOrCreateSettingsAttempt(session.user.id, "disable-plan");
+      const key = await getOrCreateSettingsAttempt(
+        session.user.id,
+        "disable-plan",
+      );
       return api.disableSafetyPlan(key);
     },
     onSuccess: async (projection) => {
       await clearSettingsAttempt(session.user.id, "disable-plan");
-      await applyProjection(projection, "Máy chủ đã xác nhận tắt kế hoạch an toàn.");
+      await applyProjection(
+        projection,
+        "Máy chủ đã xác nhận tắt kế hoạch an toàn.",
+      );
     },
   });
   const exportMutation = useMutation({
     mutationFn: async () => {
-      const key = await getOrCreateSettingsAttempt(session.user.id, "account-export");
+      const key = await getOrCreateSettingsAttempt(
+        session.user.id,
+        "account-export",
+      );
       return api.requestAccountExport(key);
     },
     onSuccess: async (projection) => {
       await clearSettingsAttempt(session.user.id, "account-export");
-      await applyProjection(projection, "Yêu cầu xuất dữ liệu đã được máy chủ tiếp nhận.");
+      await applyProjection(
+        projection,
+        "Yêu cầu xuất dữ liệu đã được máy chủ tiếp nhận.",
+      );
     },
   });
   const deletionMutation = useMutation({
     mutationFn: async () => {
-      const key = await getOrCreateSettingsAttempt(session.user.id, "account-deletion");
+      const key = await getOrCreateSettingsAttempt(
+        session.user.id,
+        "account-deletion",
+      );
       return api.requestAccountDeletion(key);
     },
     onSuccess: async (projection) => {
       await clearSettingsAttempt(session.user.id, "account-deletion");
-      await applyProjection(projection, "Yêu cầu xóa tài khoản đã được máy chủ tiếp nhận theo chính sách lưu giữ.");
+      await applyProjection(
+        projection,
+        "Yêu cầu xóa tài khoản đã được máy chủ tiếp nhận theo chính sách lưu giữ.",
+      );
     },
   });
   const signOutMutation = useMutation({
@@ -220,7 +275,9 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
   if (settingsQuery.isPending) {
     return (
       <Screen scrollable={false}>
-        <Text accessibilityRole="header" style={styles.title}>Cài đặt</Text>
+        <Text accessibilityRole="header" style={styles.title}>
+          Cài đặt
+        </Text>
         <LoadingState label="Đang tải cài đặt từ máy chủ…" />
       </Screen>
     );
@@ -229,7 +286,9 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
   if (!projection) {
     return (
       <Screen scrollable={false}>
-        <Text accessibilityRole="header" style={styles.title}>Cài đặt</Text>
+        <Text accessibilityRole="header" style={styles.title}>
+          Cài đặt
+        </Text>
         <ErrorState
           message="Không thể tải projection cài đặt an toàn."
           onRetry={() => void settingsQuery.refetch()}
@@ -241,7 +300,8 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
   const profileInvalid = !displayName.trim() || displayName.trim().length > 80;
   const timezoneInvalid = !isIanaTimezone(timezone.trim());
   const pushReady =
-    pushPermission === "granted" && projection.push.registration === "registered";
+    pushPermission === "granted" &&
+    projection.push.registration === "registered";
   const mutationError =
     profileMutation.error ??
     planMutation.error ??
@@ -269,7 +329,11 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
       "Sau khi máy chủ xác nhận, hệ thống sẽ không tạo deadline hoặc cảnh báo mới. Máy chủ có thể yêu cầu bạn đăng nhập lại.",
       [
         { text: "Giữ kế hoạch", style: "cancel" },
-        { text: "Tắt kế hoạch", style: "destructive", onPress: () => disableMutation.mutate() },
+        {
+          text: "Tắt kế hoạch",
+          style: "destructive",
+          onPress: () => disableMutation.mutate(),
+        },
       ],
     );
   const confirmDeletion = () =>
@@ -278,15 +342,23 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
       "Đây là yêu cầu theo quy trình lưu giữ dữ liệu, không xóa ngay trên thiết bị. Máy chủ có thể yêu cầu xác thực lại.",
       [
         { text: "Hủy", style: "cancel" },
-        { text: "Gửi yêu cầu xóa", style: "destructive", onPress: () => deletionMutation.mutate() },
+        {
+          text: "Gửi yêu cầu xóa",
+          style: "destructive",
+          onPress: () => deletionMutation.mutate(),
+        },
       ],
     );
 
   return (
     <Screen>
       <View style={styles.headerRow}>
-        <Text accessibilityRole="header" style={styles.title}>Cài đặt</Text>
-        {settingsQuery.isFetching ? <Text style={styles.syncing}>Đang đồng bộ…</Text> : null}
+        <Text accessibilityRole="header" style={styles.title}>
+          Cài đặt
+        </Text>
+        {settingsQuery.isFetching ? (
+          <Text style={styles.syncing}>Đang đồng bộ…</Text>
+        ) : null}
       </View>
       {env.dataMode === "fixture" ? (
         <Badge label="Dữ liệu mẫu · không có bảo vệ thật" variant="warning" />
@@ -295,10 +367,14 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
       <Card>
         <View style={styles.profileHeading}>
           <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{projection.profile.displayName.charAt(0).toUpperCase()}</Text>
+            <Text style={styles.avatarText}>
+              {projection.profile.displayName.charAt(0).toUpperCase()}
+            </Text>
           </View>
           <View style={styles.rowCopy}>
-            <Text style={styles.profileName}>{projection.profile.displayName}</Text>
+            <Text style={styles.profileName}>
+              {projection.profile.displayName}
+            </Text>
             <Text style={styles.rowValue}>{projection.profile.email}</Text>
           </View>
         </View>
@@ -341,17 +417,32 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
                 key={hours}
                 accessibilityLabel={`Chu kỳ ${hours} giờ`}
                 accessibilityRole="radio"
-                accessibilityState={{ checked: selected, disabled: !projection.allowedActions.canUpdateSafetyPlan }}
+                accessibilityState={{
+                  checked: selected,
+                  disabled: !projection.allowedActions.canUpdateSafetyPlan,
+                }}
                 disabled={!projection.allowedActions.canUpdateSafetyPlan}
                 onPress={() => setIntervalHours(hours)}
-                style={[styles.intervalOption, selected && styles.intervalSelected]}
+                style={[
+                  styles.intervalOption,
+                  selected && styles.intervalSelected,
+                ]}
               >
-                <Text style={[styles.intervalText, selected && styles.intervalTextSelected]}>{hours} giờ</Text>
+                <Text
+                  style={[
+                    styles.intervalText,
+                    selected && styles.intervalTextSelected,
+                  ]}
+                >
+                  {hours} giờ
+                </Text>
               </Pressable>
             );
           })}
         </View>
-        <Text style={styles.deadline}>Thời hạn do máy chủ trả về: {formatDeadline(projection)}</Text>
+        <Text style={styles.deadline}>
+          Thời hạn do máy chủ trả về: {formatDeadline(projection)}
+        </Text>
         <Button
           accessibilityLabel="Lưu chu kỳ và yêu cầu máy chủ tạo lịch mới"
           disabled={!projection.allowedActions.canUpdateSafetyPlan}
@@ -373,7 +464,13 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
         <SettingsRow
           icon="shield"
           label="Trạng thái bảo vệ"
-          value={projection.safetyPlan.state === "inactive" ? "Đã tắt" : projection.safetyPlan.state === "snoozed" ? "Đang tạm hoãn" : "Đang hoạt động"}
+          value={
+            projection.safetyPlan.state === "inactive"
+              ? "Đã tắt"
+              : projection.safetyPlan.state === "snoozed"
+                ? "Đang tạm hoãn"
+                : "Đang hoạt động"
+          }
         />
       </Card>
 
@@ -386,25 +483,42 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
           value={pushReady ? "Đã bật và đăng ký" : "Chưa sẵn sàng · Mở cài đặt"}
         />
         <View style={styles.divider} />
-        <SettingsRow icon="mail-outline" label="Email của tôi" value={projection.profile.email} />
+        <SettingsRow
+          icon="mail-outline"
+          label="Email của tôi"
+          value={projection.profile.email}
+        />
       </Card>
 
       {sectionTitle("KIỂM TRA HỆ THỐNG")}
       <Card>
-        <SettingsRow icon="campaign" label="Diễn tập cảnh báo" onPress={() => router.push("/sos/drill")} />
+        <SettingsRow
+          icon="campaign"
+          label="Diễn tập cảnh báo"
+          onPress={() => router.push("/sos/drill")}
+        />
         <View style={styles.divider} />
-        <SettingsRow icon="security" label="Kiểm tra quyền thiết bị" onPress={() => void Linking.openSettings()} />
+        <SettingsRow
+          icon="security"
+          label="Kiểm tra quyền thiết bị"
+          onPress={() => void Linking.openSettings()}
+        />
       </Card>
 
       {sectionTitle("DỮ LIỆU CỦA TÔI")}
       <Card>
         <Text style={styles.helpText}>
-          Xuất và xóa dữ liệu là quy trình phía máy chủ. App chỉ báo thành công sau khi nhận trạng thái yêu cầu.
+          Xuất và xóa dữ liệu là quy trình phía máy chủ. App chỉ báo thành công
+          sau khi nhận trạng thái yêu cầu.
         </Text>
         <Button
           accessibilityLabel="Gửi yêu cầu xuất dữ liệu tài khoản"
           disabled={!projection.allowedActions.canRequestExport}
-          label={projection.account.exportRequest ? `Xuất dữ liệu: ${requestStatusLabel[projection.account.exportRequest.status]}` : "Yêu cầu xuất dữ liệu"}
+          label={
+            projection.account.exportRequest
+              ? `Xuất dữ liệu: ${requestStatusLabel[projection.account.exportRequest.status]}`
+              : "Yêu cầu xuất dữ liệu"
+          }
           loading={exportMutation.isPending}
           onPress={() => exportMutation.mutate()}
           variant="secondary"
@@ -412,7 +526,11 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
         <Button
           accessibilityLabel="Gửi yêu cầu xóa tài khoản"
           disabled={!projection.allowedActions.canRequestDeletion}
-          label={projection.account.deletionRequest ? `Xóa tài khoản: ${requestStatusLabel[projection.account.deletionRequest.status]}` : "Yêu cầu xóa tài khoản"}
+          label={
+            projection.account.deletionRequest
+              ? `Xóa tài khoản: ${requestStatusLabel[projection.account.deletionRequest.status]}`
+              : "Yêu cầu xóa tài khoản"
+          }
           loading={deletionMutation.isPending}
           onPress={confirmDeletion}
           variant="secondary"
@@ -423,7 +541,9 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
         <Card muted>
           <View style={styles.inlineRow}>
             <AppIcon color={colors.success} name="check-circle" />
-            <Text accessibilityLiveRegion="polite" style={styles.successText}>{resultMessage}</Text>
+            <Text accessibilityLiveRegion="polite" style={styles.successText}>
+              {resultMessage}
+            </Text>
           </View>
         </Card>
       ) : null}
@@ -445,12 +565,18 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
       <Button
         accessibilityLabel="Tắt kế hoạch an toàn"
         disabled={!projection.allowedActions.canDisableSafetyPlan}
-        label={projection.safetyPlan.state === "inactive" ? "Kế hoạch an toàn đã tắt" : "Tắt kế hoạch an toàn"}
+        label={
+          projection.safetyPlan.state === "inactive"
+            ? "Kế hoạch an toàn đã tắt"
+            : "Tắt kế hoạch an toàn"
+        }
         loading={disableMutation.isPending}
         onPress={confirmDisable}
         variant="danger"
       />
-      <Text style={styles.version}>I’m Okay {Constants.expoConfig?.version ?? "0.1.0"}</Text>
+      <Text style={styles.version}>
+        I’m Okay {Constants.expoConfig?.version ?? "0.1.0"}
+      </Text>
     </Screen>
   );
 };
@@ -462,11 +588,23 @@ export default function SettingsScreen() {
 }
 
 const styles = StyleSheet.create({
-  headerRow: { alignItems: "center", flexDirection: "row", justifyContent: "space-between" },
+  headerRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
   title: { ...typography.headingLarge, color: colors.textPrimary },
   syncing: { ...typography.caption, color: colors.textSecondary },
-  sectionTitle: { ...typography.caption, color: colors.textSecondary, marginBottom: -spacing.sm },
-  profileHeading: { alignItems: "center", flexDirection: "row", gap: spacing.sm },
+  sectionTitle: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    marginBottom: -spacing.sm,
+  },
+  profileHeading: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: spacing.sm,
+  },
   avatar: {
     alignItems: "center",
     backgroundColor: colors.primaryContainer,
@@ -499,15 +637,25 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     minHeight: sizes.minimumTouchTarget,
   },
-  intervalSelected: { backgroundColor: colors.primaryContainer, borderColor: colors.primary },
+  intervalSelected: {
+    backgroundColor: colors.primaryContainer,
+    borderColor: colors.primary,
+  },
   intervalText: { ...typography.bodyMedium, color: colors.textSecondary },
   intervalTextSelected: { ...typography.label, color: colors.primary },
   deadline: { ...typography.caption, color: colors.textSecondary },
   helpText: { ...typography.bodyMedium, color: colors.textSecondary },
   inlineRow: { alignItems: "center", flexDirection: "row", gap: spacing.sm },
   successText: { ...typography.bodyMedium, color: colors.success, flex: 1 },
-  errorCard: { backgroundColor: colors.dangerContainer, borderColor: colors.danger },
+  errorCard: {
+    backgroundColor: colors.dangerContainer,
+    borderColor: colors.danger,
+  },
   errorText: { ...typography.bodyMedium, color: colors.danger },
   dangerText: { color: colors.danger },
-  version: { ...typography.caption, color: colors.textSecondary, textAlign: "center" },
+  version: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    textAlign: "center",
+  },
 });

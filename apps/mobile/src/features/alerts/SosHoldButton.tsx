@@ -9,6 +9,7 @@ import {
 } from "react-native";
 
 import { AppIcon } from "@/components";
+import { useAccessibilityPreferences } from "@/features/accessibility/AccessibilityProvider";
 import { colors, radii, sizes, spacing, typography } from "@/theme";
 
 const HOLD_DURATION_MS = 3_000;
@@ -26,6 +27,7 @@ export const SosHoldButton = ({
   onComplete,
 }: SosHoldButtonProps) => {
   const [progress, setProgress] = useState(0);
+  const { reduceMotionEnabled } = useAccessibilityPreferences();
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const startedAtRef = useRef<number | null>(null);
   const completedRef = useRef(false);
@@ -59,14 +61,17 @@ export const SosHoldButton = ({
     completedRef.current = false;
     startedAtRef.current = Date.now();
     setProgress(0);
-    timerRef.current = setInterval(() => {
-      const startedAt = startedAtRef.current;
-      if (startedAt === null) return;
-      const next = Math.min(1, (Date.now() - startedAt) / HOLD_DURATION_MS);
-      setProgress(next);
-      if (next >= 1) finish();
-    }, TICK_MS);
-  }, [disabled, finish, loading]);
+    timerRef.current = setInterval(
+      () => {
+        const startedAt = startedAtRef.current;
+        if (startedAt === null) return;
+        const next = Math.min(1, (Date.now() - startedAt) / HOLD_DURATION_MS);
+        setProgress(next);
+        if (next >= 1) finish();
+      },
+      reduceMotionEnabled ? 250 : TICK_MS,
+    );
+  }, [disabled, finish, loading, reduceMotionEnabled]);
 
   useEffect(() => {
     if (disabled || loading) cancel();
@@ -98,7 +103,7 @@ export const SosHoldButton = ({
         style={({ pressed }) => [
           styles.button,
           isDisabled && styles.disabled,
-          pressed && !isDisabled && styles.pressed,
+          pressed && !isDisabled && !reduceMotionEnabled && styles.pressed,
         ]}
         testID="sos-hold-button"
       >

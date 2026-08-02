@@ -72,7 +72,8 @@ Khi có xung đột:
 
 Tại mốc 2026-08-02:
 
-- Mobile MA0–MA6 client đã hoàn tất; source Expo nằm ở `apps/mobile`.
+- Mobile MA0–MA6 client và phần MA7 hardening có thể chứng minh trong repository đã
+  hoàn tất; source Expo nằm ở `apps/mobile`. MA7 external acceptance vẫn mở.
 - Workspace pnpm/Turborepo hiện là phần tối thiểu cho mobile; DI1 chưa hoàn tất ba app còn lại, shared config và CI.
 - Mobile dùng Expo SDK 57, React Native 0.86, Expo Router `src/app`, TypeScript strict, Jest và React Native Testing Library.
 - Typed public env, design tokens, shared components, root error boundary, Sentry/log scrub và navigation shell đã có; xem `docs/adr/0001-mobile-foundation.md`.
@@ -84,10 +85,24 @@ Tại mốc 2026-08-02:
 - SOS tap ngắn không có mutation; hold đủ ba giây hoặc accessible two-step mới gọi API. SOS/drill/snooze có persisted idempotency key riêng và fixture không gửi notification thật.
 - M11/M12 dùng strict safe history/settings projection, cursor pagination/pull-to-refresh, timezone grouping, server-confirmed profile/interval/deadline, push permission + registration status, strong disable confirmation và persisted idempotency cho disable/export/delete; xem `docs/adr/0006-mobile-history-settings-safe-projections.md`.
 - History schema không nhận provider error/token/contact PII. Settings/account mutation không optimistic; success chỉ sau projection đúng intent (`inactive + deadline null`, account request state, exact interval/deadline).
+- MA7 repo hardening có runtime reduced-motion/screen-reader preferences, modal focus + dynamic-font
+  resilience, light-only behavior theo selected design, incoming-link allowlist, public-token rejection,
+  full Sentry event scrub, `eas.json`, Maestro fixture smoke, device matrix và release/rollback
+  runbook; xem `docs/adr/0007-mobile-release-hardening.md`.
+- Mobile chỉ cho phép root launch và Supabase auth callback qua custom scheme. Public invitation/
+  alert token thuộc contact web; không thêm universal/app links trước khi có domain cùng
+  AASA/assetlinks được kiểm chứng.
+- `eas.json` có `local` fixture/internal, `staging` remote/internal và `production` remote/store.
+  Không commit signing credential/Sentry auth token; không coi config là bằng chứng đã
+  build, upload source map, TestFlight/Play hay rollout.
 - Remote check-in adapter tuyệt đối không tính deadline. Công thức trong mobile chỉ được tồn tại ở `features/check-in/fixtureApi.ts`, là fake server local có cảnh báo rõ.
 - `EXPO_PUBLIC_DATA_MODE=fixture` chỉ được phép ở local và UI phải luôn nói rõ chưa có bảo vệ thật. `remote` cần API URL, Supabase URL/publishable key; không đặt secret vào public env.
-- MA2–MA6 remote acceptance còn phụ thuộc BA1–BA7, invitation/W01, worker/provider scheduling/reconciliation, retention/re-auth policy, cấu hình Supabase redirect/Google, EAS project ID, development build và thiết bị thật.
-- Lint, typecheck, 89 test case trong 29 suite và Android/iOS/web export đã xanh tại thời điểm bàn giao MA6; phải chạy lại sau thay đổi.
+- MA2–MA7 external acceptance còn phụ thuộc BA1–BA7, invitation/W01, worker/provider
+  scheduling/reconciliation, retention/re-auth policy, staging, Supabase redirect/Google,
+  EAS/Sentry/store credential, test recipient đã consent, internal build và thiết bị thật.
+- Lint, typecheck, 105 test case trong 33 suite, `expo install --check`, `expo-doctor` 20/20 và
+  Android/iOS/web export đã xanh tại thời điểm bàn giao MA7 repo hardening; phải
+  chạy lại sau thay đổi.
 - Backend, contact web và worker chưa có source.
 - Stitch project `I’m Okay Safety System`, ID `9249994988754984867`, private.
 - Design system asset `assets/cbd4d1ec489847ac84e45f592436c1f3`.

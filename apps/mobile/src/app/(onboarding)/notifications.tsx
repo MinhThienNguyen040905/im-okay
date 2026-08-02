@@ -83,6 +83,7 @@ export default function NotificationsScreen() {
             label="Để sau"
             loading={laterMutation.isPending}
             onPress={() => laterMutation.mutate()}
+            testID="notifications-skip-button"
             variant="secondary"
           />
         </View>

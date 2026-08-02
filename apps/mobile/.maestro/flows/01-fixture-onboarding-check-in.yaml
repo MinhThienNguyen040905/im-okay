@@ -1,0 +1,44 @@
+appId: com.imokay.app
+name: Fixture onboarding, check-in and restart smoke
+tags:
+  - fixture
+  - smoke
+---
+- launchApp:
+    clearState: true
+    clearKeychain: true
+    permissions:
+      notifications: deny
+- assertVisible: "Sống một mình, nhưng không đơn độc"
+- tapOn:
+    id: "welcome-start-button"
+- assertVisible: "Chào mừng bạn"
+- tapOn:
+    id: "sign-in-email-input"
+- inputText: "ma7@example.test"
+- hideKeyboard
+- tapOn:
+    id: "sign-in-email-button"
+- assertVisible: "Mình nên gọi bạn là gì?"
+- tapOn:
+    id: "profile-name-input"
+- inputText: "Minh Anh"
+- hideKeyboard
+- tapOn:
+    id: "profile-save-button"
+- assertVisible: "Đừng bỏ lỡ lời nhắc điểm danh"
+- tapOn:
+    id: "notifications-skip-button"
+- assertVisible: "Bao lâu bạn muốn điểm danh một lần?"
+- tapOn:
+    id: "safety-plan-create-button"
+- assertVisible: "Tôi vẫn ổn"
+- tapOn:
+    id: "check-in-button"
+- assertVisible: "Máy chủ đã ghi nhận"
+- tapOn:
+    id: "check-in-success-close"
+- assertVisible: "Tôi vẫn ổn"
+- stopApp
+- launchApp
+- assertVisible: "Tôi vẫn ổn"

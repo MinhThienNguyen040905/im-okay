@@ -1,7 +1,12 @@
 import { useState } from "react";
-import { Modal, Pressable, StyleSheet, Text } from "react-native";
+import { Modal, Pressable, ScrollView, StyleSheet, Text } from "react-native";
 
 import { AppIcon, Button } from "@/components";
+import {
+  modalAnimationForPreference,
+  useAccessibilityPreferences,
+} from "@/features/accessibility/AccessibilityProvider";
+import { useAccessibilityFocus } from "@/features/accessibility/focus";
 import { colors, radii, spacing, typography } from "@/theme";
 
 import type { SnoozeDuration } from "./types";
@@ -24,6 +29,10 @@ export const SnoozeSheet = ({
   visible,
 }: SnoozeSheetProps) => {
   const [selected, setSelected] = useState<SnoozeDuration | null>(null);
+  const { reduceMotionEnabled } = useAccessibilityPreferences();
+  const { focus, ref } = useAccessibilityFocus<Text>(
+    "Chọn thời gian tạm hoãn có thời hạn.",
+  );
 
   const close = () => {
     setSelected(null);
@@ -32,8 +41,9 @@ export const SnoozeSheet = ({
 
   return (
     <Modal
-      animationType="slide"
+      animationType={modalAnimationForPreference(reduceMotionEnabled)}
       onRequestClose={loading ? undefined : close}
+      onShow={focus}
       transparent
       visible={visible}
     >
@@ -48,66 +58,75 @@ export const SnoozeSheet = ({
           onPress={(event) => event.stopPropagation()}
           style={styles.sheet}
         >
-          <Text accessibilityRole="header" style={styles.title}>
-            Tạm hoãn có thời hạn
-          </Text>
-          <Text style={styles.body}>
-            Máy chủ sẽ trả về thời điểm kết thúc chính xác. Không có tùy chọn
-            tạm hoãn vô thời hạn.
-          </Text>
-
-          {durations.map((duration) => {
-            const checked = selected === duration;
-            return (
-              <Pressable
-                accessibilityLabel={`Tạm hoãn ${duration} giờ`}
-                accessibilityRole="radio"
-                accessibilityState={{ checked, disabled: loading }}
-                disabled={loading}
-                key={duration}
-                onPress={() => setSelected(duration)}
-                style={({ pressed }) => [
-                  styles.option,
-                  checked && styles.optionSelected,
-                  pressed && styles.pressed,
-                ]}
-              >
-                <AppIcon
-                  color={checked ? colors.primary : colors.textSecondary}
-                  name={
-                    checked ? "radio-button-checked" : "radio-button-unchecked"
-                  }
-                />
-                <Text style={styles.optionLabel}>{duration} giờ</Text>
-              </Pressable>
-            );
-          })}
-
-          {error ? (
-            <Text accessibilityLiveRegion="assertive" style={styles.error}>
-              {error}
+          <ScrollView contentContainerStyle={styles.scrollContent}>
+            <Text
+              accessible
+              accessibilityRole="header"
+              ref={ref}
+              style={styles.title}
+            >
+              Tạm hoãn có thời hạn
             </Text>
-          ) : null}
+            <Text style={styles.body}>
+              Máy chủ sẽ trả về thời điểm kết thúc chính xác. Không có tùy chọn
+              tạm hoãn vô thời hạn.
+            </Text>
 
-          <Button
-            accessibilityLabel="Xác nhận tạm hoãn có thời hạn"
-            disabled={!selected}
-            label="Xác nhận tạm hoãn"
-            loading={loading}
-            onPress={() => {
-              if (!selected) return;
-              const duration = selected;
-              setSelected(null);
-              onSubmit(duration);
-            }}
-          />
-          <Button
-            accessibilityLabel="Không tạm hoãn"
-            disabled={loading}
-            label="Hủy"
-            onPress={close}
-            variant="secondary"
-          />
+            {durations.map((duration) => {
+              const checked = selected === duration;
+              return (
+                <Pressable
+                  accessibilityLabel={`Tạm hoãn ${duration} giờ`}
+                  accessibilityRole="radio"
+                  accessibilityState={{ checked, disabled: loading }}
+                  disabled={loading}
+                  key={duration}
+                  onPress={() => setSelected(duration)}
+                  style={({ pressed }) => [
+                    styles.option,
+                    checked && styles.optionSelected,
+                    pressed && styles.pressed,
+                  ]}
+                >
+                  <AppIcon
+                    color={checked ? colors.primary : colors.textSecondary}
+                    name={
+                      checked
+                        ? "radio-button-checked"
+                        : "radio-button-unchecked"
+                    }
+                  />
+                  <Text style={styles.optionLabel}>{duration} giờ</Text>
+                </Pressable>
+              );
+            })}
+
+            {error ? (
+              <Text accessibilityLiveRegion="assertive" style={styles.error}>
+                {error}
+              </Text>
+            ) : null}
+
+            <Button
+              accessibilityLabel="Xác nhận tạm hoãn có thời hạn"
+              disabled={!selected}
+              label="Xác nhận tạm hoãn"
+              loading={loading}
+              onPress={() => {
+                if (!selected) return;
+                const duration = selected;
+                setSelected(null);
+                onSubmit(duration);
+              }}
+            />
+            <Button
+              accessibilityLabel="Không tạm hoãn"
+              disabled={loading}
+              label="Hủy"
+              onPress={close}
+              variant="secondary"
+            />
+          </ScrollView>
         </Pressable>
       </Pressable>
     </Modal>
@@ -124,6 +143,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderTopLeftRadius: radii.xl,
     borderTopRightRadius: radii.xl,
+    maxHeight: "90%",
+  },
+  scrollContent: {
     gap: spacing.md,
     paddingBottom: spacing.xxl,
     paddingHorizontal: spacing.lg,

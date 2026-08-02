@@ -104,6 +104,7 @@ const styles = StyleSheet.create({
   },
   label: {
     ...typography.label,
+    flexShrink: 1,
     textAlign: "center",
   },
 });

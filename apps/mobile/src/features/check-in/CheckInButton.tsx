@@ -1,6 +1,7 @@
 import { ActivityIndicator, Pressable, StyleSheet, Text } from "react-native";
 
 import { AppIcon } from "@/components";
+import { useAccessibilityPreferences } from "@/features/accessibility/AccessibilityProvider";
 import { colors, radii, spacing, typography } from "@/theme";
 
 type CheckInButtonProps = {
@@ -15,6 +16,7 @@ export const CheckInButton = ({
   onPress,
 }: CheckInButtonProps) => {
   const isDisabled = disabled || loading;
+  const { reduceMotionEnabled } = useAccessibilityPreferences();
 
   return (
     <Pressable
@@ -26,7 +28,7 @@ export const CheckInButton = ({
       onPress={onPress}
       style={({ pressed }) => [
         styles.ring,
-        pressed && !isDisabled && styles.pressed,
+        pressed && !isDisabled && !reduceMotionEnabled && styles.pressed,
         isDisabled && styles.disabled,
       ]}
       testID="check-in-button"
@@ -56,9 +58,11 @@ const styles = StyleSheet.create({
     borderRadius: radii.pill,
     borderWidth: 8,
     gap: spacing.xs,
-    height: 184,
     justifyContent: "center",
-    width: 184,
+    minHeight: 184,
+    minWidth: 184,
+    maxWidth: "100%",
+    padding: spacing.lg,
   },
   pressed: { transform: [{ scale: 0.97 }] },
   disabled: { opacity: 0.6 },

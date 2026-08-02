@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Redirect, useRouter } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
@@ -13,6 +13,7 @@ import {
   Screen,
 } from "@/components";
 import { env } from "@/config/env";
+import { useAccessibilityFocus } from "@/features/accessibility/focus";
 import { AlertAcceptedState } from "@/features/alerts/AlertAcceptedState";
 import { createAlertsApi } from "@/features/alerts/api";
 import {
@@ -40,6 +41,8 @@ const DrillContent = ({ session }: { session: AuthSession }) => {
   const queryClient = useQueryClient();
   const router = useRouter();
   const [armed, setArmed] = useState(false);
+  const { focus: focusConfirmation, ref: confirmationTitleRef } =
+    useAccessibilityFocus<Text>("Bước hai trên hai, xác nhận diễn tập.");
   const [accepted, setAccepted] = useState<AlertContextSnapshot | null>(null);
   const queryKey = alertContextQueryKey(session.user.id);
 
@@ -53,6 +56,10 @@ const DrillContent = ({ session }: { session: AuthSession }) => {
   const { refetch } = contextQuery;
   const refresh = useCallback(() => void refetch(), [refetch]);
   useAlertContextRefresh(refresh);
+
+  useEffect(() => {
+    if (armed) focusConfirmation();
+  }, [armed, focusConfirmation]);
 
   const drillMutation = useMutation({
     mutationFn: async () => {
@@ -160,7 +167,12 @@ const DrillContent = ({ session }: { session: AuthSession }) => {
         />
       ) : (
         <Card style={styles.confirmCard}>
-          <Text accessibilityRole="header" style={styles.confirmTitle}>
+          <Text
+            accessible
+            accessibilityRole="header"
+            ref={confirmationTitleRef}
+            style={styles.confirmTitle}
+          >
             Bước 2/2 · Xác nhận diễn tập
           </Text>
           <Text style={styles.infoText}>

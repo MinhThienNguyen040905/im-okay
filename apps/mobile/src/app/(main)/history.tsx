@@ -49,7 +49,13 @@ const eventIcon = {
   drill_resolved: "verified-user",
 } as const;
 
-const HistoryItemRow = ({ row, timezone }: { row: HistoryRow; timezone: string }) => {
+const HistoryItemRow = ({
+  row,
+  timezone,
+}: {
+  row: HistoryRow;
+  timezone: string;
+}) => {
   if (row.kind === "header") {
     return <Text style={styles.dayHeader}>{row.label}</Text>;
   }
@@ -70,9 +76,15 @@ const HistoryItemRow = ({ row, timezone }: { row: HistoryRow; timezone: string }
       style={styles.timelineCard}
     >
       <View style={styles.timelineRow}>
-        <Text style={styles.time}>{formatHistoryTime(row.item.occurredAt, timezone)}</Text>
+        <Text style={styles.time}>
+          {formatHistoryTime(row.item.occurredAt, timezone)}
+        </Text>
         <View style={styles.eventIcon}>
-          <AppIcon color={iconColor} name={eventIcon[row.item.event]} size={20} />
+          <AppIcon
+            color={iconColor}
+            name={eventIcon[row.item.event]}
+            size={20}
+          />
         </View>
         <View style={styles.eventCopy}>
           <View style={styles.titleRow}>
@@ -80,7 +92,9 @@ const HistoryItemRow = ({ row, timezone }: { row: HistoryRow; timezone: string }
             {copy.drill ? <Badge label="DIỄN TẬP" variant="success" /> : null}
           </View>
           {exactDeadline ? (
-            <Text style={styles.eventDetail}>Thời hạn mới: {exactDeadline}</Text>
+            <Text style={styles.eventDetail}>
+              Thời hạn mới: {exactDeadline}
+            </Text>
           ) : copy.detail ? (
             <Text style={styles.eventDetail}>{copy.detail}</Text>
           ) : null}
@@ -109,7 +123,8 @@ const HistoryContent = ({ session }: { session: AuthSession }) => {
       pages.flatMap(({ items }) => items).map((item) => [item.id, item]),
     );
     return [...byId.values()].sort(
-      (left, right) => Date.parse(right.occurredAt) - Date.parse(left.occurredAt),
+      (left, right) =>
+        Date.parse(right.occurredAt) - Date.parse(left.occurredAt),
     );
   }, [pages]);
   const timezone = draft.timezone ?? "UTC";
@@ -125,7 +140,9 @@ const HistoryContent = ({ session }: { session: AuthSession }) => {
     return (
       <Screen scrollable={false}>
         <View style={styles.screenHeader}>
-          <Text accessibilityRole="header" style={styles.title}>Lịch sử</Text>
+          <Text accessibilityRole="header" style={styles.title}>
+            Lịch sử
+          </Text>
         </View>
         <View style={styles.centerState}>
           <ActivityIndicator color={colors.primary} size="large" />
@@ -138,7 +155,9 @@ const HistoryContent = ({ session }: { session: AuthSession }) => {
   if (!firstPage) {
     return (
       <Screen scrollable={false}>
-        <Text accessibilityRole="header" style={styles.title}>Lịch sử</Text>
+        <Text accessibilityRole="header" style={styles.title}>
+          Lịch sử
+        </Text>
         <ErrorState
           message="Không thể tải projection lịch sử an toàn từ máy chủ."
           onRetry={() => void query.refetch()}
@@ -150,9 +169,13 @@ const HistoryContent = ({ session }: { session: AuthSession }) => {
   return (
     <Screen contentStyle={styles.staticContent} scrollable={false}>
       <View style={styles.screenHeader}>
-        <Text accessibilityRole="header" style={styles.title}>Lịch sử</Text>
+        <Text accessibilityRole="header" style={styles.title}>
+          Lịch sử
+        </Text>
         {query.isFetching && !query.isFetchingNextPage ? (
-          <Text accessibilityLiveRegion="polite" style={styles.syncing}>Đang đồng bộ…</Text>
+          <Text accessibilityLiveRegion="polite" style={styles.syncing}>
+            Đang đồng bộ…
+          </Text>
         ) : null}
       </View>
 
@@ -167,7 +190,12 @@ const HistoryContent = ({ session }: { session: AuthSession }) => {
               onPress={() => setFilter(option.id)}
               style={[styles.segment, selected && styles.segmentActive]}
             >
-              <Text style={[styles.segmentText, selected && styles.segmentTextActive]}>
+              <Text
+                style={[
+                  styles.segmentText,
+                  selected && styles.segmentTextActive,
+                ]}
+              >
                 {option.label}
               </Text>
             </Pressable>
@@ -178,7 +206,8 @@ const HistoryContent = ({ session }: { session: AuthSession }) => {
       <View style={styles.summaryRow}>
         <AppIcon color={colors.primary} name="info-outline" size={18} />
         <Text style={styles.summary}>
-          7 ngày gần đây · {firstPage.summary.onTimeCheckInCount} lần xác nhận đúng hạn
+          7 ngày gần đây · {firstPage.summary.onTimeCheckInCount} lần xác nhận
+          đúng hạn
         </Text>
       </View>
       {env.dataMode === "fixture" ? (
@@ -186,7 +215,9 @@ const HistoryContent = ({ session }: { session: AuthSession }) => {
       ) : null}
 
       <FlatList
-        contentContainerStyle={rows.length === 0 ? styles.emptyList : styles.list}
+        contentContainerStyle={
+          rows.length === 0 ? styles.emptyList : styles.list
+        }
         data={rows}
         keyExtractor={(row) => row.id}
         onEndReached={() => {
@@ -197,7 +228,9 @@ const HistoryContent = ({ session }: { session: AuthSession }) => {
         onEndReachedThreshold={0.4}
         onRefresh={() => void query.refetch()}
         refreshing={query.isRefetching && !query.isFetchingNextPage}
-        renderItem={({ item }) => <HistoryItemRow row={item} timezone={timezone} />}
+        renderItem={({ item }) => (
+          <HistoryItemRow row={item} timezone={timezone} />
+        )}
         ListEmptyComponent={
           <View style={styles.centerState}>
             <AppIcon color={colors.textSecondary} name="history" size={36} />
@@ -209,14 +242,19 @@ const HistoryContent = ({ session }: { session: AuthSession }) => {
         }
         ListFooterComponent={
           query.isFetchingNextPage ? (
-            <ActivityIndicator color={colors.primary} style={styles.pageLoader} />
+            <ActivityIndicator
+              color={colors.primary}
+              style={styles.pageLoader}
+            />
           ) : query.isFetchNextPageError ? (
             <Pressable
               accessibilityRole="button"
               onPress={() => void query.fetchNextPage()}
               style={styles.retryPage}
             >
-              <Text style={styles.retryText}>Chưa tải được trang tiếp · Thử lại</Text>
+              <Text style={styles.retryText}>
+                Chưa tải được trang tiếp · Thử lại
+              </Text>
             </Pressable>
           ) : null
         }
@@ -233,7 +271,11 @@ export default function HistoryScreen() {
 
 const styles = StyleSheet.create({
   staticContent: { gap: spacing.md, paddingBottom: 0 },
-  screenHeader: { alignItems: "center", flexDirection: "row", justifyContent: "space-between" },
+  screenHeader: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
   title: { ...typography.headingLarge, color: colors.textPrimary },
   syncing: { ...typography.caption, color: colors.textSecondary },
   segmented: {
@@ -271,8 +313,17 @@ const styles = StyleSheet.create({
     marginTop: spacing.sm,
   },
   timelineCard: { padding: spacing.md },
-  timelineRow: { alignItems: "flex-start", flexDirection: "row", gap: spacing.sm },
-  time: { ...typography.caption, ...typography.numeric, color: colors.textSecondary, width: 44 },
+  timelineRow: {
+    alignItems: "flex-start",
+    flexDirection: "row",
+    gap: spacing.sm,
+  },
+  time: {
+    ...typography.caption,
+    ...typography.numeric,
+    color: colors.textSecondary,
+    minWidth: 44,
+  },
   eventIcon: {
     alignItems: "center",
     backgroundColor: colors.surfaceMuted,
@@ -282,12 +333,30 @@ const styles = StyleSheet.create({
     width: 34,
   },
   eventCopy: { flex: 1, gap: spacing.xxs },
-  titleRow: { alignItems: "center", flexDirection: "row", flexWrap: "wrap", gap: spacing.xs },
+  titleRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: spacing.xs,
+  },
   eventTitle: { ...typography.label, color: colors.textPrimary, flexShrink: 1 },
   eventDetail: { ...typography.bodyMedium, color: colors.textSecondary },
-  centerState: { alignItems: "center", flex: 1, gap: spacing.sm, justifyContent: "center" },
-  emptyTitle: { ...typography.headingMedium, color: colors.textPrimary, textAlign: "center" },
+  centerState: {
+    alignItems: "center",
+    flex: 1,
+    gap: spacing.sm,
+    justifyContent: "center",
+  },
+  emptyTitle: {
+    ...typography.headingMedium,
+    color: colors.textPrimary,
+    textAlign: "center",
+  },
   pageLoader: { margin: spacing.lg },
-  retryPage: { alignItems: "center", minHeight: sizes.minimumTouchTarget, justifyContent: "center" },
+  retryPage: {
+    alignItems: "center",
+    minHeight: sizes.minimumTouchTarget,
+    justifyContent: "center",
+  },
   retryText: { ...typography.label, color: colors.primary },
 });

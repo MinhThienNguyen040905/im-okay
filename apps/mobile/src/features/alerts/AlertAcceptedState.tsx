@@ -35,7 +35,11 @@ export const AlertAcceptedState = ({
           size={48}
         />
       </View>
-      <Text accessibilityRole="header" style={styles.title}>
+      <Text
+        accessibilityLiveRegion="assertive"
+        accessibilityRole="header"
+        style={styles.title}
+      >
         {isDrill
           ? "Máy chủ đã tiếp nhận lượt diễn tập"
           : "Máy chủ đã tiếp nhận yêu cầu trợ giúp"}

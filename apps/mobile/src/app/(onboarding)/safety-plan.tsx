@@ -40,6 +40,7 @@ export default function SafetyPlanScreen() {
           label="Tạo kế hoạch an toàn"
           loading={mutation.isPending}
           onPress={() => mutation.mutate(selected)}
+          testID="safety-plan-create-button"
         />
       }
     >

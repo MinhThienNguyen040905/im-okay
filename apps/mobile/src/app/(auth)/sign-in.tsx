@@ -109,6 +109,7 @@ export default function SignInScreen() {
               onBlur={field.onBlur}
               onChangeText={field.onChange}
               placeholder="ban@example.com"
+              testID="sign-in-email-input"
               value={field.value}
             />
           )}
@@ -118,6 +119,7 @@ export default function SignInScreen() {
           label="Tiếp tục bằng email"
           loading={emailMutation.isPending}
           onPress={handleSubmit((values) => emailMutation.mutate(values))}
+          testID="sign-in-email-button"
         />
       </Card>
 

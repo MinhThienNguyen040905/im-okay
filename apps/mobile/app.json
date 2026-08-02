@@ -6,6 +6,7 @@
     "orientation": "portrait",
     "scheme": "imokay",
     "userInterfaceStyle": "light",
+    "backgroundColor": "#F7FAF9",
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.imokay.app"

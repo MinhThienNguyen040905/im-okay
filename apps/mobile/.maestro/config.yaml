@@ -1,0 +1,8 @@
+appId: com.imokay.app
+flows:
+  - "flows/*.yaml"
+testOutputDir: artifacts
+executionOrder:
+  continueOnFailure: false
+  flowsOrder:
+    - 01-fixture-onboarding-check-in
