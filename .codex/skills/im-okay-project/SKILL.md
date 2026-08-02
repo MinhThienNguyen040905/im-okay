@@ -72,7 +72,7 @@ Khi có xung đột:
 
 Tại mốc 2026-08-02:
 
-- Mobile MA0–MA5 client đã hoàn tất; source Expo nằm ở `apps/mobile`.
+- Mobile MA0–MA6 client đã hoàn tất; source Expo nằm ở `apps/mobile`.
 - Workspace pnpm/Turborepo hiện là phần tối thiểu cho mobile; DI1 chưa hoàn tất ba app còn lại, shared config và CI.
 - Mobile dùng Expo SDK 57, React Native 0.86, Expo Router `src/app`, TypeScript strict, Jest và React Native Testing Library.
 - Typed public env, design tokens, shared components, root error boundary, Sentry/log scrub và navigation shell đã có; xem `docs/adr/0001-mobile-foundation.md`.
@@ -82,10 +82,12 @@ Tại mốc 2026-08-02:
 - Mobile không có local transition sang invitation `accepted`. Mọi add/remove/reorder/resend chỉ commit full projection sau server response; fixture không gửi email thật và không giả lập W01 acceptance.
 - M09/M10 dùng authoritative alert-context, shared check-in idempotency, finite snooze exact-end response, guarded SOS, distinct drill source và server-owned correction outcome; xem `docs/adr/0005-mobile-authoritative-alert-actions.md`.
 - SOS tap ngắn không có mutation; hold đủ ba giây hoặc accessible two-step mới gọi API. SOS/drill/snooze có persisted idempotency key riêng và fixture không gửi notification thật.
+- M11/M12 dùng strict safe history/settings projection, cursor pagination/pull-to-refresh, timezone grouping, server-confirmed profile/interval/deadline, push permission + registration status, strong disable confirmation và persisted idempotency cho disable/export/delete; xem `docs/adr/0006-mobile-history-settings-safe-projections.md`.
+- History schema không nhận provider error/token/contact PII. Settings/account mutation không optimistic; success chỉ sau projection đúng intent (`inactive + deadline null`, account request state, exact interval/deadline).
 - Remote check-in adapter tuyệt đối không tính deadline. Công thức trong mobile chỉ được tồn tại ở `features/check-in/fixtureApi.ts`, là fake server local có cảnh báo rõ.
 - `EXPO_PUBLIC_DATA_MODE=fixture` chỉ được phép ở local và UI phải luôn nói rõ chưa có bảo vệ thật. `remote` cần API URL, Supabase URL/publishable key; không đặt secret vào public env.
-- MA2–MA5 remote acceptance còn phụ thuộc BA1–BA6, invitation/W01, worker/provider scheduling/reconciliation, cấu hình Supabase redirect/Google, EAS project ID, development build và thiết bị thật.
-- Lint, typecheck, 61 test case trong 22 suite và Android/iOS/web export đã xanh tại thời điểm bàn giao MA5; phải chạy lại sau thay đổi.
+- MA2–MA6 remote acceptance còn phụ thuộc BA1–BA7, invitation/W01, worker/provider scheduling/reconciliation, retention/re-auth policy, cấu hình Supabase redirect/Google, EAS project ID, development build và thiết bị thật.
+- Lint, typecheck, 89 test case trong 29 suite và Android/iOS/web export đã xanh tại thời điểm bàn giao MA6; phải chạy lại sau thay đổi.
 - Backend, contact web và worker chưa có source.
 - Stitch project `I’m Okay Safety System`, ID `9249994988754984867`, private.
 - Design system asset `assets/cbd4d1ec489847ac84e45f592436c1f3`.

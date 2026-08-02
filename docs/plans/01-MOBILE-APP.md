@@ -241,15 +241,34 @@ Bằng chứng kiểm chứng client MA5:
 
 ### MA6 — History và settings M11/M12
 
-- [ ] History pagination, pull-to-refresh, empty/error state.
-- [ ] Nhóm check-in, warning, alert, response, correction và drill bằng wording rõ.
-- [ ] Không hiển thị provider error/token/PII nhạy cảm.
-- [ ] Settings cho profile, timezone, interval và push status.
-- [ ] Entry point quản lý contacts.
-- [ ] Disable safety plan có strong confirmation và server result.
-- [ ] Account export/delete request theo policy.
+- [x] History pagination, pull-to-refresh, empty/error state.
+- [x] Nhóm check-in, warning, alert, response, correction và drill bằng wording rõ.
+- [x] Không hiển thị provider error/token/PII nhạy cảm.
+- [x] Settings cho profile, timezone, interval và push status.
+- [x] Entry point quản lý contacts.
+- [x] Disable safety plan có strong confirmation và server result.
+- [x] Account export/delete request theo policy.
 
 Exit: thay đổi interval/timezone tạo lịch mới trên backend; app không tự sửa deadline.
+
+Hoàn tất client ngày 02/08/2026. M11 dùng strict safe projection, cursor opaque, pagination,
+pull-to-refresh, filter và drill wording. M12 tách profile/timezone khỏi interval mutation, chỉ
+đồng bộ sau full projection, kết hợp quyền push local với device registration server, dùng strong
+confirmation và persisted idempotency cho disable/export/delete. ADR:
+`docs/adr/0006-mobile-history-settings-safe-projections.md`.
+
+Bằng chứng kiểm chứng client MA6:
+
+- Contract test từ chối provider error/token/contact email và field lạ trong history/push.
+- Remote adapter test xác nhận cursor encoding, auth, exact interval/deadline, idempotency và từ
+  chối disable response vẫn còn active.
+- Fixture test xác nhận lịch 48 giờ được fake server trả về, request replay cùng key và disable
+  chỉ thành công với projection inactive/deadline null.
+- Presentation test bao phủ filter, grouping theo timezone và nhãn drill bằng text.
+- ESLint, TypeScript và 89 test case trong 29 suite đều xanh.
+- `expo export --platform all` bundle thành công cho Android, iOS và web.
+- Remote history/settings/account-data acceptance chưa chạy vì BA7, retention/re-auth policy,
+  OpenAPI, staging và backend source chưa có.
 
 ### MA7 — Hardening và release
 
@@ -316,5 +335,7 @@ E2E:
    invitation E2E, concurrent accept/decline và revoke-link test.
 5. Triển khai BA6 + worker/provider, đối chiếu alert-context/check-in outcome với OpenAPI rồi
    chạy accelerated warning/SOS/drill/correction E2E trên staging.
-6. Tiếp tục MA6 cho history/settings và account-data workflow.
-7. Hoàn tất DI1 cho ba app còn lại, shared config và CI.
+6. Triển khai BA7 history/settings projection, account-data workflow và recent-auth policy; đối
+   chiếu OpenAPI rồi chạy remote acceptance MA6.
+7. Tiếp tục MA7 accessibility/device/E2E/release hardening sau khi backend integration có thể chạy.
+8. Hoàn tất DI1 cho ba app còn lại, shared config và CI.

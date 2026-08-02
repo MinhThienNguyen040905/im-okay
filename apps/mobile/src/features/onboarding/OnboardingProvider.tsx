@@ -36,6 +36,11 @@ type OnboardingContextValue = {
   setPushDecision: (decision: PushDecision) => Promise<void>;
   requestPush: () => Promise<PushSetupResult>;
   saveSafetyPlan: (hours: 24 | 36 | 48) => Promise<void>;
+  syncAuthoritativeSettings: (input: {
+    displayName: string;
+    timezone: string;
+    intervalHours: 24 | 36 | 48;
+  }) => Promise<void>;
 };
 
 const OnboardingContext = createContext<OnboardingContextValue | null>(null);
@@ -177,6 +182,9 @@ export const OnboardingProvider = ({ children }: PropsWithChildren) => {
           intervalHours: hours,
           completed: true,
         });
+      },
+      async syncAuthoritativeSettings(input) {
+        await updateDraft({ ...input, completed: true });
       },
     }),
     [draft, loading, registerToken, session, updateDraft],

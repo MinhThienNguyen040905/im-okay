@@ -72,6 +72,7 @@ Tên endpoint là đề xuất ban đầu; OpenAPI/code là source of truth sau 
 ```text
 GET    /v1/me
 PATCH  /v1/me
+GET    /v1/me/settings
 GET    /v1/me/devices
 POST   /v1/me/devices
 DELETE /v1/me/devices/:deviceId
@@ -98,6 +99,8 @@ GET    /v1/alerts
 POST   /v1/alerts/:alertId/cancel
 POST   /v1/alerts/sos
 POST   /v1/alerts/drill
+
+GET    /v1/history
 
 POST   /v1/account/export-requests
 POST   /v1/account/deletion-requests
@@ -221,8 +224,13 @@ Exit: `delivered` không thể resolve/acknowledge; token used/expired không l�
 
 ### BA7 — History, account data và hardening
 
-- [ ] Cursor pagination cho check-ins/alerts/history projection.
+- [ ] Cursor pagination cho check-ins/alerts và strict safe history projection tại
+  `GET /v1/history`; chỉ trả event enum/metadata allowlist, không provider error/token/PII.
+- [ ] Settings projection tại `GET /v1/me/settings`; profile/safety-plan/account mutation trả
+  full authoritative projection với exact deadline và allowed actions.
 - [ ] Account export request và deletion workflow theo retention policy.
+- [ ] Recent-auth/reauth policy cho disable safety plan và account deletion; idempotency replay
+  không tạo trùng workflow.
 - [ ] Authorization/IDOR/property-based state-transition tests.
 - [ ] Query/index review và performance budgets.
 - [ ] Audit completeness review.

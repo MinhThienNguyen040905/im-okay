@@ -36,7 +36,7 @@ Mốc tham chiếu: 2026-08-02.
 | Navigation contract/state variants | Mobile MA0 hoàn tất; Stitch không hỗ trợ link canvas                                                             | Stitch tracker                                        |
 | Responsive/accessibility QA        | Chưa hoàn tất                                                                                                    | Stitch tracker                                        |
 | Monorepo/source code               | Đã có workspace tối thiểu và `apps/mobile`; DI1 chưa hoàn tất                                                    | Plan 01, 05                                           |
-| Mobile/web/API/worker              | Mobile MA5 client hoàn tất, remote acceptance chờ API/worker/provider/Supabase/EAS; web/API/worker chưa scaffold | Plan 01–04                                            |
+| Mobile/web/API/worker              | Mobile MA6 client hoàn tất, remote acceptance chờ API/worker/provider/Supabase/EAS và BA7 policy; web/API/worker chưa scaffold | Plan 01–04                                            |
 | Staging/production                 | Chưa tạo                                                                                                         | Plan 05–06                                            |
 
 ## 3. Phạm vi MVP
