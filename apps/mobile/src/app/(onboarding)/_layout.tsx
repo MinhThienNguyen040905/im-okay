@@ -13,6 +13,12 @@ export default function OnboardingLayout() {
       }}
     >
       <Stack.Screen name="welcome" options={{ title: "Bắt đầu" }} />
+      <Stack.Screen name="profile" options={{ title: "Hồ sơ" }} />
+      <Stack.Screen name="notifications" options={{ title: "Thông báo" }} />
+      <Stack.Screen
+        name="safety-plan"
+        options={{ title: "Kế hoạch an toàn" }}
+      />
     </Stack>
   );
 }

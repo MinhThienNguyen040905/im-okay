@@ -12,14 +12,14 @@ Tài liệu này điều phối toàn bộ dự án từ giai đoạn thiết k�
 
 Chi tiết triển khai nằm trong các plan chuyên biệt:
 
-| Plan | Phạm vi |
-|---|---|
-| [`plans/01-MOBILE-APP.md`](plans/01-MOBILE-APP.md) | Expo iOS/Android, M01–M12, navigation, client state, push permission |
-| [`plans/02-CONTACT-WEB.md`](plans/02-CONTACT-WEB.md) | Responsive web W01–W05, public invitation/alert response |
-| [`plans/03-BACKEND-API.md`](plans/03-BACKEND-API.md) | NestJS API, auth, domain, Prisma access, OpenAPI |
-| [`plans/04-WORKER-NOTIFICATIONS.md`](plans/04-WORKER-NOTIFICATIONS.md) | BullMQ, scheduling, reconciliation, Expo Push, Gmail |
-| [`plans/05-DATA-INFRA-DEVOPS.md`](plans/05-DATA-INFRA-DEVOPS.md) | PostgreSQL, Redis, monorepo, CI/CD, environments, backup/deploy |
-| [`plans/06-QA-SECURITY-RELEASE.md`](plans/06-QA-SECURITY-RELEASE.md) | Test strategy, security/privacy, observability, alpha/beta/production |
+| Plan                                                                   | Phạm vi                                                               |
+| ---------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| [`plans/01-MOBILE-APP.md`](plans/01-MOBILE-APP.md)                     | Expo iOS/Android, M01–M12, navigation, client state, push permission  |
+| [`plans/02-CONTACT-WEB.md`](plans/02-CONTACT-WEB.md)                   | Responsive web W01–W05, public invitation/alert response              |
+| [`plans/03-BACKEND-API.md`](plans/03-BACKEND-API.md)                   | NestJS API, auth, domain, Prisma access, OpenAPI                      |
+| [`plans/04-WORKER-NOTIFICATIONS.md`](plans/04-WORKER-NOTIFICATIONS.md) | BullMQ, scheduling, reconciliation, Expo Push, Gmail                  |
+| [`plans/05-DATA-INFRA-DEVOPS.md`](plans/05-DATA-INFRA-DEVOPS.md)       | PostgreSQL, Redis, monorepo, CI/CD, environments, backup/deploy       |
+| [`plans/06-QA-SECURITY-RELEASE.md`](plans/06-QA-SECURITY-RELEASE.md)   | Test strategy, security/privacy, observability, alpha/beta/production |
 
 Không nhân bản task chi tiết vào master. Khi thay đổi một hệ thống, cập nhật plan tương ứng; chỉ cập nhật master nếu milestone, phụ thuộc hoặc release gate thay đổi.
 
@@ -27,17 +27,17 @@ Không nhân bản task chi tiết vào master. Khi thay đổi một hệ thố
 
 Mốc tham chiếu: 2026-08-02.
 
-| Hạng mục | Trạng thái | Nguồn theo dõi |
-|---|---|---|
-| Product brief và UX flow | Đã có bản nền | `design/stitch/03-PROJECT-BRIEF.md`, `04-UX-FLOWS.md` |
-| Design system | Đã tạo | `design/stitch/DESIGN.md` |
-| Mobile screens | Đã chọn M01–M12 | `design/stitch/05-SCREEN-TRACKER.md` |
-| Contact web screens | Đã chọn W01–W05 | `design/stitch/05-SCREEN-TRACKER.md` |
-| Navigation contract/state variants | Mobile MA0 hoàn tất; Stitch không hỗ trợ link canvas | Stitch tracker |
-| Responsive/accessibility QA | Chưa hoàn tất | Stitch tracker |
-| Monorepo/source code | Đã có workspace tối thiểu và `apps/mobile`; DI1 chưa hoàn tất | Plan 01, 05 |
-| Mobile/web/API/worker | Mobile MA1 hoàn tất; web/API/worker chưa scaffold | Plan 01–04 |
-| Staging/production | Chưa tạo | Plan 05–06 |
+| Hạng mục                           | Trạng thái                                                                                       | Nguồn theo dõi                                        |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------ | ----------------------------------------------------- |
+| Product brief và UX flow           | Đã có bản nền                                                                                    | `design/stitch/03-PROJECT-BRIEF.md`, `04-UX-FLOWS.md` |
+| Design system                      | Đã tạo                                                                                           | `design/stitch/DESIGN.md`                             |
+| Mobile screens                     | Đã chọn M01–M12                                                                                  | `design/stitch/05-SCREEN-TRACKER.md`                  |
+| Contact web screens                | Đã chọn W01–W05                                                                                  | `design/stitch/05-SCREEN-TRACKER.md`                  |
+| Navigation contract/state variants | Mobile MA0 hoàn tất; Stitch không hỗ trợ link canvas                                             | Stitch tracker                                        |
+| Responsive/accessibility QA        | Chưa hoàn tất                                                                                    | Stitch tracker                                        |
+| Monorepo/source code               | Đã có workspace tối thiểu và `apps/mobile`; DI1 chưa hoàn tất                                    | Plan 01, 05                                           |
+| Mobile/web/API/worker              | Mobile MA2 client hoàn tất, remote acceptance chờ API/Supabase/EAS; web/API/worker chưa scaffold | Plan 01–04                                            |
+| Staging/production                 | Chưa tạo                                                                                         | Plan 05–06                                            |
 
 ## 3. Phạm vi MVP
 

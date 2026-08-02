@@ -6,7 +6,7 @@ I’m Okay là ứng dụng safety check-in dành cho người sống một mìn
 
 ## Trạng thái dự án
 
-Dự án đã hoàn tất Mobile MA0 và MA1. `apps/mobile` hiện có Expo SDK 57/Expo Router, TypeScript strict, typed public env, design tokens, shared components, Sentry/logging đã scrub, auth/onboarding/main route groups, ba bottom tab và test foundation. Android/iOS bundle đã được kiểm chứng. Workspace hiện mới là phần tối thiểu cho mobile; contact web, API, worker và CI của DI1 chưa scaffold. Responsive QA cho contact web vẫn cần hoàn tất trước khi export chính thức.
+Dự án đã hoàn tất phần client Mobile MA0–MA2. `apps/mobile` hiện có Expo SDK 57/Expo Router, Supabase email/Google auth adapter, secure session persistence, M01–M05, permission-first Expo Push, device registration adapter, safety-plan onboarding, resume progress, typed public env, shared UI và test foundation. Chế độ local fixture luôn cảnh báo chưa có bảo vệ thật; nghiệm thu remote MA2 còn phụ thuộc API BA2/BA3, cấu hình Supabase/EAS và thiết bị thật. Contact web, API, worker và CI của DI1 chưa scaffold.
 
 Tài liệu hiện có:
 
@@ -48,6 +48,11 @@ pnpm install
 Copy-Item apps/mobile/.env.example apps/mobile/.env
 pnpm dev:mobile
 ```
+
+Mặc định `.env.example` dùng `EXPO_PUBLIC_DATA_MODE=fixture` và chỉ chạy ở local.
+Để nối hệ thống thật, đổi sang `remote` rồi cấu hình API URL, Supabase URL và Supabase
+publishable key. Thêm redirect `imokay://**` trong Supabase Auth. Expo push token cần EAS
+project ID, development build và thiết bị thật.
 
 Các lệnh kiểm tra chính:
 

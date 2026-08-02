@@ -72,12 +72,14 @@ Khi có xung đột:
 
 Tại mốc 2026-08-02:
 
-- Mobile MA0 và MA1 đã hoàn tất; source Expo nằm ở `apps/mobile`.
+- Mobile MA0, MA1 và phần client MA2 đã hoàn tất; source Expo nằm ở `apps/mobile`.
 - Workspace pnpm/Turborepo hiện là phần tối thiểu cho mobile; DI1 chưa hoàn tất ba app còn lại, shared config và CI.
 - Mobile dùng Expo SDK 57, React Native 0.86, Expo Router `src/app`, TypeScript strict, Jest và React Native Testing Library.
 - Typed public env, design tokens, shared components, root error boundary, Sentry/log scrub và navigation shell đã có; xem `docs/adr/0001-mobile-foundation.md`.
-- Root route hiện tạm vào main tabs; MA2 phải thay bằng session/onboarding restoration.
-- Android/iOS export, lint, typecheck và MA1 test đã xanh tại thời điểm bàn giao.
+- Root route đã restore session/onboarding và điều hướng M01–M06. MA2 có Supabase auth adapter, secure session persistence, M01–M05, push permission/token lifecycle, onboarding API adapter và per-user resume; xem `docs/adr/0002-mobile-auth-onboarding.md`.
+- `EXPO_PUBLIC_DATA_MODE=fixture` chỉ được phép ở local và UI phải luôn nói rõ chưa có bảo vệ thật. `remote` cần API URL, Supabase URL/publishable key; không đặt secret vào public env.
+- MA2 remote acceptance còn phụ thuộc BA2/BA3, cấu hình Supabase redirect/Google, EAS project ID, development build và thiết bị thật.
+- Android/iOS export, lint, typecheck và test đã xanh tại thời điểm bàn giao gần nhất; phải chạy lại sau thay đổi.
 - Backend, contact web và worker chưa có source.
 - Stitch project `I’m Okay Safety System`, ID `9249994988754984867`, private.
 - Design system asset `assets/cbd4d1ec489847ac84e45f592436c1f3`.
@@ -227,7 +229,7 @@ Chạy reconciliation định kỳ để tìm deadline/alert thiếu job, job kh
 Dùng interface tương đương:
 
 ```ts
-type NotificationChannel = 'push' | 'email' | 'sms' | 'voice';
+type NotificationChannel = "push" | "email" | "sms" | "voice";
 
 interface NotificationProvider {
   readonly channel: NotificationChannel;

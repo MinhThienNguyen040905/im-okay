@@ -6,7 +6,6 @@
     "orientation": "portrait",
     "scheme": "imokay",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.imokay.app"
@@ -16,10 +15,19 @@
       "adaptiveIcon": {
         "backgroundColor": "#F7FAF9"
       },
-      "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": true
     },
-    "plugins": ["expo-router", "@sentry/react-native/expo"],
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-notifications",
+        {
+          "defaultChannel": "safety-reminders"
+        }
+      ],
+      "@sentry/react-native/expo"
+    ],
     "experiments": {
       "typedRoutes": true
     }

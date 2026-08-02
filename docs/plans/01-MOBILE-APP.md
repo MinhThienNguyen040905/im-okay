@@ -6,20 +6,20 @@ Xây dựng app Expo + React Native + TypeScript cho iOS/Android, dành cho ngư
 
 Bao gồm 12 màn hình Stitch:
 
-| ID | Màn hình | Nhóm |
-|---|---|---|
-| M01 | Giới thiệu | Onboarding |
-| M02 | Đăng nhập | Auth |
-| M03 | Thiết lập hồ sơ | Onboarding |
-| M04 | Quyền thông báo | Onboarding |
-| M05 | Kế hoạch an toàn | Onboarding |
-| M06 | Trang chủ/check-in | Core |
-| M07 | Liên hệ tin cậy | Contacts |
-| M08 | Thêm liên hệ | Contacts |
-| M09 | Cảnh báo sắp kích hoạt | Alert |
-| M10 | Trợ giúp khẩn cấp/SOS | Alert |
-| M11 | Lịch sử | Management |
-| M12 | Cài đặt | Management |
+| ID  | Màn hình               | Nhóm       |
+| --- | ---------------------- | ---------- |
+| M01 | Giới thiệu             | Onboarding |
+| M02 | Đăng nhập              | Auth       |
+| M03 | Thiết lập hồ sơ        | Onboarding |
+| M04 | Quyền thông báo        | Onboarding |
+| M05 | Kế hoạch an toàn       | Onboarding |
+| M06 | Trang chủ/check-in     | Core       |
+| M07 | Liên hệ tin cậy        | Contacts   |
+| M08 | Thêm liên hệ           | Contacts   |
+| M09 | Cảnh báo sắp kích hoạt | Alert      |
+| M10 | Trợ giúp khẩn cấp/SOS  | Alert      |
+| M11 | Lịch sử                | Management |
+| M12 | Cài đặt                | Management |
 
 Ngoài phạm vi mobile: tính deadline authoritative, gửi email/push thật, escalation và public contact response. Các hành vi đó thuộc API/worker.
 
@@ -118,18 +118,31 @@ Hoàn tất ngày 02/08/2026 tại `apps/mobile` với Expo SDK 57. Bằng chứ
 
 ### MA2 — Auth và onboarding M01–M05
 
-- [ ] M01 giới thiệu và safety limitation.
-- [ ] M02 email/Google sign-in, loading, error và auth callback.
-- [ ] Session restore, sign-out và token refresh failure.
-- [ ] M03 profile + timezone detection/confirmation.
-- [ ] M04 xin quyền push sau khi giải thích; link sang system settings khi disabled.
-- [ ] Đăng ký/cập nhật Expo device token qua API.
-- [ ] M05 chọn 24/36/48 giờ và tạo safety plan.
-- [ ] Persist onboarding progress để resume sau khi app bị kill.
+- [x] M01 giới thiệu và safety limitation.
+- [x] M02 email/Google sign-in, loading, error và auth callback.
+- [x] Session restore, sign-out và xử lý phiên hết hạn/token refresh failure.
+- [x] M03 profile + timezone detection/confirmation.
+- [x] M04 xin quyền push sau khi giải thích; link sang system settings khi disabled.
+- [x] Đăng ký/cập nhật Expo device token qua API, giữ `pending` khi offline/chưa có project ID.
+- [x] M05 chọn 24/36/48 giờ và tạo safety plan sau khi adapter xác nhận.
+- [x] Persist onboarding progress theo user để resume sau khi app bị kill.
 
 API phụ thuộc: `/me`, `/me/devices`, `/safety-plan`; xem Plan 03.
 
 Exit: user mới đi hết onboarding và vào M06; push denied không chặn tài khoản nhưng giới hạn được nói rõ.
+
+Client implementation hoàn tất ngày 02/08/2026. Local fixture flow đáp ứng exit UX và luôn
+hiển thị cảnh báo chưa có bảo vệ thật. Remote acceptance vẫn mở cho đến khi BA2/BA3 có API,
+Supabase email/Google được cấu hình, EAS project ID có mặt và push được kiểm tra trên thiết bị
+thật/development build. ADR: `docs/adr/0002-mobile-auth-onboarding.md`.
+
+Bằng chứng kiểm chứng client MA2:
+
+- `expo install --check`: dependencies tương thích Expo SDK 57.
+- `expo-doctor`: 20/20 checks passed.
+- ESLint, TypeScript và 13 test case trong 6 suite đều xanh; routing test bao phủ resume M01–M06 và trường hợp push denied.
+- `expo export --platform android` và `expo export --platform ios` đều bundle thành công.
+- Chưa chạy remote auth/API/push E2E vì các dependency nêu trên chưa tồn tại trong repository.
 
 ### MA3 — Home và check-in M06
 
@@ -244,6 +257,7 @@ E2E:
 
 ## 8. Bước tiếp theo
 
-1. Triển khai MA2 theo navigation contract MA0 và thay root redirect tạm bằng session/onboarding restoration.
-2. Phối hợp API foundation cho `/me`, `/me/devices`, `/safety-plan`; không hard-code deadline ở client.
-3. Hoàn tất DI1 cho ba app còn lại, shared config và CI; workspace hiện chỉ có phần tối thiểu để chạy mobile.
+1. Triển khai BA1–BA3 và nghiệm thu MA2 ở `remote` với `/me`, `/me/devices`, `/safety-plan`.
+2. Cấu hình Supabase redirect `imokay://**`, Google provider, EAS project ID và kiểm tra push trên thiết bị thật/development build.
+3. Bắt đầu MA3 khi API authoritative status/check-in sẵn sàng; không hard-code deadline ở client.
+4. Hoàn tất DI1 cho ba app còn lại, shared config và CI; workspace hiện chỉ có phần tối thiểu để chạy mobile.

@@ -13,6 +13,10 @@ export default function AuthLayout() {
       }}
     >
       <Stack.Screen name="sign-in" options={{ title: "Đăng nhập" }} />
+      <Stack.Screen
+        name="auth/callback"
+        options={{ headerShown: false, title: "Xác nhận đăng nhập" }}
+      />
     </Stack>
   );
 }
