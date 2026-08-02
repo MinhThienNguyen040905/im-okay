@@ -6,7 +6,7 @@ I’m Okay là ứng dụng safety check-in dành cho người sống một mìn
 
 ## Trạng thái dự án
 
-Dự án đã hoàn tất phần client Mobile MA0–MA2. `apps/mobile` hiện có Expo SDK 57/Expo Router, Supabase email/Google auth adapter, secure session persistence, M01–M05, permission-first Expo Push, device registration adapter, safety-plan onboarding, resume progress, typed public env, shared UI và test foundation. Chế độ local fixture luôn cảnh báo chưa có bảo vệ thật; nghiệm thu remote MA2 còn phụ thuộc API BA2/BA3, cấu hình Supabase/EAS và thiết bị thật. Contact web, API, worker và CI của DI1 chưa scaffold.
+Dự án đã hoàn tất phần client Mobile MA0–MA5. `apps/mobile` hiện có Expo SDK 57/Expo Router, Supabase auth adapter và M01–M10. Check-in, trusted contacts, warning, finite snooze, guarded SOS, drill và correction UX đều dùng projection/idempotency authoritative; SOS yêu cầu giữ ba giây hoặc xác nhận hai bước và không hứa gọi cứu hộ/chia sẻ vị trí. Chế độ local fixture luôn cảnh báo chưa có bảo vệ, email hoặc alert thật; nghiệm thu remote MA2–MA5 còn phụ thuộc API BA1–BA6, invitation/W01, worker/provider/reconciliation, cấu hình Supabase/EAS và thiết bị thật. Contact web, API, worker và CI của DI1 chưa scaffold.
 
 Tài liệu hiện có:
 

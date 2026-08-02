@@ -211,6 +211,11 @@ Exit: check-in trước/đúng/sau deadline và duplicate/concurrent request có
 - [ ] Race handling khi nhiều contacts phản hồi.
 - [ ] User cancel/correction sau khi alert đã gửi.
 - [ ] SOS/drill commands với source/type rõ.
+- [ ] `/alerts/current` trả authoritative deadline, eligible contacts, channels, allowed actions,
+      delivery/correction state và `serverTime` cho M09/M10.
+- [ ] Snooze/SOS/drill dùng `Idempotency-Key`; snooze trả exact `snoozedUntil`, SOS/drill trả
+      full projection đúng source.
+- [ ] Check-in response trả outcome hủy-trước-khi-gửi hoặc correction queued/sent khi có alert.
 
 Exit: `delivered` không thể resolve/acknowledge; token used/expired không lộ alert data.
 
@@ -279,4 +284,3 @@ Contract:
 1. Chốt ADR auth/API/error/outbox.
 2. Chờ scaffold và database local từ Plan 05.
 3. Implement BA1→BA3 trước khi các feature client phụ thuộc.
-

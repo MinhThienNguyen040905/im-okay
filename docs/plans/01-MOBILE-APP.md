@@ -146,46 +146,98 @@ Bằng chứng kiểm chứng client MA2:
 
 ### MA3 — Home và check-in M06
 
-- [ ] Hiển thị authoritative status, last check-in, exact next deadline và relative countdown.
-- [ ] Bộ đếm dùng server-time offset, tự resync khi app foreground.
-- [ ] Check-in mutation gửi client idempotency key.
-- [ ] Chặn duplicate taps trong khi request pending.
-- [ ] Chỉ hiển thị success sheet sau response thành công.
-- [ ] Timeout/offline cho phép retry cùng idempotency key khi phù hợp.
-- [ ] Refresh state khi app resume hoặc push được mở.
-- [ ] Entry points sang contacts, warning và SOS.
+- [x] Hiển thị authoritative status, last check-in, exact next deadline và relative countdown.
+- [x] Bộ đếm dùng server-time offset, tự resync khi app foreground.
+- [x] Check-in mutation gửi client idempotency key sinh bằng secure random.
+- [x] Chặn duplicate taps trong khi request pending.
+- [x] Chỉ hiển thị success sheet sau response thành công và qua schema.
+- [x] Timeout/offline cho phép retry cùng idempotency key trong cửa sổ kỹ thuật phù hợp.
+- [x] Refresh state khi app resume hoặc push được mở.
+- [x] Entry points sang contacts, warning và SOS; route đích chưa mutation trước MA4/MA5.
 
 API phụ thuộc: `/safety-plan/status`, `/check-ins`; xem Plan 03/04.
 
 Exit: app không thể reset deadline cục bộ; concurrent/duplicate interaction có UX xác định.
 
+Client implementation hoàn tất ngày 02/08/2026. Remote adapter không chứa phép tính deadline;
+fixture calculation được cô lập và luôn có cảnh báo không bảo vệ thật. Remote acceptance vẫn
+mở tới khi BA5 và scheduling/reconciliation backend hoạt động. ADR:
+`docs/adr/0003-mobile-authoritative-check-in.md`.
+
+Bằng chứng kiểm chứng client MA3:
+
+- Contract test từ chối status thiếu `serverTime`; clock test bao phủ offset/countdown/approaching.
+- Fixture test xác nhận duplicate idempotency key replay cùng last check-in/deadline.
+- Remote adapter test xác nhận header `Idempotency-Key` và offline được phân loại retryable.
+- Component test xác nhận CTA bị khóa khi request pending.
+- `expo install --check` và `expo-doctor` 20/20 đều đạt.
+- ESLint, TypeScript và 26 test case trong 12 suite đều xanh.
+- `expo export --platform all` bundle thành công cho Android, iOS và web.
+- Chưa chạy remote check-in E2E/concurrency vì BA5, database và worker chưa có trong repository.
+
 ### MA4 — Trusted contacts M07/M08
 
-- [ ] Danh sách tối đa ba contact và invitation status.
-- [ ] Empty state và CTA thêm contact.
-- [ ] Form tên/email, không hiển thị phone/SMS trong MVP.
-- [ ] Inline validation, duplicate/max-limit errors từ server.
-- [ ] Reorder priority, resend có cooldown, remove có strong confirmation.
-- [ ] Refresh status sau khi contact accept W01.
+- [x] Danh sách tối đa ba contact và invitation status.
+- [x] Empty state và CTA thêm contact.
+- [x] Form tên/email, không hiển thị phone/SMS trong MVP.
+- [x] Inline validation, duplicate/max-limit errors từ server.
+- [x] Reorder priority, resend có cooldown, remove có strong confirmation.
+- [x] Refresh status sau khi contact accept W01.
 
 API phụ thuộc: `/trusted-contacts`, `/contact-invitations`; xem Plan 03.
 
 Exit: mobile không tự suy diễn `confirmed`; status luôn đến từ API.
 
+Client implementation hoàn tất ngày 02/08/2026. Mọi mutation chỉ commit full projection sau
+server response; `accepted` không có local transition. Form gửi tên/email và explicit consent,
+contact mới xếp cuối rồi được reorder bằng `orderedContactIds`. Cooldown dùng
+`resendAvailableAt`/server-clock; remove có destructive confirmation. M07 refetch khi focus,
+foreground hoặc mở push. ADR: `docs/adr/0004-mobile-authoritative-trusted-contacts.md`.
+
+Bằng chứng kiểm chứng client MA4:
+
+- Zod từ chối quá ba contact, duplicate id/email/priority và invitation status ngoài enum.
+- Remote adapter test xác nhận request add không có phone/SMS, reorder gửi full order và error
+  duplicate/cooldown được map bằng code.
+- Fixture test bao phủ normalized duplicate, max-limit, reorder, remove compact priority và
+  resend cooldown; fixture không có action tự tạo `accepted`.
+- ESLint, TypeScript và 39 test case trong 16 suite đều xanh.
+- `expo export --platform all` bundle thành công cho Android, iOS và web.
+- Remote invitation E2E/acceptance chưa chạy vì BA4, W01 và email provider chưa có source.
+
 ### MA5 — Warning, SOS, snooze và drill M09/M10
 
-- [ ] M09 hiển thị exact deadline, thời gian còn lại và alert consequence.
-- [ ] Check-in từ M09 dùng cùng mutation/idempotency với M06.
-- [ ] Snooze chọn duration hữu hạn, hiển thị `ends_at`, confirm từ server.
-- [ ] M10 giữ ba giây, progress feedback, cancel gesture và haptic phù hợp.
-- [ ] Cung cấp accessible two-step SOS khi hold không thực hiện được.
-- [ ] Không hứa hẹn gọi cấp cứu/vị trí.
-- [ ] Drill dùng badge/copy riêng và confirmation trước khi gửi.
-- [ ] Correction state khi user check-in sau alert.
+- [x] M09 hiển thị exact deadline, thời gian còn lại và alert consequence.
+- [x] Check-in từ M09 dùng cùng mutation/idempotency với M06.
+- [x] Snooze chọn duration hữu hạn, hiển thị `ends_at`, confirm từ server.
+- [x] M10 giữ ba giây, progress feedback, cancel gesture và haptic phù hợp.
+- [x] Cung cấp accessible two-step SOS khi hold không thực hiện được.
+- [x] Không hứa hẹn gọi cấp cứu/vị trí.
+- [x] Drill dùng badge/copy riêng và confirmation trước khi gửi.
+- [x] Correction state khi user check-in sau alert.
 
 API phụ thuộc: `/safety-plan/snooze`, `/alerts/sos`, `/alerts/drill`, `/alerts/current`.
 
 Exit: tap nhanh không gửi SOS; snooze không có tùy chọn vô thời hạn; drill không bị nhầm là alert thật.
+
+Client implementation hoàn tất ngày 02/08/2026. `/alerts/current` projection là nguồn duy nhất
+cho deadline, contact eligibility, channels, alert/delivery/correction state và allowed actions.
+Check-in M06/M09 dùng chung hook/idempotency store. Snooze/SOS/drill có persisted key riêng và
+chỉ commit sau response đúng contract. ADR:
+`docs/adr/0005-mobile-authoritative-alert-actions.md`.
+
+Bằng chứng kiểm chứng client MA5:
+
+- Contract test từ chối snooze ngoài 1/4/8, duplicate preset, contact summary lệch và source
+  alert không hợp lệ.
+- Remote adapter test xác nhận `Idempotency-Key`, exact `snoozedUntil` và từ chối response SOS
+  bị gắn nhãn drill.
+- Fixture test bao phủ exact deadline, eligible contact, finite snooze, SOS replay cùng key,
+  source drill riêng và correction queued sau check-in.
+- Component test xác nhận tap/thả sớm không gửi; giữ liên tục đủ ba giây gọi đúng một lần.
+- ESLint, TypeScript và 61 test case trong 22 suite đều xanh.
+- `expo export --platform all` bundle thành công cho Android, iOS và web.
+- Remote alert/provider/E2E chưa chạy vì BA6, worker, Expo/Gmail provider và staging chưa có.
 
 ### MA6 — History và settings M11/M12
 
@@ -257,7 +309,12 @@ E2E:
 
 ## 8. Bước tiếp theo
 
-1. Triển khai BA1–BA3 và nghiệm thu MA2 ở `remote` với `/me`, `/me/devices`, `/safety-plan`.
-2. Cấu hình Supabase redirect `imokay://**`, Google provider, EAS project ID và kiểm tra push trên thiết bị thật/development build.
-3. Bắt đầu MA3 khi API authoritative status/check-in sẵn sàng; không hard-code deadline ở client.
-4. Hoàn tất DI1 cho ba app còn lại, shared config và CI; workspace hiện chỉ có phần tối thiểu để chạy mobile.
+1. Triển khai BA1–BA5 và worker scheduling/reconciliation để nghiệm thu MA2–MA3 ở `remote`.
+2. Đối chiếu projection/status và error envelope với OpenAPI generated client trước integration gate.
+3. Cấu hình Supabase redirect/Google, EAS project ID và kiểm tra auth/push trên development build, thiết bị thật.
+4. Triển khai BA4, W01 và fake email provider; đối chiếu contract MA4 với OpenAPI rồi chạy
+   invitation E2E, concurrent accept/decline và revoke-link test.
+5. Triển khai BA6 + worker/provider, đối chiếu alert-context/check-in outcome với OpenAPI rồi
+   chạy accelerated warning/SOS/drill/correction E2E trên staging.
+6. Tiếp tục MA6 cho history/settings và account-data workflow.
+7. Hoàn tất DI1 cho ba app còn lại, shared config và CI.

@@ -22,6 +22,7 @@ export const colors = {
   dangerPressed: "#912018",
   dangerContainer: "#FEE4E2",
   focus: "#2563EB",
+  overlay: "rgba(16, 42, 42, 0.42)",
   transparent: "transparent",
 } as const;
 

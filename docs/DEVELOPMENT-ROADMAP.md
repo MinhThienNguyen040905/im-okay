@@ -27,17 +27,17 @@ Không nhân bản task chi tiết vào master. Khi thay đổi một hệ thố
 
 Mốc tham chiếu: 2026-08-02.
 
-| Hạng mục                           | Trạng thái                                                                                       | Nguồn theo dõi                                        |
-| ---------------------------------- | ------------------------------------------------------------------------------------------------ | ----------------------------------------------------- |
-| Product brief và UX flow           | Đã có bản nền                                                                                    | `design/stitch/03-PROJECT-BRIEF.md`, `04-UX-FLOWS.md` |
-| Design system                      | Đã tạo                                                                                           | `design/stitch/DESIGN.md`                             |
-| Mobile screens                     | Đã chọn M01–M12                                                                                  | `design/stitch/05-SCREEN-TRACKER.md`                  |
-| Contact web screens                | Đã chọn W01–W05                                                                                  | `design/stitch/05-SCREEN-TRACKER.md`                  |
-| Navigation contract/state variants | Mobile MA0 hoàn tất; Stitch không hỗ trợ link canvas                                             | Stitch tracker                                        |
-| Responsive/accessibility QA        | Chưa hoàn tất                                                                                    | Stitch tracker                                        |
-| Monorepo/source code               | Đã có workspace tối thiểu và `apps/mobile`; DI1 chưa hoàn tất                                    | Plan 01, 05                                           |
-| Mobile/web/API/worker              | Mobile MA2 client hoàn tất, remote acceptance chờ API/Supabase/EAS; web/API/worker chưa scaffold | Plan 01–04                                            |
-| Staging/production                 | Chưa tạo                                                                                         | Plan 05–06                                            |
+| Hạng mục                           | Trạng thái                                                                                                       | Nguồn theo dõi                                        |
+| ---------------------------------- | ---------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| Product brief và UX flow           | Đã có bản nền                                                                                                    | `design/stitch/03-PROJECT-BRIEF.md`, `04-UX-FLOWS.md` |
+| Design system                      | Đã tạo                                                                                                           | `design/stitch/DESIGN.md`                             |
+| Mobile screens                     | Đã chọn M01–M12                                                                                                  | `design/stitch/05-SCREEN-TRACKER.md`                  |
+| Contact web screens                | Đã chọn W01–W05                                                                                                  | `design/stitch/05-SCREEN-TRACKER.md`                  |
+| Navigation contract/state variants | Mobile MA0 hoàn tất; Stitch không hỗ trợ link canvas                                                             | Stitch tracker                                        |
+| Responsive/accessibility QA        | Chưa hoàn tất                                                                                                    | Stitch tracker                                        |
+| Monorepo/source code               | Đã có workspace tối thiểu và `apps/mobile`; DI1 chưa hoàn tất                                                    | Plan 01, 05                                           |
+| Mobile/web/API/worker              | Mobile MA5 client hoàn tất, remote acceptance chờ API/worker/provider/Supabase/EAS; web/API/worker chưa scaffold | Plan 01–04                                            |
+| Staging/production                 | Chưa tạo                                                                                                         | Plan 05–06                                            |
 
 ## 3. Phạm vi MVP
 
