@@ -1,6 +1,6 @@
 ---
 name: im-okay-project
-description: Xây dựng, duy trì và vận hành dự án I’m Okay — ứng dụng safety check-in cho người sống một mình. Dùng skill này khi lập kế hoạch, đọc ngữ cảnh, thiết kế Stitch, code/review mobile app hoặc responsive contact web, xây NestJS API/worker, Prisma/PostgreSQL, Redis/BullMQ, Supabase Auth, check-in, deadline, alert escalation, trusted contacts, invitation/response token, SOS, snooze, drill, push notification, Gmail, test, security, privacy, observability, deploy, release hoặc mở rộng provider của repository I’m Okay.
+description: Xây dựng, duy trì và vận hành dự án I’m Okay — ứng dụng safety check-in cho người sống một mình. Dùng skill này khi lập kế hoạch, đọc ngữ cảnh, thiết kế Stitch, code/review mobile app hoặc responsive contact web, xây Supabase Auth/PostgreSQL/RLS/RPC/Edge Functions/Cron/Queues, check-in, deadline, alert escalation, trusted contacts, invitation/response token, SOS, snooze, drill, push/email notification, test, security, privacy, observability, deploy, release hoặc mở rộng provider của repository I’m Okay.
 ---
 
 # I’m Okay Project
@@ -15,7 +15,7 @@ Luôn ưu tiên theo thứ tự:
 2. Bảo vệ dữ liệu, token và quyền truy cập.
 3. Thao tác check-in đơn giản, rõ trạng thái.
 4. Hạn chế báo động giả và cho phép đính chính.
-5. Khả năng phục hồi khi worker, Redis hoặc provider gặp sự cố.
+5. Khả năng phục hồi khi Cron, Edge Function, queue hoặc provider gặp sự cố.
 6. Tách nhà cung cấp thông báo khỏi nghiệp vụ cốt lõi.
 
 Không mô tả I’m Okay là thiết bị y tế, dịch vụ cứu hộ, hệ thống giám sát hay giải pháp bảo đảm cứu mạng. Dùng ngôn ngữ trung thực: đây là công cụ hỗ trợ kết nối người dùng với những người họ tin tưởng.
@@ -25,10 +25,12 @@ Không mô tả I’m Okay là thiết bị y tế, dịch vụ cứu hộ, hệ
 Trước khi đề xuất hoặc sửa code:
 
 1. Xác định repo root bằng `git rev-parse --show-toplevel`; không phụ thuộc working directory giả định.
-2. Đọc `README.md`, `docs/DEVELOPMENT-ROADMAP.md`, owner plan liên quan trong `docs/plans/` và `git status --short`; không đọc cả sáu plan nếu task chỉ thuộc một hệ thống.
+2. Đọc `README.md`, `docs/DEVELOPMENT-ROADMAP.md`, owner plan liên quan trong `docs/plans/`
+   và `git status --short`; dự án chỉ có ba plan đang hoạt động.
 3. Kiểm tra source, migration, test và ADR hiện có trước khi dùng kiến trúc mục tiêu trong skill này.
 4. Xác định giai đoạn roadmap hiện tại và chỉ làm hạng mục được yêu cầu.
-5. Phân loại thay đổi: product/design, client, API, domain, data, queue/worker, provider, security/privacy, test hay operations.
+5. Phân loại thay đổi: product/design, client, Edge API, domain/RPC, data/RLS,
+   cron/queue/consumer, provider, security/privacy, test hay operations.
 6. Nêu rõ giả định có thể ảnh hưởng deadline, dữ liệu hoặc hành vi cảnh báo.
 
 Không ghi đè thay đổi chưa liên quan trong dirty worktree. Không deploy, gửi notification thật, thay secret, push GitHub hoặc thao tác production nếu người dùng chưa yêu cầu.
@@ -54,12 +56,12 @@ Khi có xung đột:
 ### Routing tài liệu
 
 - Lập kế hoạch/tiến độ xuyên hệ thống: đọc `docs/DEVELOPMENT-ROADMAP.md`.
-- Mobile M01–M12, Expo, auth client, check-in UX, contacts, SOS, history/settings: đọc `docs/plans/01-MOBILE-APP.md`.
-- Contact web W01–W05 và public-link UX: đọc `docs/plans/02-CONTACT-WEB.md`.
-- NestJS API, domain command/query, auth, transaction, OpenAPI: đọc `docs/plans/03-BACKEND-API.md`.
-- BullMQ, scheduling, reconciliation, Expo Push, Gmail và provider: đọc `docs/plans/04-WORKER-NOTIFICATIONS.md`.
-- Monorepo, Prisma/PostgreSQL, Redis, CI/CD, environment, backup/deploy: đọc `docs/plans/05-DATA-INFRA-DEVOPS.md`.
-- E2E, security/privacy, accessibility, observability, alpha/beta/release: đọc `docs/plans/06-QA-SECURITY-RELEASE.md`.
+- Mobile M01–M12, Expo, auth client, check-in UX và remote/device gates: đọc
+  `docs/plans/01-MOBILE-APP.md`.
+- Contact web W01–W05, Supabase schema/RLS/RPC/Edge Functions, Cron/Queues, notifications,
+  local/CI/staging và S1–S4: đọc `docs/plans/02-SUPABASE-MVP.md`.
+- E2E release gate, security/privacy, accessibility, observability, alpha/beta/production: đọc
+  `docs/plans/03-RELEASE.md`.
 - Task chạm nhiều hệ thống: đọc master và chỉ các owner plan bị tác động; ghi rõ phụ thuộc/contract trước khi code.
 - Product scope/copy: đọc `design/stitch/03-PROJECT-BRIEF.md` và `02-ADDITIONAL-INSTRUCTIONS.md`.
 - User flow/navigation: đọc `design/stitch/04-UX-FLOWS.md`.
@@ -70,11 +72,14 @@ Khi có xung đột:
 
 ## 4. Trạng thái dự án hiện tại
 
-Tại mốc 2026-08-02:
+Tại mốc 2026-08-04:
 
 - Mobile MA0–MA6 client và phần MA7 hardening có thể chứng minh trong repository đã
   hoàn tất; source Expo nằm ở `apps/mobile`. MA7 external acceptance vẫn mở.
-- Workspace pnpm/Turborepo hiện là phần tối thiểu cho mobile; DI1 chưa hoàn tất ba app còn lại, shared config và CI.
+- Workspace pnpm/Turborepo hiện là phần tối thiểu cho mobile; S1 chưa hoàn tất
+  contact web, `supabase/`, shared config và CI.
+- ADR 0008 đã chốt Supabase-first cho MVP: Auth + PostgreSQL/RLS/RPC + Edge Functions +
+  Cron/Queues. Không scaffold NestJS/Prisma/Redis/BullMQ trừ khi ADR sau có bằng chứng cần thiết.
 - Mobile dùng Expo SDK 57, React Native 0.86, Expo Router `src/app`, TypeScript strict, Jest và React Native Testing Library.
 - Typed public env, design tokens, shared components, root error boundary, Sentry/log scrub và navigation shell đã có; xem `docs/adr/0001-mobile-foundation.md`.
 - Root route đã restore session/onboarding và điều hướng M01–M06. MA2 có Supabase auth adapter, secure session persistence, M01–M05, push permission/token lifecycle, onboarding API adapter và per-user resume; xem `docs/adr/0002-mobile-auth-onboarding.md`.
@@ -97,13 +102,14 @@ Tại mốc 2026-08-02:
   build, upload source map, TestFlight/Play hay rollout.
 - Remote check-in adapter tuyệt đối không tính deadline. Công thức trong mobile chỉ được tồn tại ở `features/check-in/fixtureApi.ts`, là fake server local có cảnh báo rõ.
 - `EXPO_PUBLIC_DATA_MODE=fixture` chỉ được phép ở local và UI phải luôn nói rõ chưa có bảo vệ thật. `remote` cần API URL, Supabase URL/publishable key; không đặt secret vào public env.
-- MA2–MA7 external acceptance còn phụ thuộc BA1–BA7, invitation/W01, worker/provider
-  scheduling/reconciliation, retention/re-auth policy, staging, Supabase redirect/Google,
+- MA2–MA7 external acceptance còn phụ thuộc S1–S4, invitation/contact web,
+  Cron/Queues/provider scheduling/reconciliation, retention/re-auth policy, staging,
+  Supabase redirect/Google,
   EAS/Sentry/store credential, test recipient đã consent, internal build và thiết bị thật.
 - Lint, typecheck, 105 test case trong 33 suite, `expo install --check`, `expo-doctor` 20/20 và
   Android/iOS/web export đã xanh tại thời điểm bàn giao MA7 repo hardening; phải
   chạy lại sau thay đổi.
-- Backend, contact web và worker chưa có source.
+- Supabase backend/schema/functions và contact web chưa có source.
 - Stitch project `I’m Okay Safety System`, ID `9249994988754984867`, private.
 - Design system asset `assets/cbd4d1ec489847ac84e45f592436c1f3`.
 - Đã chọn 12 mobile screens M01–M12 và 5 web screens W01–W05.
@@ -124,7 +130,7 @@ Triển khai:
 - Tối đa ba trusted contacts, có invitation acceptance.
 - Check-in “Tôi vẫn ổn”, last check-in và next deadline.
 - Expo Push nhắc người dùng.
-- Gmail SMTP/App Password cho invitation/alert email trong MVP.
+- Email HTTP provider qua adapter cho invitation/alert; Resend là mặc định MVP.
 - Alert escalation nếu chưa có contact nhận xử lý.
 - Snooze có thời hạn, SOS có guard, drill, history và settings.
 - Audit, delivery log, retry, reconciliation và observability.
@@ -144,35 +150,46 @@ Có thể định nghĩa interface và data status cho SMS/voice, nhưng provide
 ```text
 Expo mobile        Expo responsive contact web
       \                    /
-       \---- NestJS API --/
-                |
-        PostgreSQL/Supabase
-                |
-          Redis/BullMQ
-                |
-          NestJS worker
-          |-- Expo Push
-          |-- Gmail
-          |-- SMS disabled
-          `-- Voice disabled
+       \---- Supabase Auth + Edge Functions
+                         |
+                 PostgreSQL + RLS/RPC
+                   |             |
+                   |             `-- Cron/reconciliation
+                   v
+            Outbox/Supabase Queues
+                   |
+            Edge Function consumers
+            |-- Expo Push
+            |-- Email HTTP provider
+            |-- SMS disabled
+            `-- Voice disabled
 ```
 
 Dùng:
 
 - pnpm workspaces + Turborepo.
-- `apps/mobile`, `apps/contact-web`, `apps/api`, `apps/worker`.
+- `apps/mobile`, `apps/contact-web`, `supabase/migrations`, `supabase/functions` và
+  `supabase/tests`; không tạo `apps/api`/`apps/worker` trong MVP.
 - `packages/domain`, `packages/contracts`, `packages/ui`, `packages/config` khi có consumer thực.
 - Expo Router cho mobile và contact web; tách deployable để public link không phụ thuộc bundle/app auth.
 - TanStack Query cho server state; local state chỉ khi cần.
 - React Hook Form + Zod cho form/client validation.
-- NestJS REST API với OpenAPI.
-- Supabase Auth và hosted PostgreSQL.
-- Prisma cho schema, migration và server data access.
-- BullMQ + Redis cho delayed jobs/retry; worker tách API.
-- Expo Push Notifications và Nodemailer/Gmail trong MVP.
-- Sentry cho mobile, web, API và worker.
+- Supabase Auth và hosted PostgreSQL là nền tảng duy nhất cho MVP; không thêm Firebase.
+- SQL migrations là source of truth cho schema/function/RLS/cron/queue config.
+- Edge Functions là HTTP boundary; authoritative mutation dùng PostgreSQL function/RPC trong
+  transaction. Giữ `/v1/...`, projection, error code và `Idempotency-Key` mà mobile đã test.
+- Authenticated Edge Function ưu tiên user-scoped database client mang caller JWT để
+  `auth.uid()`/RLS còn hiệu lực. Service role chỉ cho internal/public-token RPC hẹp, có
+  explicit actor/scope check; không tin actor ID từ body.
+- Versioned Zod/TypeScript contracts; generated DB types không thay public contract. OpenAPI
+  không bắt buộc cho MVP nếu chưa có consumer/tooling cần.
+- Supabase Cron + Queues/Postgres outbox cho scheduling/retry/reconciliation.
+- Expo Push Notifications và email HTTP provider/Resend trong MVP.
+- Sentry/log/metrics cho mobile, web, Edge Functions, cron, queue và provider.
 
-Không cho client ghi trực tiếp `alerts`, `alert_steps`, `alert_responses`, `notification_deliveries` hoặc `audit_logs`. Mọi mutation nghiệp vụ đi qua API.
+Không cho client ghi trực tiếp `alerts`, `alert_steps`, `alert_responses`,
+`notification_deliveries`, `audit_logs`, `outbox_events` hoặc queue. Mọi mutation nghiệp vụ
+đi qua Edge Function + authoritative RPC; service-role key không bao giờ vào client.
 
 Nếu source/ADR sau này đã chọn công nghệ khác, không scaffold lại mù quáng. Đọc ADR, nêu trade-off và chỉ migration khi người dùng chấp thuận phạm vi thay đổi.
 
@@ -184,7 +201,10 @@ Nếu source/ADR sau này đã chọn công nghệ khác, không scaffold lại 
 nextDeadlineAt = lastCheckInAt + checkInInterval
 ```
 
-“36 giờ” nghĩa là deadline sau 36 giờ kể từ check-in hợp lệ gần nhất. Không hiểu là 36 giờ sau một lịch trung gian. Tập trung phép tính trong pure domain service; không rải công thức ở client, controller và worker.
+“36 giờ” nghĩa là deadline sau 36 giờ kể từ check-in hợp lệ gần nhất. Không hiểu
+là 36 giờ sau một lịch trung gian. Tập trung phép tính trong một authoritative
+database/domain function có test; không rải công thức ở client, Edge handler, SQL trigger và
+queue consumer.
 
 Timeline mặc định cho chu kỳ 36 giờ:
 
@@ -211,7 +231,8 @@ scheduled -> warning -> triggered -> acknowledged -> resolved
 Bất biến:
 
 - Chỉ một alert chưa kết thúc trên mỗi safety plan.
-- Chỉ domain service được quyết định state transition; controller/worker gọi service.
+- Chỉ authoritative domain/RPC command được quyết định state transition; Edge
+  handler/scheduler/consumer chỉ validate và gọi command.
 - Check-in hợp lệ phải cập nhật deadline và làm stale/cancel job chu kỳ cũ.
 - Job khi chạy phải nạp state hiện tại từ PostgreSQL; không tin payload cũ.
 - `sent`/`delivered` là trạng thái kênh; không đồng nghĩa `acknowledged`.
@@ -223,7 +244,8 @@ Bất biến:
 
 ## 8. Transaction, queue và idempotency
 
-PostgreSQL là source of truth. BullMQ là executor có thể dựng lại.
+PostgreSQL domain state là source of truth. Supabase Queues/Postgres outbox là executor state
+có thể dựng lại.
 
 Khi check-in:
 
@@ -233,19 +255,20 @@ Khi check-in:
 4. Update `last_check_in_at` và `next_deadline_at`.
 5. Transition alert cũ nếu hợp lệ.
 6. Ghi audit/outbox trong cùng transaction.
-7. Sau commit, enqueue lại job; reconciliation bù nếu enqueue thất bại.
+7. Cron/consumer publish/claim work sau commit; reconciliation bù nếu queue work thất lạc.
 
-Job handler:
+Queue consumer:
 
 - Hoạt động theo at-least-once.
 - Dùng stable idempotency key theo business action, recipient, channel và policy version.
 - Kiểm tra stale job bằng deadline/alert version.
 - Ghi attempt và sanitized error.
 - Retry exponential backoff; phân biệt permanent/transient error.
-- Đưa job hết retry vào dead-letter/failed set có metric và runbook.
+- Đưa work hết retry vào failed/dead-letter path có metric và runbook.
 - Không coi retry là alert hoặc delivery mới.
 
-Chạy reconciliation định kỳ để tìm deadline/alert thiếu job, job không còn hợp lệ và delivery stuck. Phải test kịch bản Redis trống.
+Chạy reconciliation định kỳ để tìm deadline/alert thiếu work, message stale,
+lease hết hạn và delivery stuck. Phải test xóa queue messages rồi dựng lại từ domain state.
 
 ## 9. Notification provider
 
@@ -271,19 +294,19 @@ Mỗi delivery tối thiểu có:
 - `attempt_count`, `last_attempt_at`, `last_error_code`, sanitized detail.
 - `template_key`, `template_version`, correlation/alert ID.
 
-Gmail MVP:
+Email HTTP provider MVP:
 
 ```text
-GMAIL_USER=
-GMAIL_APP_PASSWORD=
-EMAIL_FROM_NAME=I'm Okay
+RESEND_API_KEY=
+EMAIL_FROM=
 PUBLIC_APP_URL=
 ```
 
-- Bật Google 2-Step Verification trước khi tạo App Password.
-- Không commit App Password/token/email cá nhân.
-- Gmail `accepted` chỉ chuyển delivery thành `sent`; không suy ra đã đọc.
-- Bọc trong `GmailEmailProvider` để có thể thay bằng SES/Resend.
+- Resend là adapter mặc định theo ADR 0008; luôn bọc trong `EmailProvider` để có
+  thể thay bằng provider khác.
+- Không commit API key/token/email cá nhân; secret chỉ ở Supabase project secrets.
+- Provider `accepted` chỉ chuyển delivery thành `sent`; không suy ra đã đọc/delivered.
+- Local/CI dùng fake provider; smoke thật chỉ với explicit flag và test recipient đã consent.
 
 Expo Push:
 
@@ -369,7 +392,7 @@ Khi code từ Stitch:
 2. Viết/cập nhật pure domain test.
 3. Cập nhật schema/migration nếu cần.
 4. Implement repository/service trong transaction boundary.
-5. Implement API contract và authorization.
+5. Implement Edge API contract, JWT/ownership và RLS authorization.
 6. Implement queue/provider side effect sau commit.
 7. Nối client state và error handling.
 8. Chạy unit, integration và E2E liên quan.
@@ -403,8 +426,9 @@ Khi code từ Stitch:
 
 1. Kiểm tra environment target và diff migration.
 2. Chạy CI, smoke test staging và backup/restore checkpoint.
-3. Deploy API/worker theo thứ tự tương thích schema.
-4. Xác minh health, queue lag, reconciliation, push/email smoke.
+3. Deploy expand migration, backward-compatible Edge Functions rồi clients theo thứ tự.
+4. Xác minh RLS, function health/error, cron run/lag, queue age, reconciliation và
+   push/email smoke.
 5. Rollout client theo nhóm; theo dõi error/notification metrics.
 6. Rollback code bằng version cũ; không rollback migration phá dữ liệu nếu chưa có kế hoạch được kiểm chứng.
 
@@ -422,10 +446,10 @@ Unit bắt buộc:
 
 Integration bắt buộc:
 
-- API → DB → outbox/queue → worker.
-- Retry Expo/Gmail qua fake mà không gửi trùng.
-- Worker restart trong khi xử lý.
-- Redis trống và reconciliation dựng lại job.
+- Edge API → DB/outbox → queue → consumer.
+- Retry Expo/email qua fake mà không gửi trùng.
+- Edge Function termination/reinvoke trong khi xử lý.
+- Queue message bị xóa/lease hết hạn và reconciliation dựng lại work.
 - Contact ưu tiên không phản hồi và escalation.
 - Invitation/response token hết hạn, đã dùng, revoke và concurrent submit.
 - User check-in sau khi contact đã nhận alert.
@@ -449,9 +473,11 @@ Dùng fake clock và fake provider trong test mặc định. Chỉ smoke test pr
 - Không log authorization header, cookie, public token, App Password, email body hay dữ liệu vị trí/sức khỏe.
 - Dùng correlation ID xuyên API, job, delivery và audit.
 - Sentry scrub PII; analytics chỉ thu dữ liệu cần thiết.
-- Theo dõi API error/latency, worker heartbeat, queue lag, deadline thiếu job, reconciliation repair và provider failure.
+- Theo dõi Edge Function error/latency, cron run/failure, scheduler lag, queue age/depth,
+  deadline thiếu work, reconciliation repair và provider failure.
 - Backup PostgreSQL và diễn tập restore; không chỉ tin vào cấu hình backup.
-- Tạo runbook cho provider outage, queue backlog, Redis loss, migration fail và public-token incident.
+- Tạo runbook cho provider outage, cron/function outage, queue backlog/loss, migration fail
+  và public-token incident.
 
 ## 16. Definition of Done
 
@@ -460,7 +486,7 @@ Một feature thông thường hoàn thành khi:
 - Acceptance criteria và authorization rule được đáp ứng.
 - Loading/empty/error/offline state hợp lý.
 - Lint, format, typecheck, unit/integration test liên quan xanh.
-- Migration, OpenAPI, docs và roadmap được cập nhật nếu cần.
+- Migration, RLS, versioned contract, docs và roadmap được cập nhật nếu cần.
 - Không lộ secret/PII; accessibility được kiểm tra.
 
 Feature cảnh báo/notification chỉ hoàn thành khi thêm:
@@ -468,7 +494,8 @@ Feature cảnh báo/notification chỉ hoàn thành khi thêm:
 - State/invariant rõ và chạy trên backend khi app đóng.
 - Transaction/idempotency/retry/stale-job handling.
 - Audit log và correlation ID.
-- Test đường thành công, provider fail, worker restart và duplicate attempt.
+- Test đường thành công, provider fail, function termination/queue lease expiry và
+  duplicate attempt.
 - UI nói trung thực trạng thái kênh và giới hạn hệ thống.
 
 Không đánh dấu complete chỉ vì code compile hoặc email provider trả `accepted`.

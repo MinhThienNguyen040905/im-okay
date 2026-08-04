@@ -4,10 +4,14 @@
 - Ngày: 2026-08-02
 - Phạm vi: `apps/mobile`, M09/M10
 
+> Cập nhật 2026-08-04: dependency worker/OpenAPI cũ được ánh xạ sang Supabase Edge
+> Functions, Cron/Queues và versioned contracts theo ADR 0008. Hành vi MA5 không đổi.
+
 ## Bối cảnh
 
 MA5 đưa vào các hành động có thể làm thay đổi quy trình cảnh báo: check-in từ warning, snooze,
-SOS và drill. Backend BA6, worker và provider chưa tồn tại trong repository. Client không được
+SOS và drill. Backend S3, scheduler/queue consumer và provider chưa tồn tại trong repository.
+Client không được
 tự chuyển alert state, tự hứa notification đã gửi hoặc hiển thị SOS thành công chỉ vì người dùng
 giữ nút đủ ba giây.
 
@@ -44,7 +48,7 @@ giữ nút đủ ba giây.
 
 - MA5 client có thể kiểm thử gesture, states và contract trước backend nhưng không phải bằng
   chứng end-to-end rằng cảnh báo hoạt động khi app đóng.
-- Remote acceptance còn phụ thuộc BA5/BA6, outbox/worker/reconciliation, Expo/Gmail adapters,
-  confirmed contacts, OpenAPI reconciliation và accelerated alert E2E trên staging.
+- Remote acceptance còn phụ thuộc S2–S4, outbox/Cron/Queues/reconciliation, Expo/email
+  adapters, confirmed contacts, contract compatibility và accelerated alert E2E trên staging.
 - Backend phải quyết định transition, allowed actions, exact snooze end và correction. Nếu
-  contract OpenAPI chọn field khác, adapter/schema/ADR cần được cập nhật cùng một thay đổi.
+  versioned contract chọn field khác, adapter/schema/ADR cần được cập nhật cùng thay đổi.

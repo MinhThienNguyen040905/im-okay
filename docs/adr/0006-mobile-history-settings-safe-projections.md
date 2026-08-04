@@ -2,14 +2,17 @@
 
 - Trạng thái: Accepted
 - Ngày: 2026-08-02
-- Phạm vi: `apps/mobile`, M11/M12, contract phụ thuộc BA7
+- Phạm vi: `apps/mobile`, M11/M12, contract phụ thuộc S3
+
+> Cập nhật 2026-08-04: dependency backend/OpenAPI cũ được ánh xạ sang Supabase Edge
+> Functions/RPC và versioned contracts theo ADR 0008. Safe projection MA6 không đổi.
 
 ## Bối cảnh
 
 MA6 đưa lịch sử hoạt động, chỉnh hồ sơ/múi giờ/chu kỳ, trạng thái push, tắt kế hoạch an toàn và
 yêu cầu export/delete vào mobile. Đây là các bề mặt dễ làm lộ token, email/provider error hoặc
 làm người dùng hiểu sai rằng deadline/account workflow đã đổi chỉ vì client cập nhật local.
-Backend BA7 chưa tồn tại trong repository nên client cần một contract đủ chặt để phát triển và
+Backend S3 chưa tồn tại trong repository nên client cần một contract đủ chặt để phát triển và
 kiểm thử trước, nhưng fixture không được giả làm bảo vệ thật.
 
 ## Quyết định
@@ -46,11 +49,11 @@ kiểm thử trước, nhưng fixture không được giả làm bảo vệ th�
 
 ## Hệ quả
 
-- M11/M12 client có thể kiểm thử contract và interaction trước BA7 mà không làm loãng privacy
+- M11/M12 client có thể kiểm thử contract và interaction trước S3 mà không làm loãng privacy
   boundary hoặc authoritative scheduling rule.
 - History filter chỉ lọc tập page đã tải; backend vẫn chịu trách nhiệm projection đầy đủ, thứ tự,
-  cursor ổn định và authorization theo user. Nếu cần filter server-side sau này, OpenAPI và query
+  cursor ổn định và authorization theo user. Nếu cần filter server-side sau này, contract và query
   key phải được version/cập nhật cùng nhau.
-- Remote acceptance MA6 còn phụ thuộc BA7, retention policy, recent-auth enforcement, OpenAPI
-  reconciliation và staging tests. Expo push readiness vẫn cần EAS project ID, development build
+- Remote acceptance MA6 còn phụ thuộc S3–S4, retention policy, recent-auth enforcement, contract
+  compatibility và staging tests. Expo push readiness vẫn cần EAS project ID, development build
   và thiết bị thật.

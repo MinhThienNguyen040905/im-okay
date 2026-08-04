@@ -12,9 +12,14 @@ M01–M12; reduced-motion/focus/dynamic-font hardening, incoming-link allowlist,
 EAS profiles, Maestro fixture smoke, device matrix và release/rollback runbook đã có. Check-in,
 trusted contacts, alert và settings vẫn tuân thủ projection/idempotency authoritative; app không tự
 tính production deadline hay nhận public contact token. External acceptance MA2–MA7 còn phụ
-thuộc API/worker/contact web, staging, Supabase/EAS/Sentry/store credential, test recipient đã
+thuộc Supabase backend/scheduler/contact web, staging, EAS/Sentry/store credential, test recipient đã
 consent và thiết bị thật. Chưa có build/submit/deploy lên TestFlight hoặc Google Play.
-Contact web, API, worker và CI của DI1 chưa scaffold.
+Contact web, Supabase schema/functions/cron/queues và full-stack CI chưa scaffold.
+
+Kiến trúc MVP đã chốt Supabase-first ngày 04/08/2026: Supabase Auth + PostgreSQL/RLS,
+Edge Functions, Cron và Queues thay cho kế hoạch NestJS/Prisma/Redis/BullMQ cũ. Quyết định
+này không làm thay đổi phần mobile đã hoàn thành; xem
+[`ADR 0008`](docs/adr/0008-supabase-first-backend.md).
 
 Tài liệu hiện có:
 
@@ -25,7 +30,9 @@ Tài liệu hiện có:
 - Prompt variants, targeted edits, navigation contract và accessibility QA.
 - Project-specific Codex skill.
 - [Master roadmap từ thiết kế đến production](docs/DEVELOPMENT-ROADMAP.md).
-- Implementation plans: [Mobile](docs/plans/01-MOBILE-APP.md), [Contact web](docs/plans/02-CONTACT-WEB.md), [Backend API](docs/plans/03-BACKEND-API.md), [Worker/notifications](docs/plans/04-WORKER-NOTIFICATIONS.md), [Data/infra/DevOps](docs/plans/05-DATA-INFRA-DEVOPS.md) và [QA/security/release](docs/plans/06-QA-SECURITY-RELEASE.md).
+- Ba plan đang dùng: [Mobile status/gates](docs/plans/01-MOBILE-APP.md),
+  [Supabase MVP](docs/plans/02-SUPABASE-MVP.md) và
+  [Quality/security/release](docs/plans/03-RELEASE.md).
 
 ## Bắt đầu thiết kế
 
@@ -40,11 +47,11 @@ Tài liệu hiện có:
 ## Công nghệ dự kiến
 
 - Expo + React Native + TypeScript.
-- NestJS API và worker.
-- PostgreSQL/Supabase.
-- Redis/BullMQ.
+- Supabase Auth + PostgreSQL + RLS/RPC.
+- Supabase Edge Functions cho HTTP API/provider orchestration.
+- Supabase Cron + Queues cho scheduling, retry và reconciliation.
 - Expo Push Notifications.
-- Gmail SMTP trong MVP.
+- Email HTTP provider qua adapter; Resend là mặc định MVP.
 
 ## Chạy mobile foundation
 
@@ -58,9 +65,11 @@ pnpm dev:mobile
 ```
 
 Mặc định `.env.example` dùng `EXPO_PUBLIC_DATA_MODE=fixture` và chỉ chạy ở local.
-Để nối hệ thống thật, đổi sang `remote` rồi cấu hình API URL, Supabase URL và Supabase
-publishable key. Thêm redirect `imokay://**` trong Supabase Auth. Expo push token cần EAS
-project ID, development build và thiết bị thật.
+Để nối hệ thống thật, đổi sang `remote` rồi cấu hình API URL trỏ tới Supabase
+Edge Function router, Supabase URL và publishable key. Ví dụ base API URL là
+`https://<project-ref>.supabase.co/functions/v1/api`; mobile tiếp tục nối các path `/v1/...`.
+Thêm redirect `imokay://**` trong Supabase Auth. Expo push token cần EAS project ID,
+development build và thiết bị thật.
 
 Các lệnh kiểm tra chính:
 

@@ -4,10 +4,13 @@
 - Ngày: 2026-08-02
 - Phạm vi: `apps/mobile`, M07/M08
 
+> Cập nhật 2026-08-04: dependency backend/OpenAPI cũ được ánh xạ sang Supabase Edge
+> Functions/RPC và versioned contracts theo ADR 0008. Contract authoritative MA4 không đổi.
+
 ## Bối cảnh
 
 MA4 cần cho người dùng thêm tối đa ba liên hệ, đổi thứ tự, gửi lại lời mời và xóa liên hệ
-trước khi backend BA4/W01 tồn tại. Sai lầm nguy hiểm nhất là mobile tự đánh dấu một người đã
+trước khi backend/contact web S3 tồn tại. Sai lầm nguy hiểm nhất là mobile tự đánh dấu một người đã
 xác nhận, cập nhật danh sách lạc quan khi server chưa commit, hoặc quảng bá email/SMS đã gửi
 trong chế độ fixture.
 
@@ -30,7 +33,7 @@ phone/SMS của một iteration cũ, trong khi owner plan và phạm vi MVP ch�
 - Reorder gửi toàn bộ `orderedContactIds` trong một request để backend áp dụng atomically.
 - Cooldown hiển thị từ `resendAvailableAt` và server-clock offset. Server vẫn phải rate-limit.
   Error code chính là `INVITATION_COOLDOWN`, kèm `details.retryAt` khi có. Client cũng hiểu
-  alias `RESEND_COOLDOWN` trong giai đoạn trước OpenAPI để tránh làm mất safe copy.
+  alias `RESEND_COOLDOWN` trong giai đoạn trước versioned contract để tránh làm mất safe copy.
 - Duplicate/max-limit và conflict dùng code `CONTACT_DUPLICATE`, `CONTACT_LIMIT_REACHED`,
   `CONTACT_REORDER_CONFLICT`. Client không hiển thị message nội bộ do server gửi; code được
   map sang copy an toàn và request ID chỉ dành cho chẩn đoán.
@@ -44,10 +47,10 @@ phone/SMS của một iteration cũ, trong khi owner plan và phạm vi MVP ch�
 
 ## Hệ quả
 
-- M07/M08, validation và các state mutation có thể phát triển độc lập với BA4 mà vẫn giữ đúng
+- M07/M08, validation và các state mutation có thể phát triển độc lập với S3 mà vẫn giữ đúng
   trust boundary.
-- Remote acceptance còn phụ thuộc BA4, invitation token/transaction, W01, email provider và
-  OpenAPI reconciliation. Client MA4 hoàn tất không đồng nghĩa lời mời hoặc cảnh báo thật đã
+- Remote acceptance còn phụ thuộc S3, invitation token/transaction, W01, email provider và
+  contract compatibility. Client MA4 hoàn tất không đồng nghĩa lời mời hoặc cảnh báo thật đã
   hoạt động.
 - Relationship/edit-contact chưa nằm trong MA4 contract. Nếu bổ sung sau này cần cập nhật
-  OpenAPI, form, privacy notice và Stitch cùng lúc.
+  versioned contract, form, privacy notice và Stitch cùng lúc.

@@ -4,9 +4,12 @@
 - Ngày: 2026-08-02
 - Phạm vi: `apps/mobile`, M06
 
+> Cập nhật 2026-08-04: dependency API/worker/OpenAPI cũ được ánh xạ sang Supabase Edge
+> Functions, Cron/Queues và versioned contracts theo ADR 0008. Contract authoritative MA3 không đổi.
+
 ## Bối cảnh
 
-M06 cần hiển thị countdown và cho phép check-in trước khi backend BA5 tồn tại. Sai lầm nguy
+M06 cần hiển thị countdown và cho phép check-in trước khi backend S2 tồn tại. Sai lầm nguy
 hiểm nhất ở client là tự tính deadline, báo check-in thành công khi request chưa được xác nhận
 hoặc tạo check-in thứ hai khi retry sau timeout.
 
@@ -39,6 +42,6 @@ hoặc tạo check-in thứ hai khi retry sau timeout.
 
 - Client MA3 có thể kiểm thử đầy đủ loading, success, retry, duplicate-tap và stale-state UX
   trước backend, nhưng không phải bằng chứng reliable check-in end-to-end.
-- Remote acceptance còn phụ thuộc BA1–BA5, outbox/scheduling/reconciliation trong Plan 04,
-  OpenAPI reconciliation và test concurrent/duplicate trên database thật.
+- Remote acceptance còn phụ thuộc S1–S2 trong Plan 02, contract compatibility và test
+  concurrent/duplicate/reconciliation trên database thật.
 - TTL 15 phút chỉ là cửa sổ kỹ thuật giữ retry key, không phải deadline hay policy cảnh báo.

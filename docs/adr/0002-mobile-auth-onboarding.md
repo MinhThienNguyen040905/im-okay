@@ -4,9 +4,12 @@
 - Ngày: 2026-08-02
 - Phạm vi: `apps/mobile`, M01–M05
 
+> Cập nhật 2026-08-04: dependency NestJS/OpenAPI trong bối cảnh cũ được ánh xạ sang
+> Supabase Edge Functions + versioned contracts theo ADR 0008. Hành vi MA2 đã hoàn thành không đổi.
+
 ## Bối cảnh
 
-MA2 cần chạy được toàn bộ luồng người dùng mới trong khi NestJS API và các endpoint
+MA2 cần chạy được toàn bộ luồng người dùng mới trong khi backend và các endpoint
 `/me`, `/me/devices`, `/safety-plan` chưa được triển khai. App không được ghi trực tiếp
 vào database domain, giả đồng bộ máy chủ hoặc tạo cảm giác đang được bảo vệ khi chỉ có
 dữ liệu cục bộ.
@@ -40,7 +43,7 @@ dữ liệu cục bộ.
 
 - Có thể kiểm tra toàn bộ UX M01–M05 ngay ở local khi backend chưa có, nhưng fixture không
   phải bằng chứng nghiệm thu tích hợp.
-- Nghiệm thu remote còn phụ thuộc BA2/BA3, cấu hình Supabase provider/redirect URL, EAS
+- Nghiệm thu remote còn phụ thuộc S1–S2, cấu hình Supabase provider/redirect URL, EAS
   project ID, development build và thiết bị thật.
-- Khi OpenAPI được sinh ở Plan 03, adapter viết tay phải được thay hoặc đối chiếu với typed
-  generated client trước khi đóng release gate.
+- Khi versioned contract được tạo ở Plan 02, adapter viết tay phải được thay hoặc
+  đối chiếu bằng compatibility test trước khi đóng release gate.

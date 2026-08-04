@@ -65,7 +65,7 @@ maestro test .maestro
 
 ## 5. TestFlight và Google Play Internal Testing
 
-Chỉ submit khi backend/staging gates, privacy/support material và store artwork đã sẵn sàng.
+Chỉ submit khi Supabase backend/staging gates, privacy/support material và store artwork đã sẵn sàng.
 
 ```powershell
 eas build --profile production --platform all
@@ -77,7 +77,8 @@ Sau upload, chưa chuyển production ngay:
 
 - Ghi App Store/Play build number, EAS build ID và commit SHA.
 - Internal testers dùng contact test đã được thông báo; không dùng người thân thật ngoài consent.
-- Theo dõi crash, check-in failure, queue/delivery, false alert/correction và copy confusion.
+- Theo dõi crash, check-in failure, cron/scheduler lag, queue/delivery, false alert/correction và
+  copy confusion.
 - Block release nếu có check-in false success, duplicate/mất alert, token/PII leak, SOS accidental
   send, drill mislabeled hoặc critical screen-reader failure.
 
@@ -88,14 +89,15 @@ Sau upload, chưa chuyển production ngay:
 - Mỗi bước có người quyết định go/hold/rollback, dashboard và incident contact đang hoạt động.
 - Hold rollout khi SLO/known-risk gate bị vi phạm. Với lỗi client, pause rollout và phát hành
   binary known-good/new fix theo khả năng store; không hứa downgrade tức thì cho thiết bị đã cài.
-- Kill switch cho alert/provider phải do backend config có audit sở hữu; không dùng local flag để
+- Kill switch cho alert/provider phải do Supabase backend config có audit sở hữu; không dùng local flag để
   giả success. Nếu kill switch/reconciliation/monitoring chưa có, production vẫn bị block.
-- Không rollback migration phá dữ liệu. API/worker/client phải giữ compatibility theo expand-
-  contract và runbook Plan 05/06.
+- Không rollback migration phá dữ liệu. Database/functions/contact-web/mobile phải giữ
+  compatibility theo expand-contract, [`Plan 02`](../plans/02-SUPABASE-MVP.md) và
+  [`Plan 03`](../plans/03-RELEASE.md).
 
 ## 7. Trạng thái hiện tại
 
 Repository đã có EAS profiles, light/reduced-motion/deep-link/Sentry hardening, automated tests và
 Maestro fixture smoke. Chưa thực hiện EAS build, source-map upload thật, device matrix,
-TestFlight/Play upload hay rollout vì chưa có EAS/Sentry/store credentials, backend/staging,
+TestFlight/Play upload hay rollout vì chưa có EAS/Sentry/store credentials, Supabase backend/staging,
 test recipients và authority deploy.

@@ -4,9 +4,9 @@
   "private": true,
   "main": "expo-router/entry",
   "scripts": {
-    "android": "expo start --android",
+    "android": "expo run:android",
     "build": "expo export --platform all --output-dir dist",
-    "ios": "expo start --ios",
+    "ios": "expo run:ios",
     "lint": "eslint src --max-warnings=0",
     "start": "expo start",
     "test": "jest --runInBand",

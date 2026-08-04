@@ -4,6 +4,9 @@
 - Ngày: 2026-08-02
 - Phạm vi: `apps/mobile`, MA7
 
+> Cập nhật 2026-08-04: external backend/staging gate nay dùng kiến trúc Supabase-first theo
+> ADR 0008. Repository hardening và các checkbox external acceptance của MA7 không đổi.
+
 ## Bối cảnh
 
 MA0–MA6 đã hoàn tất client feature nhưng chưa đủ để gọi là bản release candidate. App còn cần
