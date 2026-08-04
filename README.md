@@ -15,11 +15,14 @@ tính production deadline hay nhận public contact token. External acceptance M
 thuộc Supabase backend/scheduler/contact web, staging, EAS/Sentry/store credential, test recipient đã
 consent và thiết bị thật. Chưa có build/submit/deploy lên TestFlight hoặc Google Play.
 
-S1 Foundation đã hoàn tất trong repository ngày 04/08/2026: `apps/contact-web`, package
-contract v1, Supabase local config/migrations/RLS/seed, authenticated/public Edge routers,
-Cron heartbeat, PGMQ notification queue, fake clock/providers và full-stack CI đã có. Local
-database reset, 23 pgTAP test, auth/JWT/Edge smoke và client builds đều xanh. Nghiệp vụ
-authoritative check-in/deadline/scheduler/reconciliation vẫn thuộc S2 và chưa được triển khai.
+S1–S2 đã hoàn tất trong local/integration ngày 04/08/2026. `apps/contact-web`, contract v1,
+Supabase migrations/RLS/seed và authenticated/public Edge routers đã có; profile/timezone IANA,
+device token, safety plan, authoritative check-in/deadline, Cron batch, outbox/PGMQ lease,
+stale-job check và reconciliation đều chạy bằng backend thật. Database reset từ trống, 74 pgTAP
+test, Edge/local auth smoke, concurrent idempotent check-in, 109 mobile test và client builds đều
+xanh. S3 contacts/alerts/contact web và push/email provider là bước tiếp theo.
+Invariant cycle, policy 24/36/48 và recovery được ghi tại
+[`ADR 0009`](docs/adr/0009-core-check-in-cycle-scheduling.md).
 
 Kiến trúc MVP đã chốt Supabase-first ngày 04/08/2026: Supabase Auth + PostgreSQL/RLS,
 Edge Functions, Cron và Queues thay cho kế hoạch NestJS/Prisma/Redis/BullMQ cũ. Quyết định
@@ -87,7 +90,7 @@ pnpm --filter @im-okay/mobile build
 
 Mọi biến `EXPO_PUBLIC_*` đều nằm trong app bundle và không được chứa secret. Sentry chỉ gửi sự cố khi cấu hình `EXPO_PUBLIC_SENTRY_DSN`.
 
-## Chạy Supabase Foundation local
+## Chạy Supabase MVP local
 
 Yêu cầu Docker Desktop đang chạy. Từ thư mục gốc:
 
@@ -107,6 +110,22 @@ Các endpoint health local:
 - Public: `http://127.0.0.1:54321/functions/v1/public-api/v1/health`.
 - Authenticated: `http://127.0.0.1:54321/functions/v1/api/v1/health`.
 
+S2 thêm các authenticated route `/v1/me`, `/v1/me/devices`, `/v1/safety-plan`,
+`/v1/safety-plan/status`, `/v1/safety-plan/disable` và `/v1/check-ins`. Tất cả mutation domain
+đi qua Edge + internal RPC; mobile không nhận service-role key.
+
+Để chạy mobile remote qua điện thoại Android đang cắm USB:
+
+```powershell
+adb reverse tcp:54321 tcp:54321
+npm run supabase:status
+```
+
+Sau đó đặt `EXPO_PUBLIC_DATA_MODE=remote`, dùng `http://127.0.0.1:54321` cho Supabase URL,
+`http://127.0.0.1:54321/functions/v1/api` cho API URL và chép đúng `PUBLISHABLE_KEY` từ status
+vào `.env`. Publishable key được phép nằm trong app; tuyệt đối không chép `SECRET_KEY` hoặc
+`SERVICE_ROLE_KEY`.
+
 Seed local chỉ dùng danh tính giả `an@example.test` / `local-demo-password`. Email local được
 giữ trong SMTP inbox local; fake push/email provider không gọi mạng. Các lệnh vận hành:
 
@@ -117,6 +136,6 @@ npm run supabase:reset # Xóa và dựng lại toàn bộ database local
 npm run supabase:stop
 ```
 
-Parity gap của S1: Cron mới chạy heartbeat chứng minh scheduler; PGMQ mới có queue nền,
-chưa có due-scan/consumer/reconciliation của S2. Google OAuth, Resend, Expo Push thật,
-hosted secrets và staging không được mô phỏng thành công ở local.
+Parity gap sau S2: local đã có due-scan/consumer/reconciliation nhưng chưa gửi notification thật.
+Trusted contacts, invitation/contact web, full alert escalation, Resend và Expo Push thuộc S3;
+Google OAuth, hosted secrets, staging và thiết bị/provider acceptance thuộc S4/release gate.

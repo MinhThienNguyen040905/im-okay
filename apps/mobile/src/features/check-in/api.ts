@@ -59,6 +59,7 @@ export const createRemoteCheckInApi = (
   session: AuthSession,
   apiUrl = requireApiUrl(),
   fetcher: typeof fetch = fetch,
+  publishableKey = env.supabasePublishableKey,
 ): CheckInApi => {
   const request = async (
     path: string,
@@ -73,6 +74,7 @@ export const createRemoteCheckInApi = (
       const response = await fetcher(`${baseUrl}/v1${path}`, {
         method: options?.method ?? "GET",
         headers: {
+          ...(publishableKey ? { apikey: publishableKey } : {}),
           Authorization: `Bearer ${session.accessToken}`,
           "Content-Type": "application/json",
           ...(options?.idempotencyKey

@@ -171,22 +171,40 @@ Evidence 04/08/2026:
 
 Mục tiêu: onboarding và check-in hoạt động thật khi app đóng/mở lại.
 
-- [ ] Implement profile, timezone IANA, device-token lifecycle và account-disabled handling.
-- [ ] Implement safety-plan create/update/activate/disable và exact status projection.
-- [ ] Implement authoritative deadline function và versioned warning/escalation policy.
-- [ ] Implement check-in transaction: lock/version, idempotency, deadline, alert transition,
+- [x] Implement profile, timezone IANA, device-token lifecycle và account-disabled handling.
+- [x] Implement safety-plan create/update/activate/disable và exact status projection.
+- [x] Implement authoritative deadline function và versioned warning/escalation policy.
+- [x] Implement check-in transaction: lock/version, idempotency, deadline, alert transition,
       audit và outbox.
-- [ ] Implement Cron due-scan theo batch; không tạo cron job/user.
-- [ ] Implement queue claim/lease/stale-check và reconciliation dựng lại missing work.
-- [ ] Nối remote MA2–MA3 mà không đổi projection/error contract.
-- [ ] Test check-in trước/đúng/sau deadline, duplicate/concurrent/offline/timeout.
-- [ ] Test queue deletion, lease expiry và function termination/reinvoke.
+- [x] Implement Cron due-scan theo batch; không tạo cron job/user.
+- [x] Implement queue claim/lease/stale-check và reconciliation dựng lại missing work.
+- [x] Nối remote MA2–MA3 mà không đổi projection/error contract.
+- [x] Test check-in trước/đúng/sau deadline, duplicate/concurrent/offline/timeout.
+- [x] Test queue deletion, lease expiry và function termination/reinvoke.
 
 Exit:
 
 - Mobile onboarding và check-in thật hoạt động trên local/integration environment.
 - Concurrent request không tạo chu kỳ trùng; old work không trigger alert sai.
 - Xóa queue message có thể reconciliation lại mà không gửi side effect trùng.
+
+Evidence 04/08/2026:
+
+- Migration S2 dựng lại thành công từ database trống; database lint không có lỗi.
+- 74 pgTAP test xanh: 23 foundation + 51 core check-in, gồm 24/36/48 giờ, DST/UTC,
+  IANA timezone, create/update/activate/disable, trước/đúng/sau deadline và account disabled.
+- Check-in dùng row lock, persisted response snapshot và unique idempotency; local Edge smoke chạy
+  hai request đồng thời cùng key và nhận đúng một projection/cycle.
+- Một Cron batch job thay heartbeat S1; due-scan, outbox publish, PGMQ visibility lease,
+  stale version check và reconciliation queue deletion đều có database test.
+- Auth/profile/device/safety-plan/status/check-in/disable chạy qua Edge local; authenticated role
+  không có quyền execute internal RPC hoặc update trực tiếp bảng safety plan.
+- Mobile remote onboarding khôi phục server state khi mở lại app; remote check-in giữ
+  `serverTime`, authoritative deadline, offline/timeout và publishable-key header contract.
+- Mobile 109 test/34 suite, Edge 11 test, contract 3 test và contact foundation 1 test xanh;
+  lint/typecheck, Expo dependency check, contact web build và mobile Android/iOS/web export xanh.
+- S2 chưa gửi push/email thật và chưa thông báo trusted contact. Các side effect/provider cùng
+  alert escalation đầy đủ thuộc S3; Google OAuth, staging và thiết bị thật vẫn thuộc S4/gate ngoài.
 
 ### S3 — Contacts, alerts and contact web
 
@@ -264,5 +282,5 @@ Supabase MVP hoàn thành khi:
 
 ## 9. Bước tiếp theo
 
-S1 đã hoàn tất. Chỉ bắt đầu S2; không scaffold trước S3–S4 theo phòng hờ. Mỗi stage chỉ đóng
-khi exit criteria xanh và có bằng chứng trong repository/staging.
+S1–S2 đã hoàn tất trong local/integration. Chỉ bắt đầu S3; không scaffold trước S4 theo phòng hờ.
+Mỗi stage chỉ đóng khi exit criteria xanh và có bằng chứng trong repository/staging.

@@ -1,5 +1,12 @@
 export type ErrorCode =
-  "INVALID_REQUEST" | "METHOD_NOT_ALLOWED" | "NOT_FOUND" | "UNAUTHENTICATED";
+  | "ACCOUNT_DISABLED"
+  | "CONFLICT"
+  | "INTERNAL_ERROR"
+  | "INVALID_REQUEST"
+  | "METHOD_NOT_ALLOWED"
+  | "NOT_FOUND"
+  | "PLAN_INACTIVE"
+  | "UNAUTHENTICATED";
 
 export type ErrorEnvelope = {
   error: {

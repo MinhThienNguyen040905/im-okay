@@ -56,21 +56,54 @@ export const OnboardingProvider = ({ children }: PropsWithChildren) => {
 
   useEffect(() => {
     let mounted = true;
-    void Promise.all([
-      AsyncStorage.getItem(INTRO_KEY),
-      session ? AsyncStorage.getItem(draftKey(session.user.id)) : null,
-    ])
-      .then(([intro, saved]) => {
-        if (!mounted) return;
+    void (async () => {
+      try {
+        const [intro, saved] = await Promise.all([
+          AsyncStorage.getItem(INTRO_KEY),
+          session ? AsyncStorage.getItem(draftKey(session.user.id)) : null,
+        ]);
         const restored = saved
           ? ({ ...emptyDraft, ...JSON.parse(saved) } as OnboardingDraft)
           : emptyDraft;
-        const next = { ...restored, introSeen: intro === "true" };
+        let next: OnboardingDraft = {
+          ...restored,
+          introSeen: intro === "true",
+        };
+
+        if (session) {
+          try {
+            const authoritative = await createOnboardingApi(session).getState();
+            next = {
+              ...next,
+              displayName:
+                authoritative.profile.displayName ?? next.displayName,
+              timezone: authoritative.profile.timezone,
+              intervalHours: authoritative.safetyPlan.intervalHours,
+              completed:
+                authoritative.safetyPlan.state !== "inactive" || next.completed,
+              deviceRegistration:
+                authoritative.push.registration === "registered"
+                  ? "registered"
+                  : next.deviceRegistration,
+              pushDecision:
+                authoritative.push.registration === "registered"
+                  ? "granted"
+                  : next.pushDecision,
+            };
+          } catch {
+            // A network/auth failure must not invent server state. Keep the last
+            // local navigation draft and let each screen surface its API error.
+          }
+        }
+
+        if (!mounted) return;
         draftRef.current = next;
         setDraft(next);
         setLoadedFor(ownerKey);
-      })
-      .catch(() => mounted && setLoadedFor(ownerKey));
+      } catch {
+        if (mounted) setLoadedFor(ownerKey);
+      }
+    })();
 
     return () => {
       mounted = false;

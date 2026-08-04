@@ -23,7 +23,24 @@ export type DeviceInput = {
   platform: "android" | "ios";
 };
 
+export type OnboardingServerState = {
+  serverTime: string;
+  profile: {
+    displayName: string | null;
+    timezone: string;
+    accountState: "active" | "disabled" | "deletion_requested";
+  };
+  safetyPlan: {
+    state: "active" | "snoozed" | "inactive";
+    intervalHours: 24 | 36 | 48;
+    lastCheckInAt: string | null;
+    nextDeadlineAt: string | null;
+  };
+  push: { registration: "none" | "registered" };
+};
+
 export type OnboardingApi = {
+  getState: () => Promise<OnboardingServerState>;
   saveProfile: (input: ProfileInput) => Promise<void>;
   registerDevice: (input: DeviceInput) => Promise<void>;
   saveSafetyPlan: (intervalHours: 24 | 36 | 48) => Promise<void>;

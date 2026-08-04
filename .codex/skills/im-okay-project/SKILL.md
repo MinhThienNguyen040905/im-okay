@@ -76,8 +76,9 @@ Tại mốc 2026-08-04:
 
 - Mobile MA0–MA6 client và phần MA7 hardening có thể chứng minh trong repository đã
   hoàn tất; source Expo nằm ở `apps/mobile`. MA7 external acceptance vẫn mở.
-- S1 Foundation đã hoàn tất: workspace có `apps/contact-web`, `packages/contracts`,
-  `supabase/`, local scripts và full-stack CI; S2 Core check-in là giai đoạn tiếp theo.
+- S1 Foundation và S2 Core check-in đã hoàn tất trong local/integration: workspace có
+  `apps/contact-web`, `packages/contracts`, `supabase/`, authoritative RPC, Cron/Queues,
+  reconciliation, local scripts và full-stack CI; S3 Contacts/alerts/contact web là giai đoạn tiếp theo.
 - ADR 0008 đã chốt Supabase-first cho MVP: Auth + PostgreSQL/RLS/RPC + Edge Functions +
   Cron/Queues. Không scaffold NestJS/Prisma/Redis/BullMQ trừ khi ADR sau có bằng chứng cần thiết.
 - Mobile dùng Expo SDK 57, React Native 0.86, Expo Router `src/app`, TypeScript strict, Jest và React Native Testing Library.
@@ -102,15 +103,15 @@ Tại mốc 2026-08-04:
   build, upload source map, TestFlight/Play hay rollout.
 - Remote check-in adapter tuyệt đối không tính deadline. Công thức trong mobile chỉ được tồn tại ở `features/check-in/fixtureApi.ts`, là fake server local có cảnh báo rõ.
 - `EXPO_PUBLIC_DATA_MODE=fixture` chỉ được phép ở local và UI phải luôn nói rõ chưa có bảo vệ thật. `remote` cần API URL, Supabase URL/publishable key; không đặt secret vào public env.
-- MA2–MA7 external acceptance còn phụ thuộc S1–S4, invitation/contact web,
+- MA2–MA3 local remote integration đã có evidence S2; MA2–MA7 staging/device acceptance còn phụ thuộc S3–S4, invitation/contact web,
   Cron/Queues/provider scheduling/reconciliation, retention/re-auth policy, staging,
   Supabase redirect/Google,
   EAS/Sentry/store credential, test recipient đã consent, internal build và thiết bị thật.
-- Lint, typecheck, 105 test case trong 33 suite, `expo install --check`, `expo-doctor` 20/20 và
-  Android/iOS/web export đã xanh tại thời điểm bàn giao MA7 repo hardening; phải
-  chạy lại sau thay đổi.
-- Supabase foundation/schema/RLS/Edge health routers và contact-web shell đã có source;
-  authoritative check-in/deadline/scheduler/reconciliation của S2 chưa được implement.
+- Lint, typecheck, 109 test case trong 34 suite, `expo install --check` và Android/iOS/web export
+  đã xanh tại thời điểm hoàn tất S2; `expo-doctor` 20/20 là evidence MA7 gần nhất.
+- Supabase foundation/schema/RLS/Edge routers, authoritative check-in/deadline,
+  scheduler/reconciliation và contact-web shell đã có source; contacts/providers/full alert flow
+  của S3 chưa được implement. Xem `docs/adr/0009-core-check-in-cycle-scheduling.md` cho invariant S2.
 - Stitch project `I’m Okay Safety System`, ID `9249994988754984867`, private.
 - Design system asset `assets/cbd4d1ec489847ac84e45f592436c1f3`.
 - Đã chọn 12 mobile screens M01–M12 và 5 web screens W01–W05.

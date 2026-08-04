@@ -52,9 +52,13 @@ select is(
 );
 
 select is(
-  (select count(*)::integer from cron.job where jobname = 'imokay-foundation-heartbeat'),
+  (
+    select count(*)::integer
+    from cron.job
+    where jobname in ('imokay-foundation-heartbeat', 'imokay-core-scheduler')
+  ),
   1,
-  'foundation cron heartbeat is configured'
+  'one scheduler heartbeat job is configured'
 );
 
 select is(

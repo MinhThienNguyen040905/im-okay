@@ -18,15 +18,15 @@ migration và automated test là bằng chứng hành vi hiện tại.
 
 Mốc tham chiếu: 2026-08-04.
 
-| Hạng mục                              | Trạng thái                                                                                  |
-| ------------------------------------- | ------------------------------------------------------------------------------------------- |
-| Product brief, UX flow, design system | Đã có bản nền                                                                               |
-| Mobile M01–M12                        | Client MA0–MA6 và MA7 repository hardening hoàn tất                                         |
-| Mobile remote/device acceptance       | Còn mở; theo dõi trong Plan 01                                                              |
-| Contact web W01–W05                   | S1 foundation đã scaffold/build; W01–W05 thuộc S3 chưa implement                            |
-| Supabase backend                      | S1 local config/schema/RLS/seed/Edge routers/Cron/Queues hoàn tất; S2 domain chưa implement |
-| Workspace/CI                          | Mobile/contact/contracts/functions/database đã có root scripts và GitHub Actions workflow   |
-| Staging/store                         | Chưa tạo/deploy                                                                             |
+| Hạng mục                              | Trạng thái                                                                                |
+| ------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Product brief, UX flow, design system | Đã có bản nền                                                                             |
+| Mobile M01–M12                        | Client MA0–MA6 và MA7 repository hardening hoàn tất                                       |
+| Mobile remote/device acceptance       | Còn mở; theo dõi trong Plan 01                                                            |
+| Contact web W01–W05                   | S1 foundation đã scaffold/build; W01–W05 thuộc S3 chưa implement                          |
+| Supabase backend                      | S1–S2 local/integration hoàn tất; S3 contacts/alerts/providers là giai đoạn hiện tại      |
+| Workspace/CI                          | Mobile/contact/contracts/functions/database đã có root scripts và GitHub Actions workflow |
+| Staging/store                         | Chưa tạo/deploy                                                                           |
 
 Việc rút sáu plan cũ thành ba plan không reset mobile. Chi tiết 57 checkbox client đã
 hoàn thành được tóm tắt trong Plan 01 và giữ bằng chứng tại ADR 0001–0007.
@@ -78,7 +78,7 @@ Gate: Plan 01 ghi nhận đúng phần đã hoàn thành và các gate còn mở
 
 ### P1 — Working MVP check-in
 
-Trạng thái: **Đang thực hiện; S1 hoàn tất, S2 là giai đoạn hiện tại.**
+Trạng thái: **Hoàn tất trong local/integration ngày 04/08/2026.**
 
 Phạm vi: S1 Foundation + S2 Core check-in trong Plan 02.
 
@@ -86,6 +86,10 @@ Phạm vi: S1 Foundation + S2 Core check-in trong Plan 02.
 - Auth/profile/device/safety plan.
 - Authoritative check-in transaction, deadline, Cron/Queues và reconciliation.
 - Mobile MA2–MA3 chạy remote.
+
+Evidence chính: migration từ database trống, 74 pgTAP test, database lint, Edge/local auth smoke,
+hai check-in đồng thời cùng idempotency key, queue deletion/lease-expiry recovery, 109 mobile test
+và Android/iOS/web export đều xanh. Staging/device/provider thật không thuộc gate P1.
 
 Gate:
 
@@ -136,17 +140,17 @@ P0 complete
    v
 S1 Foundation complete
    v
-S2 Core check-in
+S2 Core check-in complete
    v
-S3 Contacts + alerts + contact web
+S3 Contacts + alerts + contact web (current)
    v
 S4 Staging acceptance
    v
 P3 Internal release gate
 ```
 
-Chỉ S2 đang được phép bắt đầu tiếp theo. Không scaffold trước các stage sau theo
-phòng hờ, nhưng invariant/test gate của chúng vẫn phải được giữ.
+Chỉ S3 đang được phép bắt đầu tiếp theo. Không scaffold trước S4 theo phòng hờ, nhưng
+invariant/test gate của stage sau vẫn phải được giữ.
 
 ## 7. Quy tắc cập nhật
 

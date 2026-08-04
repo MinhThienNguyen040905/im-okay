@@ -38,6 +38,9 @@ test("v1 safety status remains compatible with the mobile adapter", () => {
 
 test("v1 route families retain the mobile paths", () => {
   assert.equal(apiRoutes.checkIns, "/v1/check-ins");
+  assert.equal(apiRoutes.devices, "/v1/me/devices");
+  assert.equal(apiRoutes.profile, "/v1/me");
+  assert.equal(apiRoutes.safetyPlan, "/v1/safety-plan");
   assert.equal(apiRoutes.safetyPlanStatus, "/v1/safety-plan/status");
 });
 

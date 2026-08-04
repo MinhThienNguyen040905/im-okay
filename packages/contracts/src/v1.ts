@@ -5,9 +5,11 @@ export const API_CONTRACT_VERSION = "v1" as const;
 export const apiRoutes = {
   authenticatedHealth: "/v1/health",
   checkIns: "/v1/check-ins",
+  devices: "/v1/me/devices",
   profile: "/v1/me",
   publicHealth: "/v1/health",
   safetyPlan: "/v1/safety-plan",
+  safetyPlanDisable: "/v1/safety-plan/disable",
   safetyPlanStatus: "/v1/safety-plan/status",
 } as const;
 
@@ -28,6 +30,40 @@ export const healthResponseSchema = z.object({
   serverTime: timestampSchema,
   service: z.enum(["api", "public-api"]),
   status: z.literal("ok"),
+});
+
+export const profileInputSchema = z.object({
+  displayName: z.string().trim().min(1).max(80),
+  timezone: z.string().trim().min(1).max(64),
+});
+
+export const deviceInputSchema = z.object({
+  expoPushToken: z.string().min(10).max(512),
+  platform: z.enum(["android", "ios"]),
+});
+
+export const safetyPlanInputSchema = z.object({
+  checkInIntervalHours: intervalSchema,
+});
+
+export const checkInInputSchema = z.object({ source: z.literal("mobile") });
+
+export const onboardingStateSchema = z.object({
+  serverTime: timestampSchema,
+  profile: z.object({
+    displayName: z.string().trim().min(1).max(80).nullable(),
+    timezone: z.string().trim().min(1).max(64),
+    accountState: z.enum(["active", "disabled", "deletion_requested"]),
+  }),
+  safetyPlan: z.object({
+    state: z.enum(["active", "snoozed", "inactive"]),
+    intervalHours: intervalSchema,
+    lastCheckInAt: timestampSchema.nullable(),
+    nextDeadlineAt: timestampSchema.nullable(),
+  }),
+  push: z.object({
+    registration: z.enum(["none", "registered"]),
+  }),
 });
 
 export const safetyStatusSchema = z.object({

@@ -33,6 +33,7 @@ describe("remote check-in API", () => {
       session,
       "https://api.example.test/",
       fetcher,
+      "publishable-key",
     );
 
     const result = await api.checkIn("attempt-1");
@@ -41,7 +42,10 @@ describe("remote check-in API", () => {
       "https://api.example.test/v1/check-ins",
       expect.objectContaining({
         method: "POST",
-        headers: expect.objectContaining({ "Idempotency-Key": "attempt-1" }),
+        headers: expect.objectContaining({
+          apikey: "publishable-key",
+          "Idempotency-Key": "attempt-1",
+        }),
       }),
     );
     expect(result.status.plan.nextDeadlineAt).toBe("2026-08-03T00:00:00.000Z");
@@ -61,5 +65,34 @@ describe("remote check-in API", () => {
         retryable: true,
       }),
     );
+  });
+
+  it("classifies an aborted request as an unconfirmed timeout", async () => {
+    jest.useFakeTimers();
+    const fetcher = jest.fn().mockImplementation(
+      (_url: string, init?: RequestInit) =>
+        new Promise<Response>((_resolve, reject) => {
+          init?.signal?.addEventListener("abort", () => {
+            const error = new Error("aborted");
+            error.name = "AbortError";
+            reject(error);
+          });
+        }),
+    );
+    const request = createRemoteCheckInApi(
+      session,
+      "https://api.example.test",
+      fetcher,
+    ).checkIn("attempt-timeout");
+    const expectation = expect(request).rejects.toEqual(
+      expect.objectContaining<Partial<CheckInApiError>>({
+        kind: "timeout",
+        retryable: true,
+      }),
+    );
+
+    await jest.advanceTimersByTimeAsync(12_000);
+    await expectation;
+    jest.useRealTimers();
   });
 });
