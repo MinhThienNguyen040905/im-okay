@@ -76,8 +76,8 @@ Tại mốc 2026-08-04:
 
 - Mobile MA0–MA6 client và phần MA7 hardening có thể chứng minh trong repository đã
   hoàn tất; source Expo nằm ở `apps/mobile`. MA7 external acceptance vẫn mở.
-- Workspace pnpm/Turborepo hiện là phần tối thiểu cho mobile; S1 chưa hoàn tất
-  contact web, `supabase/`, shared config và CI.
+- S1 Foundation đã hoàn tất: workspace có `apps/contact-web`, `packages/contracts`,
+  `supabase/`, local scripts và full-stack CI; S2 Core check-in là giai đoạn tiếp theo.
 - ADR 0008 đã chốt Supabase-first cho MVP: Auth + PostgreSQL/RLS/RPC + Edge Functions +
   Cron/Queues. Không scaffold NestJS/Prisma/Redis/BullMQ trừ khi ADR sau có bằng chứng cần thiết.
 - Mobile dùng Expo SDK 57, React Native 0.86, Expo Router `src/app`, TypeScript strict, Jest và React Native Testing Library.
@@ -109,7 +109,8 @@ Tại mốc 2026-08-04:
 - Lint, typecheck, 105 test case trong 33 suite, `expo install --check`, `expo-doctor` 20/20 và
   Android/iOS/web export đã xanh tại thời điểm bàn giao MA7 repo hardening; phải
   chạy lại sau thay đổi.
-- Supabase backend/schema/functions và contact web chưa có source.
+- Supabase foundation/schema/RLS/Edge health routers và contact-web shell đã có source;
+  authoritative check-in/deadline/scheduler/reconciliation của S2 chưa được implement.
 - Stitch project `I’m Okay Safety System`, ID `9249994988754984867`, private.
 - Design system asset `assets/cbd4d1ec489847ac84e45f592436c1f3`.
 - Đã chọn 12 mobile screens M01–M12 và 5 web screens W01–W05.

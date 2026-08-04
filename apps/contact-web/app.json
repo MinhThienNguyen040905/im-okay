@@ -1,0 +1,15 @@
+{
+  "expo": {
+    "name": "I’m Okay — Liên hệ tin cậy",
+    "slug": "im-okay-contact-web",
+    "version": "0.1.0",
+    "orientation": "default",
+    "scheme": "imokay-contact",
+    "userInterfaceStyle": "light",
+    "plugins": ["expo-router"],
+    "web": {
+      "bundler": "metro",
+      "output": "static"
+    }
+  }
+}

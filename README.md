@@ -14,7 +14,12 @@ trusted contacts, alert và settings vẫn tuân thủ projection/idempotency au
 tính production deadline hay nhận public contact token. External acceptance MA2–MA7 còn phụ
 thuộc Supabase backend/scheduler/contact web, staging, EAS/Sentry/store credential, test recipient đã
 consent và thiết bị thật. Chưa có build/submit/deploy lên TestFlight hoặc Google Play.
-Contact web, Supabase schema/functions/cron/queues và full-stack CI chưa scaffold.
+
+S1 Foundation đã hoàn tất trong repository ngày 04/08/2026: `apps/contact-web`, package
+contract v1, Supabase local config/migrations/RLS/seed, authenticated/public Edge routers,
+Cron heartbeat, PGMQ notification queue, fake clock/providers và full-stack CI đã có. Local
+database reset, 23 pgTAP test, auth/JWT/Edge smoke và client builds đều xanh. Nghiệp vụ
+authoritative check-in/deadline/scheduler/reconciliation vẫn thuộc S2 và chưa được triển khai.
 
 Kiến trúc MVP đã chốt Supabase-first ngày 04/08/2026: Supabase Auth + PostgreSQL/RLS,
 Edge Functions, Cron và Queues thay cho kế hoạch NestJS/Prisma/Redis/BullMQ cũ. Quyết định
@@ -59,9 +64,9 @@ Yêu cầu Node.js theo `.nvmrc` và Corepack. Từ thư mục gốc:
 
 ```powershell
 corepack enable
-pnpm install
+corepack pnpm install
 Copy-Item apps/mobile/.env.example apps/mobile/.env
-pnpm dev:mobile
+npm run dev:mobile
 ```
 
 Mặc định `.env.example` dùng `EXPO_PUBLIC_DATA_MODE=fixture` và chỉ chạy ở local.
@@ -81,3 +86,37 @@ pnpm --filter @im-okay/mobile build
 ```
 
 Mọi biến `EXPO_PUBLIC_*` đều nằm trong app bundle và không được chứa secret. Sentry chỉ gửi sự cố khi cấu hình `EXPO_PUBLIC_SENTRY_DSN`.
+
+## Chạy Supabase Foundation local
+
+Yêu cầu Docker Desktop đang chạy. Từ thư mục gốc:
+
+```powershell
+corepack pnpm install
+npm run supabase:start
+npm run test:integration
+npm run dev:contact-web
+```
+
+Nếu Windows báo `EPERM` khi pnpm nhập native package từ `node_modules` cũ, dùng fallback
+`npm install --workspaces --include-workspace-root --no-package-lock`; các lệnh `npm run` ở
+trên không thay đổi.
+
+Các endpoint health local:
+
+- Public: `http://127.0.0.1:54321/functions/v1/public-api/v1/health`.
+- Authenticated: `http://127.0.0.1:54321/functions/v1/api/v1/health`.
+
+Seed local chỉ dùng danh tính giả `an@example.test` / `local-demo-password`. Email local được
+giữ trong SMTP inbox local; fake push/email provider không gọi mạng. Các lệnh vận hành:
+
+```powershell
+npm run supabase:status
+npm run test:db
+npm run supabase:reset # Xóa và dựng lại toàn bộ database local
+npm run supabase:stop
+```
+
+Parity gap của S1: Cron mới chạy heartbeat chứng minh scheduler; PGMQ mới có queue nền,
+chưa có due-scan/consumer/reconciliation của S2. Google OAuth, Resend, Expo Push thật,
+hosted secrets và staging không được mô phỏng thành công ở local.

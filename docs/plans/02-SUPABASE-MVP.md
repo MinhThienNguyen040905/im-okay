@@ -140,22 +140,32 @@ check-in idempotency, single active alert, delivery idempotency và outbox busin
 
 Mục tiêu: máy mới chạy được local stack và mobile có backend contract thật để nối.
 
-- [ ] Scaffold `apps/contact-web` và `supabase/`; không tạo `apps/api`/`apps/worker`.
-- [ ] Pin Supabase CLI/tooling và viết local start/stop/status/reset commands an toàn.
-- [ ] Tạo base migration, seed giả, RLS deny-by-default và auth test user lifecycle.
-- [ ] Tạo authenticated `api` và isolated `public-api` Edge Function routers.
-- [ ] Shared request validation, error envelope, correlation ID và sanitized logging.
-- [ ] Tạo versioned contract compatibility test với mobile adapter hiện có.
-- [ ] Enable/configure Cron và Queues bằng migration; ghi rõ local parity gap nếu có.
-- [ ] Tạo fake push/email provider và fake clock; local/CI không gửi thật.
-- [ ] Hoàn tất root CI cho mobile, contact web, migrations/RLS và Edge Functions.
-- [ ] Cập nhật README local setup từ máy trống.
+- [x] Scaffold `apps/contact-web` và `supabase/`; không tạo `apps/api`/`apps/worker`.
+- [x] Pin Supabase CLI/tooling và viết local start/stop/status/reset commands an toàn.
+- [x] Tạo base migration, seed giả, RLS deny-by-default và auth test user lifecycle.
+- [x] Tạo authenticated `api` và isolated `public-api` Edge Function routers.
+- [x] Shared request validation, error envelope, correlation ID và sanitized logging.
+- [x] Tạo versioned contract compatibility test với mobile adapter hiện có.
+- [x] Enable/configure Cron và Queues bằng migration; ghi rõ local parity gap nếu có.
+- [x] Tạo fake push/email provider và fake clock; local/CI không gửi thật.
+- [x] Hoàn tất root CI cho mobile, contact web, migrations/RLS và Edge Functions.
+- [x] Cập nhật README local setup từ máy trống.
 
 Exit:
 
 - Supabase local khởi động từ database trống và migration lặp lại được.
 - JWT/RLS negative test, router/health và contract smoke xanh.
 - Không có secret thật hoặc service-role key trong client/bundle/log.
+
+Evidence 04/08/2026:
+
+- Supabase CLI 2.111.0 khởi động local stack; `db reset --local` áp dụng lại ba migration và seed.
+- 23 pgTAP database/RLS/auth-lifecycle/Cron/Queue test xanh.
+- Auth sign-in, missing-JWT negative case, authenticated/public Edge health smoke xanh.
+- Mobile 105 test/33 suite; mobile/contact/contracts/functions typecheck và lint xanh.
+- Contracts/contact/mobile build thành công; local fake provider không gửi notification thật.
+- Local parity gap: Cron chỉ có heartbeat, queue chưa có S2 consumer/due-scan/reconciliation;
+  SMTP local không thay cho Resend/Expo Push hoặc staging provider evidence.
 
 ### S2 — Core check-in end-to-end
 
@@ -254,5 +264,5 @@ Supabase MVP hoàn thành khi:
 
 ## 9. Bước tiếp theo
 
-Chỉ bắt đầu S1. Không scaffold trước S2–S4 theo phòng hờ; mỗi stage chỉ đóng
+S1 đã hoàn tất. Chỉ bắt đầu S2; không scaffold trước S3–S4 theo phòng hờ. Mỗi stage chỉ đóng
 khi exit criteria xanh và có bằng chứng trong repository/staging.

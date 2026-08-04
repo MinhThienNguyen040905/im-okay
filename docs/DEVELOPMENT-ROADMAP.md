@@ -5,11 +5,11 @@
 Roadmap chỉ giữ bốn milestone sản phẩm và thứ tự hiện tại. Task/test chi tiết nằm
 trong ba plan:
 
-| Plan | Vai trò |
-| --- | --- |
-| [`plans/01-MOBILE-APP.md`](plans/01-MOBILE-APP.md) | Trạng thái mobile M01–M12 và remote/device gate còn mở |
+| Plan                                                   | Vai trò                                                                                      |
+| ------------------------------------------------------ | -------------------------------------------------------------------------------------------- |
+| [`plans/01-MOBILE-APP.md`](plans/01-MOBILE-APP.md)     | Trạng thái mobile M01–M12 và remote/device gate còn mở                                       |
 | [`plans/02-SUPABASE-MVP.md`](plans/02-SUPABASE-MVP.md) | Plan implementation đang hoạt động: contact web + Supabase backend + notifications + staging |
-| [`plans/03-RELEASE.md`](plans/03-RELEASE.md) | Quality/security gate cho staging RC, internal alpha, beta và production |
+| [`plans/03-RELEASE.md`](plans/03-RELEASE.md)           | Quality/security gate cho staging RC, internal alpha, beta và production                     |
 
 Không tạo roadmap song song trong từng plan. ADR giữ quyết định kiến trúc; code,
 migration và automated test là bằng chứng hành vi hiện tại.
@@ -18,15 +18,15 @@ migration và automated test là bằng chứng hành vi hiện tại.
 
 Mốc tham chiếu: 2026-08-04.
 
-| Hạng mục | Trạng thái |
-| --- | --- |
-| Product brief, UX flow, design system | Đã có bản nền |
-| Mobile M01–M12 | Client MA0–MA6 và MA7 repository hardening hoàn tất |
-| Mobile remote/device acceptance | Còn mở; theo dõi trong Plan 01 |
-| Contact web W01–W05 | Design đã chọn; source chưa scaffold |
-| Supabase backend | Kiến trúc đã chốt trong ADR 0008; source/migrations/functions chưa scaffold |
-| Workspace/CI | pnpm/Turborepo tối thiểu cho mobile đã có; full stack CI chưa có |
-| Staging/store | Chưa tạo/deploy |
+| Hạng mục                              | Trạng thái                                                                                  |
+| ------------------------------------- | ------------------------------------------------------------------------------------------- |
+| Product brief, UX flow, design system | Đã có bản nền                                                                               |
+| Mobile M01–M12                        | Client MA0–MA6 và MA7 repository hardening hoàn tất                                         |
+| Mobile remote/device acceptance       | Còn mở; theo dõi trong Plan 01                                                              |
+| Contact web W01–W05                   | S1 foundation đã scaffold/build; W01–W05 thuộc S3 chưa implement                            |
+| Supabase backend                      | S1 local config/schema/RLS/seed/Edge routers/Cron/Queues hoàn tất; S2 domain chưa implement |
+| Workspace/CI                          | Mobile/contact/contracts/functions/database đã có root scripts và GitHub Actions workflow   |
+| Staging/store                         | Chưa tạo/deploy                                                                             |
 
 Việc rút sáu plan cũ thành ba plan không reset mobile. Chi tiết 57 checkbox client đã
 hoàn thành được tóm tắt trong Plan 01 và giữ bằng chứng tại ADR 0001–0007.
@@ -78,7 +78,7 @@ Gate: Plan 01 ghi nhận đúng phần đã hoàn thành và các gate còn mở
 
 ### P1 — Working MVP check-in
 
-Trạng thái: **Chưa bắt đầu; đây là milestone hiện tại.**
+Trạng thái: **Đang thực hiện; S1 hoàn tất, S2 là giai đoạn hiện tại.**
 
 Phạm vi: S1 Foundation + S2 Core check-in trong Plan 02.
 
@@ -134,7 +134,7 @@ không tự chốt SLO hoặc rollout percentage trước khi đo.
 P0 complete
    |
    v
-S1 Foundation
+S1 Foundation complete
    v
 S2 Core check-in
    v
@@ -145,7 +145,7 @@ S4 Staging acceptance
 P3 Internal release gate
 ```
 
-Chỉ S1 đang được phép bắt đầu tiếp theo. Không scaffold trước các stage sau theo
+Chỉ S2 đang được phép bắt đầu tiếp theo. Không scaffold trước các stage sau theo
 phòng hờ, nhưng invariant/test gate của chúng vẫn phải được giữ.
 
 ## 7. Quy tắc cập nhật

@@ -17,6 +17,8 @@ web-build/
 coverage/
 .turbo/
 .maestro/artifacts/
+supabase/.branches/
+supabase/.temp/
 
 # Generated Stitch exports
 .stitch/designs/

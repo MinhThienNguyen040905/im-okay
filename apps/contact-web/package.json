@@ -1,0 +1,32 @@
+{
+  "name": "@im-okay/contact-web",
+  "version": "0.1.0",
+  "private": true,
+  "main": "expo-router/entry",
+  "scripts": {
+    "build": "expo export --platform web --output-dir dist",
+    "lint": "eslint src --max-warnings=0",
+    "start": "expo start --web",
+    "test": "node --test test/*.test.mjs",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@im-okay/contracts": "file:../../packages/contracts",
+    "expo": "~57.0.9",
+    "expo-constants": "~57.0.8",
+    "expo-linking": "~57.0.4",
+    "expo-router": "~57.0.9",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-native": "0.86.2",
+    "react-native-safe-area-context": "~5.7.0",
+    "react-native-screens": "~4.26.0",
+    "react-native-web": "~0.21.0"
+  },
+  "devDependencies": {
+    "@types/react": "~19.2.2",
+    "eslint": "9.39.2",
+    "eslint-config-expo": "57.0.1",
+    "typescript": "~6.0.3"
+  }
+}
