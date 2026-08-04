@@ -59,3 +59,11 @@ verify_jwt = true
 [functions.public-api]
 enabled = true
 verify_jwt = false
+
+[functions.notification-consumer]
+enabled = true
+verify_jwt = false
+
+[functions.provider-receipts]
+enabled = true
+verify_jwt = false

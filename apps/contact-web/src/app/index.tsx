@@ -1,64 +1,32 @@
-import { API_CONTRACT_VERSION } from "@im-okay/contracts";
+import { Link } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
 
-import { foundationStatus } from "@/status";
+import { Shell } from "@/components/Shell";
 
-export default function FoundationStatusPage() {
+export default function ContactWebHome() {
   return (
-    <View style={styles.page}>
+    <Shell>
       <View accessibilityRole="summary" style={styles.card}>
-        <Text accessibilityRole="header" style={styles.eyebrow}>
-          I’m Okay
-        </Text>
+        <Text style={styles.eyebrow}>I’m Okay</Text>
         <Text accessibilityRole="header" style={styles.title}>
           Trang dành cho liên hệ tin cậy
         </Text>
-        <Text style={styles.body}>{foundationStatus.message}</Text>
-        <Text style={styles.meta}>
-          Nền tảng {foundationStatus.stage} · API {API_CONTRACT_VERSION}
+        <Text style={styles.body}>
+          Hãy mở đúng liên kết trong email lời mời hoặc cảnh báo. Trang này
+          không yêu cầu tài khoản.
         </Text>
+        <Link accessibilityRole="link" href="/" style={styles.link}>
+          Trợ giúp và quyền riêng tư
+        </Link>
       </View>
-    </View>
+    </Shell>
   );
 }
 
 const styles = StyleSheet.create({
-  body: {
-    color: "#334155",
-    fontSize: 18,
-    lineHeight: 28,
-  },
-  card: {
-    backgroundColor: "#ffffff",
-    borderColor: "#dbe4ee",
-    borderRadius: 24,
-    borderWidth: 1,
-    gap: 16,
-    maxWidth: 640,
-    padding: 32,
-    width: "100%",
-  },
-  eyebrow: {
-    color: "#0f766e",
-    fontSize: 16,
-    fontWeight: "700",
-  },
-  meta: {
-    color: "#64748b",
-    fontSize: 14,
-  },
-  page: {
-    alignItems: "center",
-    backgroundColor: "#f1f5f9",
-    flex: 1,
-    justifyContent: "center",
-    minHeight: "100%",
-    padding: 24,
-  },
-  title: {
-    color: "#0f172a",
-    fontSize: 32,
-    fontWeight: "700",
-    lineHeight: 40,
-  },
+  body: { color: "#334155", fontSize: 18, lineHeight: 28 },
+  card: { gap: 16 },
+  eyebrow: { color: "#0f766e", fontSize: 16, fontWeight: "700" },
+  link: { color: "#0f766e", fontSize: 16, fontWeight: "600", marginTop: 8 },
+  title: { color: "#0f172a", fontSize: 32, fontWeight: "700", lineHeight: 40 },
 });

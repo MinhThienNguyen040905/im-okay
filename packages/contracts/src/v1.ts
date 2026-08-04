@@ -3,14 +3,23 @@ import { z } from "zod";
 export const API_CONTRACT_VERSION = "v1" as const;
 
 export const apiRoutes = {
+  accountDeletionRequests: "/v1/account/deletion-requests",
+  accountExportRequests: "/v1/account/export-requests",
+  alertCurrent: "/v1/alerts/current",
+  alertDrill: "/v1/alerts/drill",
+  alertSos: "/v1/alerts/sos",
   authenticatedHealth: "/v1/health",
   checkIns: "/v1/check-ins",
   devices: "/v1/me/devices",
+  history: "/v1/history",
   profile: "/v1/me",
   publicHealth: "/v1/health",
   safetyPlan: "/v1/safety-plan",
   safetyPlanDisable: "/v1/safety-plan/disable",
+  safetyPlanSnooze: "/v1/safety-plan/snooze",
   safetyPlanStatus: "/v1/safety-plan/status",
+  trustedContacts: "/v1/trusted-contacts",
+  trustedContactsReorder: "/v1/trusted-contacts/reorder",
 } as const;
 
 const timestampSchema = z.iso.datetime({ offset: true });
@@ -47,6 +56,81 @@ export const safetyPlanInputSchema = z.object({
 });
 
 export const checkInInputSchema = z.object({ source: z.literal("mobile") });
+
+export const trustedContactInputSchema = z.object({
+  consentConfirmed: z.literal(true),
+  displayName: z.string().trim().min(1).max(80),
+  email: z.email(),
+});
+
+export const trustedContactsProjectionSchema = z.object({
+  contacts: z
+    .array(
+      z.object({
+        displayName: z.string().trim().min(1).max(80),
+        email: z.email(),
+        id: z.string().uuid(),
+        invitation: z.object({
+          expiresAt: timestampSchema.nullable(),
+          resendAvailableAt: timestampSchema.nullable(),
+          sentAt: timestampSchema.nullable(),
+          status: z.enum([
+            "pending",
+            "accepted",
+            "declined",
+            "expired",
+            "revoked",
+          ]),
+        }),
+        priority: z.number().int().min(1).max(3),
+      }),
+    )
+    .max(3),
+  maxContacts: z.literal(3),
+  serverTime: timestampSchema,
+});
+
+export const publicLinkStatusSchema = z.enum([
+  "accepted",
+  "active",
+  "cancelled",
+  "declined",
+  "expired",
+  "invalid",
+  "pending",
+  "resolved",
+  "revoked",
+  "used",
+]);
+
+export const publicInvitationProjectionSchema = z.object({
+  allowedActions: z.array(z.enum(["accept", "decline"])),
+  contactDisplayName: z.string().max(80).optional(),
+  expiresAt: timestampSchema.optional(),
+  ownerDisplayName: z.string().max(80).optional(),
+  serverTime: timestampSchema,
+  status: publicLinkStatusSchema,
+});
+
+export const publicAlertProjectionSchema = z.object({
+  acknowledgedAt: timestampSchema.nullable().optional(),
+  alertReference: z.string().max(12).optional(),
+  allowedActions: z.array(z.enum(["acknowledge", "cannot_help", "resolve"])),
+  contactDisplayName: z.string().max(80).optional(),
+  deadlineAt: timestampSchema.optional(),
+  endedAt: timestampSchema.nullable().optional(),
+  lastCheckInAt: timestampSchema.nullable().optional(),
+  ownerDisplayName: z.string().max(80).optional(),
+  priority: z.number().int().min(1).max(3).optional(),
+  responseAction: z
+    .enum(["acknowledge", "cannot_help", "resolve"])
+    .nullable()
+    .optional(),
+  serverTime: timestampSchema,
+  source: z.enum(["deadline", "drill", "sos"]).optional(),
+  status: publicLinkStatusSchema,
+  triggeredAt: timestampSchema.nullable().optional(),
+});
 
 export const onboardingStateSchema = z.object({
   serverTime: timestampSchema,

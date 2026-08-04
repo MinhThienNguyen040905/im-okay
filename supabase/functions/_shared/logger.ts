@@ -1,5 +1,5 @@
 const sensitiveKey =
-  /authorization|cookie|password|secret|token|emailbody|email_body/i;
+  /authorization|cookie|password|secret|token|email|recipient|body|html/i;
 
 const sanitizeUrl = (value: string): string => {
   try {

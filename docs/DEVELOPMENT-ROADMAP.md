@@ -23,8 +23,8 @@ Mốc tham chiếu: 2026-08-04.
 | Product brief, UX flow, design system | Đã có bản nền                                                                             |
 | Mobile M01–M12                        | Client MA0–MA6 và MA7 repository hardening hoàn tất                                       |
 | Mobile remote/device acceptance       | Còn mở; theo dõi trong Plan 01                                                            |
-| Contact web W01–W05                   | S1 foundation đã scaffold/build; W01–W05 thuộc S3 chưa implement                          |
-| Supabase backend                      | S1–S2 local/integration hoàn tất; S3 contacts/alerts/providers là giai đoạn hiện tại      |
+| Contact web W01–W05                   | Đã implement/build local trong S3; visual/device/staging acceptance còn mở                |
+| Supabase backend                      | S1–S3 local/integration hoàn tất; S4 staging acceptance là giai đoạn hiện tại             |
 | Workspace/CI                          | Mobile/contact/contracts/functions/database đã có root scripts và GitHub Actions workflow |
 | Staging/store                         | Chưa tạo/deploy                                                                           |
 
@@ -100,7 +100,7 @@ Gate:
 
 ### P2 — Full alert flow on staging
 
-Trạng thái: **Chưa bắt đầu.**
+Trạng thái: **S3 local/integration hoàn tất; S4 staging chưa bắt đầu.**
 
 Phạm vi: S3 Contacts/alerts/contact web + S4 Staging acceptance trong Plan 02.
 
@@ -142,15 +142,15 @@ S1 Foundation complete
    v
 S2 Core check-in complete
    v
-S3 Contacts + alerts + contact web (current)
+S3 Contacts + alerts + contact web complete locally
    v
-S4 Staging acceptance
+S4 Staging acceptance (current)
    v
 P3 Internal release gate
 ```
 
-Chỉ S3 đang được phép bắt đầu tiếp theo. Không scaffold trước S4 theo phòng hờ, nhưng
-invariant/test gate của stage sau vẫn phải được giữ.
+S4 là giai đoạn tiếp theo. Không dùng fake-provider/local evidence để đóng các gate cần hosted
+Supabase, provider thật, trình duyệt/thiết bị thật, monitoring hoặc restore drill.
 
 ## 7. Quy tắc cập nhật
 

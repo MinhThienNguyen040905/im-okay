@@ -3,8 +3,8 @@
 ## 1. Vai trò của plan
 
 Plan này chỉ theo dõi mobile Expo cho người được bảo vệ. Toàn bộ client M01–M12
-đã được triển khai; MA2–MA3 đã nối Supabase local/integration trong S2. Công việc còn lại là nối
-MA4–MA6, kiểm thử trên staging/thiết bị và phát hành internal build.
+đã được triển khai; MA2–MA3 đã nối Supabase local/integration trong S2 và MA4–MA6 đã nối contract
+S3 local/integration. Công việc còn lại là kiểm thử trên staging/thiết bị và phát hành internal build.
 
 Chi tiết quyết định và bằng chứng đã hoàn thành nằm trong ADR 0001–0007. Bản
 plan cũ có 57 checkbox hoàn thành được rút gọn tại đây; việc rút gọn không
@@ -16,16 +16,16 @@ escalation, public contact response và account-data processing. Các phần nà
 
 ## 2. Trạng thái M01–M12
 
-| Hạng mục | Trạng thái client | Nghiệm thu còn lại | Bằng chứng |
-| --- | --- | --- | --- |
-| MA0 design/navigation | Hoàn tất | Không | `design/stitch/06-MA0-DESIGN-READINESS.md` |
-| MA1 foundation | Hoàn tất | Không | `docs/adr/0001-mobile-foundation.md` |
-| MA2 auth/onboarding M01–M05 | Hoàn tất | Google/redirect và push token trên staging/device | `docs/adr/0002-mobile-auth-onboarding.md` |
-| MA3 check-in M06 | Hoàn tất | Remote device/staging acceptance | `docs/adr/0003-mobile-authoritative-check-in.md` |
-| MA4 trusted contacts M07/M08 | Hoàn tất | Invitation W01 và email thật | `docs/adr/0004-mobile-authoritative-trusted-contacts.md` |
-| MA5 warning/SOS/snooze/drill M09/M10 | Hoàn tất | Alert/provider E2E trên staging | `docs/adr/0005-mobile-authoritative-alert-actions.md` |
-| MA6 history/settings M11/M12 | Hoàn tất | Remote projection, retention và re-auth | `docs/adr/0006-mobile-history-settings-safe-projections.md` |
-| MA7 repository hardening | Hoàn tất | Device/accessibility/build/store gate | `docs/adr/0007-mobile-release-hardening.md` |
+| Hạng mục                             | Trạng thái client | Nghiệm thu còn lại                                | Bằng chứng                                                  |
+| ------------------------------------ | ----------------- | ------------------------------------------------- | ----------------------------------------------------------- |
+| MA0 design/navigation                | Hoàn tất          | Không                                             | `design/stitch/06-MA0-DESIGN-READINESS.md`                  |
+| MA1 foundation                       | Hoàn tất          | Không                                             | `docs/adr/0001-mobile-foundation.md`                        |
+| MA2 auth/onboarding M01–M05          | Hoàn tất          | Google/redirect và push token trên staging/device | `docs/adr/0002-mobile-auth-onboarding.md`                   |
+| MA3 check-in M06                     | Hoàn tất          | Remote device/staging acceptance                  | `docs/adr/0003-mobile-authoritative-check-in.md`            |
+| MA4 trusted contacts M07/M08         | Hoàn tất          | Email thật và invitation flow trên staging        | `docs/adr/0004-mobile-authoritative-trusted-contacts.md`    |
+| MA5 warning/SOS/snooze/drill M09/M10 | Hoàn tất          | Alert/provider E2E trên staging                   | `docs/adr/0005-mobile-authoritative-alert-actions.md`       |
+| MA6 history/settings M11/M12         | Hoàn tất          | Retention/re-auth acceptance trên staging         | `docs/adr/0006-mobile-history-settings-safe-projections.md` |
+| MA7 repository hardening             | Hoàn tất          | Device/accessibility/build/store gate             | `docs/adr/0007-mobile-release-hardening.md`                 |
 
 ## 3. Contract client phải giữ
 
@@ -52,9 +52,9 @@ Zod schema, test và ADR trong cùng thay đổi.
 - [ ] Xác minh email/Google auth, redirect và session restore với Supabase staging.
 - [x] Xác minh profile/device/safety-plan onboarding qua Edge Functions trên local/integration.
 - [x] Chạy check-in duplicate/concurrent/offline/timeout với PostgreSQL và scheduler local thật.
-- [ ] Chạy invitation accept/decline/revoke/concurrent-submit qua contact web.
+- [x] Chạy invitation accept/decline/revoke/concurrent-submit qua contact web local/integration.
 - [ ] Chạy accelerated warning/alert/escalation/correction/SOS/drill E2E.
-- [ ] Xác minh history/settings/disable/export/delete với retention và recent-auth policy.
+- [x] Xác minh history/settings/disable/export/delete projection và recent-auth ở local/integration.
 - [ ] Xác minh Expo push token lifecycle và receipt trên thiết bị thật.
 
 ### Device and release acceptance
@@ -67,14 +67,15 @@ Zod schema, test và ADR trong cùng thay đổi.
 
 ## 5. Baseline đã kiểm chứng
 
-Tại lần kiểm tra S2 ngày 04/08/2026:
+Tại lần kiểm tra S3 ngày 04/08/2026:
 
 - ESLint và TypeScript xanh.
 - 109 test case trong 34 suite xanh.
 - `expo install --check` xanh; `expo-doctor` 20/20 là evidence MA7 gần nhất và chưa chạy lại ở S2.
 - `expo export --platform all` thành công cho Android, iOS và web.
-- Remote adapter + local Edge smoke đã chứng minh onboarding/check-in contract, concurrent retry,
-  exact deadline và inactive-plan error; staging/device/provider acceptance vẫn mở.
+- Remote adapter + local Edge smoke đã chứng minh onboarding/check-in, trusted contacts, public
+  invitation/alert response, SOS, history/settings và account request contract; staging/device/provider
+  acceptance vẫn mở.
 - EAS profiles, Maestro fixture smoke, device matrix và release/rollback runbook đã có.
 
 Phải chạy lại các check thực tế sau mỗi thay đổi. Baseline cũ không chứng minh
@@ -93,5 +94,5 @@ Mobile sẵn sàng internal release khi:
 
 ## 7. Bước tiếp theo
 
-Không làm lại M01–M12. S1–S2 trong [`02-SUPABASE-MVP.md`](02-SUPABASE-MVP.md) đã hoàn tất
-ở local/integration. Tiếp tục S3 và chỉ đóng các gate staging/device còn mở bằng evidence thật.
+Không làm lại M01–M12. S1–S3 trong [`02-SUPABASE-MVP.md`](02-SUPABASE-MVP.md) đã hoàn tất
+ở local/integration. Tiếp tục S4 và chỉ đóng các gate staging/device còn mở bằng evidence thật.

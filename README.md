@@ -15,14 +15,17 @@ tính production deadline hay nhận public contact token. External acceptance M
 thuộc Supabase backend/scheduler/contact web, staging, EAS/Sentry/store credential, test recipient đã
 consent và thiết bị thật. Chưa có build/submit/deploy lên TestFlight hoặc Google Play.
 
-S1–S2 đã hoàn tất trong local/integration ngày 04/08/2026. `apps/contact-web`, contract v1,
+S1–S3 đã hoàn tất trong local/integration ngày 04/08/2026. `apps/contact-web`, contract v1,
 Supabase migrations/RLS/seed và authenticated/public Edge routers đã có; profile/timezone IANA,
 device token, safety plan, authoritative check-in/deadline, Cron batch, outbox/PGMQ lease,
-stale-job check và reconciliation đều chạy bằng backend thật. Database reset từ trống, 74 pgTAP
-test, Edge/local auth smoke, concurrent idempotent check-in, 109 mobile test và client builds đều
-xanh. S3 contacts/alerts/contact web và push/email provider là bước tiếp theo.
+stale-job check, reconciliation, trusted contacts, public invitation/alert response, correction,
+snooze/SOS/drill, history/settings và account request đều chạy bằng backend thật. Database reset từ
+trống, 123 pgTAP test, S2/S3 local smoke, 22 Edge test, 109 mobile test và client builds đều xanh.
+W01–W05 đã có production web build; local/CI chỉ dùng fake email/push. S4 staging/provider/device
+acceptance là bước tiếp theo.
 Invariant cycle, policy 24/36/48 và recovery được ghi tại
-[`ADR 0009`](docs/adr/0009-core-check-in-cycle-scheduling.md).
+[`ADR 0009`](docs/adr/0009-core-check-in-cycle-scheduling.md); contact/token/alert/provider workflow
+được ghi tại [`ADR 0010`](docs/adr/0010-contact-alert-notification-workflows.md).
 
 Kiến trúc MVP đã chốt Supabase-first ngày 04/08/2026: Supabase Auth + PostgreSQL/RLS,
 Edge Functions, Cron và Queues thay cho kế hoạch NestJS/Prisma/Redis/BullMQ cũ. Quyết định
@@ -110,9 +113,12 @@ Các endpoint health local:
 - Public: `http://127.0.0.1:54321/functions/v1/public-api/v1/health`.
 - Authenticated: `http://127.0.0.1:54321/functions/v1/api/v1/health`.
 
-S2 thêm các authenticated route `/v1/me`, `/v1/me/devices`, `/v1/safety-plan`,
-`/v1/safety-plan/status`, `/v1/safety-plan/disable` và `/v1/check-ins`. Tất cả mutation domain
-đi qua Edge + internal RPC; mobile không nhận service-role key.
+Authenticated routes gồm `/v1/me`, `/v1/me/devices`, `/v1/me/settings`, `/v1/safety-plan`,
+`/v1/safety-plan/status`, `/v1/safety-plan/disable`, `/v1/safety-plan/snooze`, `/v1/check-ins`,
+`/v1/trusted-contacts`, `/v1/alerts/current`, `/v1/alerts/sos`, `/v1/alerts/drill`, `/v1/history`
+và account export/deletion requests. Public contact web dùng `/v1/public/invitations/:token` và
+`/v1/public/alerts/:token`. Tất cả mutation domain đi qua Edge + internal RPC; client không nhận
+service-role key.
 
 Để chạy mobile remote qua điện thoại Android đang cắm USB:
 
@@ -136,6 +142,11 @@ npm run supabase:reset # Xóa và dựng lại toàn bộ database local
 npm run supabase:stop
 ```
 
-Parity gap sau S2: local đã có due-scan/consumer/reconciliation nhưng chưa gửi notification thật.
-Trusted contacts, invitation/contact web, full alert escalation, Resend và Expo Push thuộc S3;
-Google OAuth, hosted secrets, staging và thiết bị/provider acceptance thuộc S4/release gate.
+Các Edge consumer S3 mặc định không gửi mạng. Xem biến mẫu phía server tại
+`supabase/functions/.env.example`; chỉ bật `NOTIFICATION_PROVIDER_MODE=live` trên staging cùng
+Resend/Expo secrets và test recipients/devices đã consent. Local smoke trực tiếp chạy claim → fake
+provider → persist outcome, bao gồm retry/unknown và invalid Expo token qua unit test.
+
+Parity gap sau S3: local chưa chứng minh hosted Cron invocation, email deliverability, Expo receipt
+trên thiết bị thật, backup/restore, monitoring hoặc contact-web visual/accessibility trên browser
+matrix. Các phần đó thuộc S4/release gate; không có deploy hay notification thật trong setup local.

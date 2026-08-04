@@ -42,6 +42,9 @@ test("v1 route families retain the mobile paths", () => {
   assert.equal(apiRoutes.profile, "/v1/me");
   assert.equal(apiRoutes.safetyPlan, "/v1/safety-plan");
   assert.equal(apiRoutes.safetyPlanStatus, "/v1/safety-plan/status");
+  assert.equal(apiRoutes.trustedContacts, "/v1/trusted-contacts");
+  assert.equal(apiRoutes.alertCurrent, "/v1/alerts/current");
+  assert.equal(apiRoutes.history, "/v1/history");
 });
 
 test("stable errors include the correlation request id", () => {

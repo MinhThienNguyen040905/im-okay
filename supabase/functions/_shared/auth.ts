@@ -1,4 +1,5 @@
 export type AuthenticatedActor = {
+  authTimeSeconds?: number;
   role: "authenticated";
   userId: string;
 };
@@ -6,6 +7,8 @@ export type AuthenticatedActor = {
 export type Authorize = (request: Request) => AuthenticatedActor | null;
 
 type JwtPayload = {
+  auth_time?: unknown;
+  iat?: unknown;
   role?: unknown;
   sub?: unknown;
 };
@@ -38,7 +41,17 @@ export const requirePlatformVerifiedUser: Authorize = (request) => {
     ) {
       return null;
     }
-    return { role: "authenticated", userId: payload.sub };
+    const authTime =
+      typeof payload.auth_time === "number"
+        ? payload.auth_time
+        : typeof payload.iat === "number"
+          ? payload.iat
+          : undefined;
+    return {
+      ...(authTime === undefined ? {} : { authTimeSeconds: authTime }),
+      role: "authenticated",
+      userId: payload.sub,
+    };
   } catch {
     return null;
   }

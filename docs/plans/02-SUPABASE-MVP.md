@@ -15,7 +15,8 @@ Mobile M01–M12 đã hoàn tất client; plan này chỉ nối remote contract 
 lại UI. Release/store/production gate thuộc [`03-RELEASE.md`](03-RELEASE.md).
 
 Kiến trúc chi tiết và trade-off đã chốt trong
-[`ADR 0008`](../adr/0008-supabase-first-backend.md).
+[`ADR 0008`](../adr/0008-supabase-first-backend.md). State machine, public-token và notification
+workflow S3 được ghi tại [`ADR 0010`](../adr/0010-contact-alert-notification-workflows.md).
 
 ## 2. Kiến trúc và trust boundary
 
@@ -210,20 +211,20 @@ Evidence 04/08/2026:
 
 Mục tiêu: hoàn thành luồng invitation→alert→response→correction end-to-end.
 
-- [ ] Implement contact CRUD, maximum-three/duplicate constraints và atomic priority reorder.
-- [ ] Implement invitation token hash/scope/expiry/revoke/consume, resend cooldown và audit.
-- [ ] Hoàn tất contact-web W01–W05 cùng invalid/expired/used/revoked/cancelled/resolved states.
-- [ ] Implement public projection/action RPC; GET không mutation, POST consume/transition atomically.
-- [ ] Thêm CSP, CORS allowlist, `no-referrer`, `no-store`, `noindex` và token/Sentry scrub.
-- [ ] Implement alert state machine, single-active-alert constraint và allowed actions.
-- [ ] Implement NotificationDispatcher, delivery log, retry/backoff và unknown-outcome handling.
-- [ ] Implement Expo Push ticket/receipt/invalid-token lifecycle.
-- [ ] Implement Resend `EmailProvider` với escaped/versioned templates và test sender.
-- [ ] Implement priority escalation, stop condition và correction sau user check-in/cancel.
-- [ ] Implement finite snooze, guarded SOS và distinct drill source.
-- [ ] Implement history/settings projection, recent-auth, export và deletion-request workflow.
-- [ ] Nối remote MA4–MA6 và chạy contact-web responsive/accessibility test.
-- [ ] Test public-token concurrency, provider transient/permanent/unknown và duplicate delivery.
+- [x] Implement contact CRUD, maximum-three/duplicate constraints và atomic priority reorder.
+- [x] Implement invitation token hash/scope/expiry/revoke/consume, resend cooldown và audit.
+- [x] Hoàn tất contact-web W01–W05 cùng invalid/expired/used/revoked/cancelled/resolved states.
+- [x] Implement public projection/action RPC; GET không mutation, POST consume/transition atomically.
+- [x] Thêm CSP, CORS allowlist, `no-referrer`, `no-store`, `noindex` và token/Sentry scrub.
+- [x] Implement alert state machine, single-active-alert constraint và allowed actions.
+- [x] Implement NotificationDispatcher, delivery log, retry/backoff và unknown-outcome handling.
+- [x] Implement Expo Push ticket/receipt/invalid-token lifecycle.
+- [x] Implement Resend `EmailProvider` với escaped/versioned templates và test sender.
+- [x] Implement priority escalation, stop condition và correction sau user check-in/cancel.
+- [x] Implement finite snooze, guarded SOS và distinct drill source.
+- [x] Implement history/settings projection, recent-auth, export và deletion-request workflow.
+- [x] Nối remote MA4–MA6 và chạy contact-web responsive/accessibility test tự động ở local.
+- [x] Test public-token concurrency, provider transient/permanent/unknown và duplicate delivery.
 
 Exit:
 
@@ -233,6 +234,21 @@ Exit:
 
 Lưu ý UX: Stitch Web không hỗ trợ nối cross-screen prototype. W02→W05 được
 chốt bằng route contract và kiểm thử trong contact web, không chờ link trên canvas.
+
+Evidence 04/08/2026:
+
+- Ba migration S3 dựng contacts/invitations, alert response/correction, notification delivery và
+  provider receipt từ database trống; 123 pgTAP test bao phủ S1–S3 và database lint không có lỗi.
+- Local S3 smoke chạy auth → invitation public GET/accept → contacts/reorder → safety plan → SOS →
+  fake delivery → contact acknowledge/resolve → history/export. S2 smoke vẫn xanh sau schema S3.
+- Edge unit test bao phủ public GET không mutation, CORS/privacy headers, recent-auth, route contract,
+  fake-provider dedupe, transient/permanent/unknown, escaped template, Resend idempotency và Expo
+  `DeviceNotRegistered` ticket/receipt lifecycle.
+- Contact web W01 và W02–W05 có invalid/expired/used/revoked/cancelled/resolved state, static privacy
+  headers, route/source test, typecheck/lint và production web build. Automated browser screenshot bị
+  chặn bởi Chrome CDP timeout; visual 390/768/1440, keyboard/screen-reader và zoom 200% vẫn là gate S4.
+- Mobile contract MA4–MA6 giữ projection/idempotency và toàn bộ 109 test/34 suite xanh. Local/CI chỉ
+  dùng fake provider; chưa gửi email/push thật, chưa deploy và không ghi nhận staging/device evidence.
 
 ### S4 — Staging acceptance
 
@@ -282,5 +298,6 @@ Supabase MVP hoàn thành khi:
 
 ## 9. Bước tiếp theo
 
-S1–S2 đã hoàn tất trong local/integration. Chỉ bắt đầu S3; không scaffold trước S4 theo phòng hờ.
+S1–S3 đã hoàn tất trong local/integration. Bước tiếp theo là S4 staging acceptance; không đánh dấu
+provider/device/visual gate hoàn tất bằng fake-provider evidence.
 Mỗi stage chỉ đóng khi exit criteria xanh và có bằng chứng trong repository/staging.

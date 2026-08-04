@@ -24,7 +24,7 @@
     "supabase:stop": "supabase stop --no-backup",
     "test": "turbo run test && node --test supabase/functions/tests/*.test.mjs",
     "test:db": "supabase test db",
-    "test:integration": "supabase db reset --local && supabase test db && node scripts/supabase-smoke.mjs",
+    "test:integration": "supabase db reset --local && supabase test db && node scripts/supabase-smoke.mjs && node scripts/supabase-s3-smoke.mjs",
     "typecheck": "turbo run typecheck && tsc -p supabase/functions/tsconfig.json"
   },
   "devDependencies": {

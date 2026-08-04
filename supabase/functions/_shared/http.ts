@@ -1,11 +1,22 @@
 export type ErrorCode =
   | "ACCOUNT_DISABLED"
+  | "ALERT_ALREADY_ACTIVE"
+  | "CONTACT_DUPLICATE"
+  | "CONTACT_LIMIT_REACHED"
+  | "CONTACT_NOT_FOUND"
+  | "CONTACT_REORDER_CONFLICT"
   | "CONFLICT"
+  | "INVITATION_ALREADY_ACCEPTED"
+  | "INVITATION_COOLDOWN"
   | "INTERNAL_ERROR"
   | "INVALID_REQUEST"
   | "METHOD_NOT_ALLOWED"
+  | "NO_ELIGIBLE_CONTACTS"
   | "NOT_FOUND"
   | "PLAN_INACTIVE"
+  | "REAUTHENTICATION_REQUIRED"
+  | "SAFETY_PLAN_INACTIVE"
+  | "SNOOZE_NOT_ALLOWED"
   | "UNAUTHENTICATED";
 
 export type ErrorEnvelope = {
@@ -14,6 +25,7 @@ export type ErrorEnvelope = {
     message: string;
     requestId: string;
     retryable: boolean;
+    details?: Record<string, unknown>;
   };
 };
 
@@ -50,9 +62,18 @@ export const errorResponse = (
   code: ErrorCode,
   message: string,
   retryable = false,
+  details?: Record<string, unknown>,
 ): Response =>
   jsonResponse(
-    { error: { code, message, requestId, retryable } } satisfies ErrorEnvelope,
+    {
+      error: {
+        code,
+        message,
+        requestId,
+        retryable,
+        ...(details ? { details } : {}),
+      },
+    } satisfies ErrorEnvelope,
     { requestId, status },
   );
 
