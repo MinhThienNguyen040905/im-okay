@@ -25,7 +25,9 @@
       "environment": "preview",
       "env": {
         "EXPO_PUBLIC_APP_ENV": "staging",
-        "EXPO_PUBLIC_DATA_MODE": "remote"
+        "EXPO_PUBLIC_DATA_MODE": "remote",
+        "EXPO_PUBLIC_API_URL": "https://xnaanctveihyksgcveup.supabase.co/functions/v1/api",
+        "EXPO_PUBLIC_SUPABASE_URL": "https://xnaanctveihyksgcveup.supabase.co"
       },
       "android": {
         "buildType": "apk"

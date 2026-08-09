@@ -23,10 +23,10 @@ Mốc tham chiếu: 2026-08-09.
 | Product brief, UX flow, design system | Đã có bản nền                                                                             |
 | Mobile M01–M12                        | Client MA0–MA6 và MA7 repository hardening hoàn tất                                       |
 | Mobile remote/device acceptance       | Còn mở; theo dõi trong Plan 01                                                            |
-| Contact web W01–W05                   | Đã build; browser nền 390/768/1440 + keyboard xanh, full accessibility/staging còn mở     |
+| Contact web W01–W05                   | Đã deploy Vercel staging; preflight xanh, full accessibility/provider flow còn mở         |
 | Supabase backend                      | 8 migration + 5 Edge Functions đã deploy staging; hosted acceptance còn mở                |
 | Workspace/CI                          | Mobile/contact/contracts/functions/database đã có root scripts và GitHub Actions workflow |
-| Staging/store                         | Backend staging Singapore đã deploy; web/mobile/provider/restore còn mở                   |
+| Staging/store                         | Backend + contact web + Auth/CORS/preflight xong; mobile/provider/restore còn mở          |
 
 Việc rút sáu plan cũ thành ba plan không reset mobile. Chi tiết 57 checkbox client đã
 hoàn thành được tóm tắt trong Plan 01 và giữ bằng chứng tại ADR 0001–0007.
@@ -150,9 +150,9 @@ P3 Internal release gate
 ```
 
 S4 đang ở hosted acceptance: 8 migration, 5 Edge Functions và Vault worker secrets đã deploy lên
-Supabase staging Singapore; health/auth negative checks xanh và delivery kill switch vẫn tắt.
-Contact-web domain/Auth redirect, provider/test device, monitoring/fault drill và restore target còn
-thiếu. Không dùng fake-provider/local evidence để đóng các gate cần provider thật,
+Supabase staging Singapore; contact web Vercel, Auth URL/CORS và non-mutating preflight đã xanh;
+delivery kill switch vẫn tắt. EAS/mobile test device, provider/consented recipients, full monitoring,
+fault drill và restore target còn thiếu. Không dùng fake-provider/local evidence để đóng các gate cần provider thật,
 trình duyệt/thiết bị thật, monitoring hoặc restore drill.
 
 ## 7. Quy tắc cập nhật

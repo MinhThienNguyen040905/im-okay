@@ -270,9 +270,10 @@ Mục tiêu: chứng minh reliability và security trên môi trường gần pr
 - [x] Link repository đúng staging project và review dry-run: 8 migration pending, không seed.
 - [x] Cấu hình internal/rate-limit secrets, ba Vault secret cho hosted workers và giữ delivery off.
 - [x] Apply 8 expand migration và deploy 5 backward-compatible Edge Functions.
-- [ ] Chọn/deploy contact-web HTTPS domain và cấu hình Auth site URL/redirect tách production.
+- [x] Deploy contact-web HTTPS staging và cấu hình Auth site URL/redirect tách production.
+- [x] Cấu hình exact public CORS/link URL và chạy non-mutating hosted preflight với delivery off.
 - [ ] Cấu hình Resend sender, test recipients/devices đã consent và provider acceptance secrets.
-- [ ] Deploy contact web và mobile staging config.
+- [ ] Tạo EAS project/environment, cấp publishable key và chạy mobile staging build trên thiết bị.
 - [ ] Chạy accelerated full alert flow với Expo Push và email thật.
 - [ ] Đo Edge Function error/latency, cron run, scheduler lag, queue age/depth/retry/dead-letter.
 - [ ] Chạy function termination, queue loss/lease expiry, provider outage và reconciliation drill.
@@ -304,8 +305,17 @@ Hosted backend deployment evidence 09/08/2026:
 - Đã cấu hình internal/rate-limit secret và ba Vault secret cho hosted workers mà không ghi giá trị
   vào repository/log; `NOTIFICATION_DELIVERY_ENABLED=false` nên chưa gửi notification thật.
 - Public health và internal ops health trả `200`; authenticated API health không JWT trả `401`.
-- Contact-web domain/Auth redirect, Resend/test recipients, mobile device, provider flow,
-  monitoring/fault drill và backup restore vẫn là gate mở.
+- Contact web đã deploy tại `https://im-okay-contact-staging.vercel.app`; Supabase Auth Site URL và
+  redirect allowlist có domain web cùng `imokay://**`.
+- Preflight sau deploy xanh: privacy headers/exact CORS/negative auth/ops; 10 health sample có
+  p50 `169 ms`, p95 `1604 ms`. Bốn Cron job active, các run quan sát gần nhất đều succeeded,
+  `cronFailuresLastHour=0`, queue/outbox/dead-letter đều `0`.
+- Hosted public negative checks: invalid token trả projection generic, action sai `400`, origin sai
+  `403` không ACAO và request thứ 11 trong public-action window trả `429`. RLS active và anon không
+  có INSERT trên bốn bảng nhạy cảm đã kiểm tra; IDOR/authenticated-user matrix vẫn chưa chạy.
+- Contact-web hosted invalid-token route hiển thị trạng thái an toàn, không render token. Resend/test
+  recipients, EAS project/device, provider flow, full accessibility, monitoring/fault drill và backup
+  restore vẫn là gate mở; delivery tiếp tục tắt.
 
 Exit:
 
@@ -340,8 +350,9 @@ Supabase MVP hoàn thành khi:
 
 ## 9. Bước tiếp theo
 
-S1–S3, S4A và phần backend deploy của S4B đã hoàn tất. Bước tiếp theo là chọn/deploy contact-web
-HTTPS domain, cấu hình Auth redirect và Resend/test recipients/devices đã consent, rồi chạy preflight
-trước khi bật notification có giám sát. Không đánh dấu
+S1–S3, S4A, backend/contact-web deploy, Auth URL/CORS và non-mutating preflight của S4B đã hoàn tất.
+Bước tiếp theo là đăng nhập/tạo EAS project, cấu hình publishable environment và chạy mobile staging
+trên thiết bị; đồng thời chuẩn bị Resend sender cùng test recipients đã consent trước provider smoke.
+Không đánh dấu
 provider/device/restore/monitoring gate hoàn tất bằng fake-provider hoặc config-only evidence.
 Mỗi stage chỉ đóng khi exit criteria xanh và có bằng chứng trong repository/staging.

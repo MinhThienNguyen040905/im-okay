@@ -26,7 +26,9 @@ provider kill switch/timeout, aggregate ops snapshot, Vault-backed hosted Cron, 
 runbook và browser QA nền 390/768/1440 px. Project `im-okay-staging` tại Singapore đã được tạo,
 CLI login/link đã xác minh; 8 migration và 5 Edge Functions đã deploy, Vault cho hosted workers đã
 cấu hình, public/ops health đều trả `200`, còn API không JWT trả `401`. Notification delivery vẫn
-tắt; contact-web domain, Resend/test recipients, thiết bị thật, monitoring và restore acceptance còn mở.
+tắt. Contact web staging đã deploy tại `https://im-okay-contact-staging.vercel.app`; Auth URL/redirect,
+exact CORS và non-mutating preflight đều xanh. Resend/test recipients, EAS/thiết bị thật, monitoring
+drill và restore acceptance còn mở.
 Invariant cycle, policy 24/36/48 và recovery được ghi tại
 [`ADR 0009`](docs/adr/0009-core-check-in-cycle-scheduling.md); contact/token/alert/provider workflow
 được ghi tại [`ADR 0010`](docs/adr/0010-contact-alert-notification-workflows.md); staging security và

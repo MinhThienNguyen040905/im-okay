@@ -5,6 +5,7 @@ node_modules/
 dist/
 build/
 .expo/
+.vercel/
 .next/
 web-build/
 *.jks

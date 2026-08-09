@@ -19,52 +19,57 @@ có bearer token.
 - Hosted health: public `200`, internal ops `200`, API không JWT `401`.
 - Hosted workers: ba Vault secret đã cấu hình; không ghi giá trị secret vào evidence.
 - Notification delivery: tắt; chưa gọi email/push provider thật.
-- Domain/Resend/test device/backup target: chưa cấu hình.
+- Contact web: Vercel deployment `dpl_7su9H5GAA8Zbw7b8ytYCCNVho1xN`, alias
+  `https://im-okay-contact-staging.vercel.app`; privacy headers và invalid-token route pass.
+- Auth/CORS: Site URL + web/mobile redirect allowlist và exact web origin đã cấu hình.
+- Non-mutating preflight 09/08/2026 08:58 UTC: pass; p50 `169 ms`, p95 `1604 ms`/10 samples.
+- Hosted workers: bốn Cron active, recent runs succeeded, failure/queue/outbox/dead-letter đều `0`.
+- Resend/test device/backup target: chưa cấu hình; notification delivery vẫn tắt.
 
 ## Environment
 
-- Date/time:
-- Commit SHA:
-- Supabase project ref/region/plan:
-- Migration versions:
-- Edge function versions:
-- Contact web build/domain:
-- Mobile EAS build ID/device/OS:
+- Date/time: 09/08/2026 15:58 ICT (preflight 08:58 UTC)
+- Commit SHA: base `09afdeed62f69b8681baf7044bab683cb49aafec`; staging config cần commit trước RC
+- Supabase project ref/region/plan: `xnaanctveihyksgcveup` / Singapore / Free
+- Migration versions: 8 version từ `20260804000100` đến `20260809000800`
+- Edge function versions: `api`, `public-api`, `notification-consumer`, `provider-receipts`, `ops` v1
+- Contact web build/domain: Vercel `dpl_7su9H5GAA8Zbw7b8ytYCCNVho1xN` / staging alias ở trên
+- Mobile EAS build ID/device/OS: chưa có; EAS chưa login/project ID, ADB chưa thấy thiết bị
 - Test users/contacts consent reference:
 - Operator và go/hold owner:
 
 ## Results
 
-| Gate                                                | Result | Sanitized evidence                      | Blocker/owner |
-| --------------------------------------------------- | ------ | --------------------------------------- | ------------- |
-| Backend deploy order                                | Pass   | 8 migration + 5 functions; delivery off |               |
-| Full preflight sau contact-web deploy               |        |                                         |               |
-| Auth/redirect/session restore                       |        |                                         |               |
-| Invitation → alert → response → correction          |        |                                         |               |
-| Expo ticket/receipt và Resend delivery              |        |                                         |               |
-| Duplicate/concurrent/offline/timeout                |        |                                         |               |
-| Function/queue/provider/reconciliation drills       |        |                                         |               |
-| RLS/IDOR/JWT/token/rate limit                       |        |                                         |               |
-| Contact web 390/768/1440 + keyboard/SR/zoom         |        |                                         |               |
-| Mobile TalkBack/VoiceOver/font/focus/reduced motion |        |                                         |               |
-| Sentry symbolication/PII scrub                      |        |                                         |               |
-| Backup restore/integrity                            |        |                                         |               |
-| Monitoring/dashboard/alerts                         |        |                                         |               |
+| Gate                                                | Result  | Sanitized evidence                                   | Blocker/owner |
+| --------------------------------------------------- | ------- | ---------------------------------------------------- | ------------- |
+| Backend deploy order                                | Pass    | 8 migration + 5 functions; delivery off              |               |
+| Full preflight sau contact-web deploy               | Pass    | HTTPS/headers/CORS/auth/ops; 10 samples              |               |
+| Auth/redirect/session restore                       | Partial | Site URL + 2 redirects; chưa test session            | EAS/device    |
+| Invitation → alert → response → correction          |         |                                                      |               |
+| Expo ticket/receipt và Resend delivery              |         |                                                      |               |
+| Duplicate/concurrent/offline/timeout                |         |                                                      |               |
+| Function/queue/provider/reconciliation drills       |         |                                                      |               |
+| RLS/IDOR/JWT/token/rate limit                       | Partial | anon/RLS/token/origin/rate pass; IDOR/JWT pending    | Test users    |
+| Contact web 390/768/1440 + keyboard/SR/zoom         | Partial | hosted invalid-token route pass; full matrix pending | Device/SR     |
+| Mobile TalkBack/VoiceOver/font/focus/reduced motion |         |                                                      |               |
+| Sentry symbolication/PII scrub                      |         |                                                      |               |
+| Backup restore/integrity                            |         |                                                      |               |
+| Monitoring/dashboard/alerts                         | Partial | Cron/ops snapshot healthy; alert thresholds pending  | Operator      |
 
 ## Measured baseline
 
-- Edge health/API p50/p95/error rate:
-- Cron interval/run failures:
-- Scheduler lag p50/p95/max:
-- Queue depth/oldest age:
-- Delivery retry/dead-letter/unknown:
+- Edge health/API p50/p95/error rate: `169/1604 ms`; 10 health samples; error rate 0/10
+- Cron interval/run failures: scheduler/consumer 1 phút, receipt 5 phút; failures last hour `0`
+- Scheduler lag p50/p95/max: chưa đủ chuỗi đo; heartbeat age tại preflight `18 s`
+- Queue depth/oldest age: `0/0 s`
+- Delivery retry/dead-letter/unknown: `0/0/0`
 - Email accepted/received latency:
 - Expo ticket/receipt latency:
 - Reconciliation repair count/time:
 
 ## Decision
 
-- Known limitations:
-- Release blockers:
-- Go / hold / rollback:
+- Known limitations: chưa có provider/device/restore/full accessibility hoặc baseline dài hạn
+- Release blockers: EAS/test device, consented recipient/Resend, drills và restore còn thiếu
+- Go / hold / rollback: Hold S4; delivery giữ `false`
 - Follow-up owner/date:

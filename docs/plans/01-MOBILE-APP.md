@@ -77,6 +77,8 @@ Tại lần kiểm tra S3 ngày 04/08/2026:
   invitation/alert response, SOS, history/settings và account request contract; staging/device/provider
   acceptance vẫn mở.
 - EAS profiles, Maestro fixture smoke, device matrix và release/rollback runbook đã có.
+- Staging profile đã chứa Supabase/API URL public; Supabase Auth allowlist có `imokay://**`. EAS CLI
+  chưa đăng nhập, app chưa có EAS project ID và `adb devices` chưa thấy thiết bị nên chưa tạo build.
 
 Phải chạy lại các check thực tế sau mỗi thay đổi. Baseline cũ không chứng minh
 build hiện tại hoặc remote backend đang hoạt động.
@@ -95,4 +97,5 @@ Mobile sẵn sàng internal release khi:
 ## 7. Bước tiếp theo
 
 Không làm lại M01–M12. S1–S3 trong [`02-SUPABASE-MVP.md`](02-SUPABASE-MVP.md) đã hoàn tất
-ở local/integration. Tiếp tục S4 và chỉ đóng các gate staging/device còn mở bằng evidence thật.
+ở local/integration. Tiếp theo đăng nhập EAS, tạo/link Expo project, đặt publishable staging env và
+kết nối thiết bị Android trước khi chạy remote/device gates. Chỉ đóng gate bằng evidence thật.

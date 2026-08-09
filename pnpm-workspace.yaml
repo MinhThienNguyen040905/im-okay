@@ -2,5 +2,6 @@ packages:
   - apps/*
   - packages/*
 
-onlyBuiltDependencies:
-  - "@sentry/cli"
+allowBuilds:
+  "@sentry/cli": true
+  unrs-resolver: true

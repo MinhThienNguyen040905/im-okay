@@ -49,7 +49,9 @@ Resend key hoặc internal secret vào issue/chat/log.
 
 5. Deploy contact web với `EXPO_PUBLIC_PUBLIC_API_URL` trỏ tới
    `https://<project-ref>.supabase.co/functions/v1/public-api`. Xác minh hosting thực sự áp dụng
-   `_headers`; SPA fallback phải giữ token route nhưng không log URL ở analytics.
+   privacy headers tương ứng (`_headers` hoặc `vercel.json`); SPA fallback phải giữ token route nhưng
+   không log URL ở analytics. Repository hiện dùng Vercel project `im-okay-contact-staging` và alias
+   `https://im-okay-contact-staging.vercel.app` cho staging.
 6. Cấu hình mobile preview environment bằng publishable values; tuyệt đối không đưa secret key vào
    `EXPO_PUBLIC_*`.
 
