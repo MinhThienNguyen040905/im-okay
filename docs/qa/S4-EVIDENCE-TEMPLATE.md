@@ -13,7 +13,9 @@ có bearer token.
 - Lint/typecheck và mobile Android/iOS/web + contact web production export: pass.
 - Browser root shell: 390/768/1440 không tràn ngang; Tab focus, một H1 và `lang=vi`: pass.
 - Zoom 200%, screen reader, token-state route matrix, thiết bị thật: chưa chạy.
-- Hosted project/domain/provider/backup target: chưa cấu hình; CLI thiếu access token/project link.
+- Hosted project: `im-okay-staging`, Singapore, healthy; CLI login/link pass.
+- Migration dry-run: 8 local migration pending, không seed, chưa apply.
+- Domain/provider/backup target: chưa cấu hình.
 
 ## Environment
 

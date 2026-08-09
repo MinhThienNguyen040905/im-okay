@@ -23,8 +23,9 @@ snooze/SOS/drill, history/settings và account request đều chạy bằng back
 trống, 150 pgTAP test, S2/S3 local smoke, 26 Edge test, 109 mobile test và client builds đều xanh.
 W01–W05 đã có production web build. Ngày 09/08/2026, S4 repository readiness bổ sung rate limit,
 provider kill switch/timeout, aggregate ops snapshot, Vault-backed hosted Cron, guarded deploy/preflight,
-runbook và browser QA nền 390/768/1440 px. Local/CI vẫn chỉ dùng fake email/push; Supabase CLI chưa
-đăng nhập/chưa link project nên staging/provider/device/restore acceptance vẫn mở.
+runbook và browser QA nền 390/768/1440 px. Project `im-okay-staging` tại Singapore đã được tạo,
+CLI login/link và dry-run 8 migration đã xác minh; project chưa apply/deploy và local/CI vẫn chỉ dùng fake email/push, nên
+domain/provider/device/restore acceptance vẫn mở.
 Invariant cycle, policy 24/36/48 và recovery được ghi tại
 [`ADR 0009`](docs/adr/0009-core-check-in-cycle-scheduling.md); contact/token/alert/provider workflow
 được ghi tại [`ADR 0010`](docs/adr/0010-contact-alert-notification-workflows.md); staging security và

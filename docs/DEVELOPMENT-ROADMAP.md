@@ -24,9 +24,9 @@ Mốc tham chiếu: 2026-08-09.
 | Mobile M01–M12                        | Client MA0–MA6 và MA7 repository hardening hoàn tất                                       |
 | Mobile remote/device acceptance       | Còn mở; theo dõi trong Plan 01                                                            |
 | Contact web W01–W05                   | Đã build; browser nền 390/768/1440 + keyboard xanh, full accessibility/staging còn mở     |
-| Supabase backend                      | S1–S3 hoàn tất; S4 repository readiness có, hosted acceptance còn mở                      |
+| Supabase backend                      | S1–S3 và S4 repository readiness hoàn tất; hosted acceptance còn mở                       |
 | Workspace/CI                          | Mobile/contact/contracts/functions/database đã có root scripts và GitHub Actions workflow |
-| Staging/store                         | Chưa tạo/deploy                                                                           |
+| Staging/store                         | Supabase staging Singapore đã tạo/link/dry-run; chưa apply/deploy                         |
 
 Việc rút sáu plan cũ thành ba plan không reset mobile. Chi tiết 57 checkbox client đã
 hoàn thành được tóm tắt trong Plan 01 và giữ bằng chứng tại ADR 0001–0007.
@@ -100,7 +100,7 @@ Gate:
 
 ### P2 — Full alert flow on staging
 
-Trạng thái: **S3 local/integration hoàn tất; S4 repository readiness đang làm, chưa deploy staging.**
+Trạng thái: **S3 và S4 repository readiness hoàn tất; staging đã link/dry-run, chưa deploy.**
 
 Phạm vi: S3 Contacts/alerts/contact web + S4 Staging acceptance trong Plan 02.
 
@@ -149,9 +149,9 @@ S4 Staging acceptance (current)
 P3 Internal release gate
 ```
 
-S4 đang ở ranh giới cần external setup: rate limit/kill switch/ops/Vault Cron, deploy guard,
-preflight/runbook và local browser baseline đã có; Supabase project/domain/provider/device/restore target
-chưa có. Không dùng fake-provider/local evidence để đóng các gate cần hosted Supabase, provider thật,
+S4 đang ở hosted acceptance: rate limit/kill switch/ops/Vault Cron, deploy guard,
+preflight/runbook và local browser baseline đã có; Supabase staging Singapore đã tạo/link và dry-run
+8 migration nhưng chưa apply/deploy, còn domain/provider/device/restore target chưa có. Không dùng fake-provider/local evidence để đóng các gate cần hosted Supabase, provider thật,
 trình duyệt/thiết bị thật, monitoring hoặc restore drill.
 
 ## 7. Quy tắc cập nhật

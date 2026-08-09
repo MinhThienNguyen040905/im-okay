@@ -254,15 +254,29 @@ Evidence 04/08/2026:
 
 Mục tiêu: chứng minh reliability và security trên môi trường gần production.
 
-- [ ] Tạo Supabase staging project, contact-web HTTPS domain và auth redirect tách production.
-- [ ] Cấu hình project secrets, test sender/recipients/devices đã consent và provider kill switch.
+#### S4A — Repository readiness
+
+- [x] Implement distributed rate limit cho authenticated/public mutation, chỉ lưu SHA-256 subject.
+- [x] Thêm notification kill switch fail-closed ở live và provider HTTP timeout.
+- [x] Thêm Vault-backed hosted Cron invocation, rate-limit cleanup và aggregate `ops` projection.
+- [x] Thêm guarded deploy dry-run/apply script, non-mutating preflight và staging env examples.
+- [x] Viết ADR, staging operations runbook và evidence template.
+- [x] Reset database từ trống; chạy 150 pgTAP, S2/S3 smoke, 26 Edge và 109 mobile test.
+- [x] Build Android/iOS/web và kiểm tra contact web nền ở 390/768/1440 px + keyboard focus.
+
+#### S4B — Hosted staging acceptance
+
+- [x] Tạo Supabase project `im-okay-staging` tại Singapore và xác minh CLI login/project healthy.
+- [x] Link repository đúng staging project và review dry-run: 8 migration pending, không seed/apply.
+- [ ] Chọn/deploy contact-web HTTPS domain và cấu hình Auth site URL/redirect tách production.
+- [ ] Cấu hình project secrets, Vault, test sender/recipients/devices đã consent; giữ provider off.
 - [ ] Deploy expand migration → backward-compatible functions → contact web/mobile config.
 - [ ] Chạy accelerated full alert flow với Expo Push và email thật.
 - [ ] Đo Edge Function error/latency, cron run, scheduler lag, queue age/depth/retry/dead-letter.
 - [ ] Chạy function termination, queue loss/lease expiry, provider outage và reconciliation drill.
-- [ ] Xác minh RLS/IDOR/rate-limit/public-token negative cases và PII scrub.
+- [ ] Xác minh hosted RLS/IDOR/rate-limit/public-token negative cases và PII scrub.
 - [ ] Cấu hình backup/PITR theo plan và thực hiện restore sang isolated environment.
-- [ ] Chạy mobile remote gates và contact-web 390/768/1440 px, keyboard/screen-reader/zoom 200%.
+- [ ] Chạy mobile remote gates và contact-web token routes, keyboard/screen-reader/zoom 200%.
 - [ ] Ghi measured SLO baseline, known limitations và runbook cho outage/backlog/unknown delivery.
 
 Repository readiness evidence 09/08/2026 (chưa thay thế staging evidence):
@@ -277,8 +291,9 @@ Repository readiness evidence 09/08/2026 (chưa thay thế staging evidence):
   một H1 và `lang=vi`. Browser zoom 200%, screen reader và toàn bộ token-state routes vẫn là gate mở.
 - Đã có deploy dry-run/apply guard, non-mutating staging preflight, evidence template và
   [`staging operations runbook`](../release/STAGING-OPERATIONS-RUNBOOK.md).
-- Supabase CLI chưa có access token/project link; staging project/domain/provider/device/backup target
-  chưa được owner chọn. Vì vậy toàn bộ checkbox S4 cần external evidence vẫn để mở.
+- Supabase project `im-okay-staging` đã được tạo tại Singapore, CLI login/link đã xác minh và dry-run
+  liệt kê đúng 8 migration pending mà không apply/seed; domain/provider/device/backup target cùng mọi
+  hosted acceptance gate còn lại vẫn để mở.
 
 Exit:
 
@@ -313,8 +328,9 @@ Supabase MVP hoàn thành khi:
 
 ## 9. Bước tiếp theo
 
-S1–S3 đã hoàn tất trong local/integration và phần repository readiness của S4 đã có. Bước tiếp theo là
-owner tạo/chọn staging project, domain, provider recipients/devices đã consent và đăng nhập Supabase
-CLI để chạy deploy dry-run, preflight rồi mới bật notification có giám sát. Không đánh dấu
+S1–S3 và S4A repository readiness đã hoàn tất. Supabase staging project đã được tạo, CLI login/link và
+migration dry-run đã xác minh. Bước tiếp theo là apply 8 migration + backward-compatible functions với
+provider vẫn tắt, sau đó chọn contact-web HTTPS domain, cấu hình secrets/Vault/Auth redirect rồi chạy
+preflight trước khi bật notification có giám sát. Không đánh dấu
 provider/device/restore/monitoring gate hoàn tất bằng fake-provider hoặc config-only evidence.
 Mỗi stage chỉ đóng khi exit criteria xanh và có bằng chứng trong repository/staging.
