@@ -60,7 +60,8 @@ Zod schema, test và ADR trong cùng thay đổi.
 ### Device and release acceptance
 
 - [ ] Chạy VoiceOver/TalkBack, external-keyboard focus và font 200% theo device matrix.
-- [ ] Tạo Android/iOS internal build đã ký và ghi build ID/thiết bị/kết quả.
+- [x] Tạo Android internal build đã ký và ghi build ID/thiết bị/kết quả.
+- [ ] Tạo iOS internal build đã ký và ghi build ID/thiết bị/kết quả.
 - [ ] Xác minh Sentry source-map upload/symbolication và PII scrub trên staging build.
 - [ ] Chạy Maestro smoke trên internal binary; fixture smoke không thay remote E2E.
 - [ ] Nghiệm thu TestFlight/Google Play Internal Testing trước khi mở beta.
@@ -77,8 +78,11 @@ Tại lần kiểm tra S3 ngày 04/08/2026:
   invitation/alert response, SOS, history/settings và account request contract; staging/device/provider
   acceptance vẫn mở.
 - EAS profiles, Maestro fixture smoke, device matrix và release/rollback runbook đã có.
-- Staging profile đã chứa Supabase/API URL public; Supabase Auth allowlist có `imokay://**`. EAS CLI
-  chưa đăng nhập, app chưa có EAS project ID và `adb devices` chưa thấy thiết bị nên chưa tạo build.
+- Staging profile đã chứa Supabase/API URL public; Supabase Auth allowlist có `imokay://**`.
+  EAS project `@minh004/im-okay` đã liên kết với project ID
+  `3ea9c673-0f86-4d5e-a802-53899da19dcb`. Signed Android internal APK build
+  `be78049b-0f7e-4bee-a7f4-c18637d00b65` đã cài/chạy trên TECNO KJ7, Android 14/API 34;
+  onboarding → login smoke xanh và không có FATAL. iOS/internal-store gate vẫn mở.
 
 Phải chạy lại các check thực tế sau mỗi thay đổi. Baseline cũ không chứng minh
 build hiện tại hoặc remote backend đang hoạt động.
@@ -96,6 +100,7 @@ Mobile sẵn sàng internal release khi:
 
 ## 7. Bước tiếp theo
 
-Không làm lại M01–M12. S1–S3 trong [`02-SUPABASE-MVP.md`](02-SUPABASE-MVP.md) đã hoàn tất
-ở local/integration. Tiếp theo đăng nhập EAS, tạo/link Expo project, đặt publishable staging env và
-kết nối thiết bị Android trước khi chạy remote/device gates. Chỉ đóng gate bằng evidence thật.
+Không làm lại M01–M12. S1–S3 trong [`02-SUPABASE-MVP.md`](02-SUPABASE-MVP.md), EAS project,
+Android signed build và device smoke cơ bản đã hoàn tất. Tiếp theo chạy authenticated auth/session
+restore, provider E2E, push receipt, accessibility matrix, Sentry symbolication và iOS/store gates.
+Chỉ đóng gate bằng evidence thật.

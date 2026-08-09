@@ -275,9 +275,10 @@ Mục tiêu: chứng minh reliability và security trên môi trường gần pr
 - [ ] Cấu hình Resend sender, test recipients/devices đã consent và provider acceptance secrets.
 - [x] Tạo EAS project/environment, cấp publishable key và chạy mobile staging build trên thiết bị.
 - [ ] Chạy accelerated full alert flow với Expo Push và email thật.
-- [ ] Đo Edge Function error/latency, cron run, scheduler lag, queue age/depth/retry/dead-letter.
+- [x] Đo snapshot Edge Function error/latency, cron run, queue age/depth/retry/dead-letter.
+- [ ] Tích lũy scheduler lag p50/p95/max và chốt alert threshold từ chuỗi đo staging.
 - [ ] Chạy function termination, queue loss/lease expiry, provider outage và reconciliation drill.
-- [ ] Xác minh hosted RLS/IDOR/rate-limit/public-token negative cases và PII scrub.
+- [x] Xác minh hosted RLS/IDOR/rate-limit/public-token negative cases và PII scrub.
 - [ ] Cấu hình backup/PITR theo plan và thực hiện restore sang isolated environment.
 - [ ] Chạy mobile remote gates và contact-web token routes, keyboard/screen-reader/zoom 200%.
 - [ ] Ghi measured SLO baseline, known limitations và runbook cho outage/backlog/unknown delivery.
@@ -311,8 +312,12 @@ Hosted backend deployment evidence 09/08/2026:
   p50 `169 ms`, p95 `1604 ms`. Bốn Cron job active, các run quan sát gần nhất đều succeeded,
   `cronFailuresLastHour=0`, queue/outbox/dead-letter đều `0`.
 - Hosted public negative checks: invalid token trả projection generic, action sai `400`, origin sai
-  `403` không ACAO và request thứ 11 trong public-action window trả `429`. RLS active và anon không
-  có INSERT trên bốn bảng nhạy cảm đã kiểm tra; IDOR/authenticated-user matrix vẫn chưa chạy.
+  `403` không ACAO và request thứ 11 trong public-action window trả `429`. Guarded security smoke tạo
+  hai synthetic `.test` users, xác minh malformed JWT `401`, Edge actor binding, cross-user read rỗng,
+  cross-user update bị chặn, actor-spoof RPC và audit mutation bị chặn; cleanup `2/2` pass.
+- Observability baseline 30 health sample lúc `2026-08-09T11:22:42.463Z`: p50 `161 ms`, p95
+  `258 ms`, max `790 ms`, error `0/30`; Cron failure, overdue work, queue/outbox/dead-letter và
+  receipt backlog đều `0`, scheduler heartbeat age `40 s`. Đây là snapshot ngắn, chưa phải SLO dài hạn.
 - Contact-web hosted invalid-token route hiển thị trạng thái an toàn, không render token.
 - EAS project `@minh004/im-okay` đã liên kết với project ID
   `3ea9c673-0f86-4d5e-a802-53899da19dcb`; Preview environment chỉ có các biến public staging.
@@ -320,8 +325,8 @@ Hosted backend deployment evidence 09/08/2026:
 - APK staging đã cài trên TECNO KJ7, Android 14/API 34; onboarding → login smoke pass và
   logcat không có FATAL/React Native error. Sentry source-map upload được tắt riêng cho
   local/staging khi chưa có Sentry auth; production không bị tắt.
-- Resend/test recipients, provider flow, full accessibility, monitoring/fault drill và backup restore
-  vẫn là gate mở; delivery tiếp tục tắt.
+- Resend/test recipients, provider flow, authenticated mobile session, full accessibility,
+  fault/reconciliation drill, SLO dài hạn và backup restore vẫn là gate mở; delivery tiếp tục tắt.
 
 Exit:
 
@@ -356,10 +361,11 @@ Supabase MVP hoàn thành khi:
 
 ## 9. Bước tiếp theo
 
-S1–S3, S4A, backend/contact-web deploy, Auth URL/CORS, non-mutating preflight và Android staging
-device smoke của S4B đã hoàn tất. Bước tiếp theo là chuẩn bị Resend sender cùng
+S1–S3, S4A, backend/contact-web deploy, Auth URL/CORS, non-mutating preflight, hosted security
+negative matrix, observability snapshot và Android staging device smoke của S4B đã hoàn tất.
+Bước tiếp theo là chuẩn bị Resend sender cùng
 test recipients đã consent, sau đó chạy accelerated alert/correction flow với delivery được
-bật có kiểm soát. Song song, hoàn tất hosted IDOR/JWT matrix, fault/reconciliation drill,
-backup restore và accessibility matrix. Không đánh dấu provider/restore/monitoring gate hoàn tất
+bật có kiểm soát. Song song, hoàn tất authenticated mobile session, fault/reconciliation drill,
+backup restore, accessibility matrix và baseline SLO dài hạn. Không đánh dấu provider/restore/SLO gate hoàn tất
 bằng fake-provider hoặc config-only evidence.
 Mỗi stage chỉ đóng khi exit criteria xanh và có bằng chứng trong repository/staging.

@@ -22,11 +22,11 @@ Mốc tham chiếu: 2026-08-09.
 | ------------------------------------- | ----------------------------------------------------------------------------------------- |
 | Product brief, UX flow, design system | Đã có bản nền                                                                             |
 | Mobile M01–M12                        | Client MA0–MA6 và MA7 repository hardening hoàn tất                                       |
-| Mobile remote/device acceptance       | Còn mở; theo dõi trong Plan 01                                                            |
+| Mobile remote/device acceptance       | Android signed build/device smoke xong; auth/accessibility/iOS/store còn mở               |
 | Contact web W01–W05                   | Đã deploy Vercel staging; preflight xanh, full accessibility/provider flow còn mở         |
 | Supabase backend                      | 8 migration + 5 Edge Functions đã deploy staging; hosted acceptance còn mở                |
 | Workspace/CI                          | Mobile/contact/contracts/functions/database đã có root scripts và GitHub Actions workflow |
-| Staging/store                         | Backend + contact web + Auth/CORS/preflight xong; mobile/provider/restore còn mở          |
+| Staging/store                         | Security/ops snapshot + Android smoke xong; provider/fault/restore/accessibility còn mở   |
 
 Việc rút sáu plan cũ thành ba plan không reset mobile. Chi tiết 57 checkbox client đã
 hoàn thành được tóm tắt trong Plan 01 và giữ bằng chứng tại ADR 0001–0007.
@@ -150,10 +150,11 @@ P3 Internal release gate
 ```
 
 S4 đang ở hosted acceptance: 8 migration, 5 Edge Functions và Vault worker secrets đã deploy lên
-Supabase staging Singapore; contact web Vercel, Auth URL/CORS và non-mutating preflight đã xanh;
-delivery kill switch vẫn tắt. EAS/mobile test device, provider/consented recipients, full monitoring,
-fault drill và restore target còn thiếu. Không dùng fake-provider/local evidence để đóng các gate cần provider thật,
-trình duyệt/thiết bị thật, monitoring hoặc restore drill.
+Supabase staging Singapore; contact web Vercel, Auth URL/CORS, non-mutating preflight, hosted security
+negative matrix, ops snapshot và Android signed-build/device smoke đã xanh; delivery kill switch vẫn
+tắt. Provider/consented recipients, authenticated mobile flow, full accessibility, fault drill, SLO dài
+hạn và restore target còn thiếu. Không dùng fake-provider/local evidence để đóng các gate cần provider thật,
+trình duyệt/thiết bị thật, monitoring dài hạn hoặc restore drill.
 
 ## 7. Quy tắc cập nhật
 

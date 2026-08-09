@@ -27,8 +27,11 @@ runbook và browser QA nền 390/768/1440 px. Project `im-okay-staging` tại Si
 CLI login/link đã xác minh; 8 migration và 5 Edge Functions đã deploy, Vault cho hosted workers đã
 cấu hình, public/ops health đều trả `200`, còn API không JWT trả `401`. Notification delivery vẫn
 tắt. Contact web staging đã deploy tại `https://im-okay-contact-staging.vercel.app`; Auth URL/redirect,
-exact CORS và non-mutating preflight đều xanh. Resend/test recipients, EAS/thiết bị thật, monitoring
-drill và restore acceptance còn mở.
+exact CORS và non-mutating preflight đều xanh. Hosted JWT/actor-binding/IDOR/RLS/token/rate-limit
+negative matrix đã xanh; observability snapshot 30 mẫu có error `0/30`, p50 `161 ms`, p95 `258 ms`
+và Cron/queue/outbox/dead-letter đều khỏe. EAS Android signed APK đã cài/chạy trên TECNO KJ7.
+Resend/test recipients, provider flow, authenticated mobile session, full accessibility, fault drill,
+SLO dài hạn và restore acceptance còn mở.
 Invariant cycle, policy 24/36/48 và recovery được ghi tại
 [`ADR 0009`](docs/adr/0009-core-check-in-cycle-scheduling.md); contact/token/alert/provider workflow
 được ghi tại [`ADR 0010`](docs/adr/0010-contact-alert-notification-workflows.md); staging security và
@@ -154,8 +157,9 @@ Các Edge consumer S3 mặc định không gửi mạng. Xem biến mẫu phía 
 Resend/Expo secrets và test recipients/devices đã consent. Local smoke trực tiếp chạy claim → fake
 provider → persist outcome, bao gồm retry/unknown và invalid Expo token qua unit test.
 
-Parity gap sau backend staging deploy: chưa chứng minh hosted Cron run end-to-end, email
-deliverability, Expo receipt trên thiết bị thật, backup/PITR restore hoặc measured monitoring/SLO.
+Parity gap sau backend staging deploy: chưa chứng minh email deliverability, Expo receipt trên thiết bị
+thật, backup/PITR restore hoặc measured monitoring/SLO dài hạn. Hosted Cron/ops snapshot và security
+negative matrix đã xanh nhưng chưa thay thế provider/fault/restore drill.
 Browser nền đã kiểm tra 390/768/1440, keyboard focus và `lang=vi`; zoom 200%, screen reader và device
 matrix vẫn mở. Các phần này thuộc S4/release gate; chưa có notification thật vì staging kill switch
 vẫn tắt.

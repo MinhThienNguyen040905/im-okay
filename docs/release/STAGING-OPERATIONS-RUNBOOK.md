@@ -84,6 +84,42 @@ npm run staging:preflight
 Preflight kiểm tra HTTPS, public/API health, unauthenticated rejection, exact CORS origin, public web
 privacy headers, ops projection và 10 latency samples. Nó không mutate domain và không gọi provider.
 
+### Hosted security smoke
+
+Smoke này tạo hai auth user tổng hợp có domain `.test`, không gửi email, chạy JWT/actor-binding/IDOR/RLS
+negative cases rồi xóa cả hai user trong `finally`. Chỉ lấy secret key từ CLI hoặc secret manager vào
+biến môi trường tạm; không ghi key vào script, terminal history hoặc evidence.
+
+```powershell
+$env:S4_SECURITY_SMOKE_CONFIRMATION = 'staging'
+$env:STAGING_EXPECTED_PROJECT_REF = '<project-ref>'
+$env:STAGING_SUPABASE_URL = 'https://<project-ref>.supabase.co'
+$env:STAGING_SUPABASE_PUBLISHABLE_KEY = '<publishable key>'
+$env:STAGING_SUPABASE_SECRET_KEY = '<secret key>'
+npm run staging:security-smoke
+Remove-Item Env:STAGING_SUPABASE_SECRET_KEY
+```
+
+Xác minh dòng cleanup pass, sau đó xóa các biến secret khỏi process hiện tại.
+
+### Observability snapshot
+
+Lệnh này không mutate domain và không gọi provider. Nó lấy 10–100 health samples cùng aggregate ops
+snapshot đã scrub để đo latency/error, heartbeat, Cron failure, overdue work, queue/outbox/retry/dead-letter.
+
+```powershell
+$env:S4_OBSERVABILITY_CONFIRMATION = 'staging'
+$env:S4_OBSERVABILITY_SAMPLES = '30'
+$env:STAGING_EXPECTED_PROJECT_REF = '<project-ref>'
+$env:STAGING_SUPABASE_URL = 'https://<project-ref>.supabase.co'
+$env:STAGING_SUPABASE_PUBLISHABLE_KEY = '<publishable key>'
+$env:STAGING_SUPABASE_SECRET_KEY = '<secret key>'
+npm run staging:observability
+Remove-Item Env:STAGING_SUPABASE_SECRET_KEY
+```
+
+Một snapshot xanh chỉ đóng bước đo tức thời; chưa đủ để tự chốt SLO hoặc alert threshold dài hạn.
+
 ## 5. Bật provider và accelerated acceptance
 
 Chỉ đổi `NOTIFICATION_DELIVERY_ENABLED=true` khi test user/contact/device đã consent và preflight

@@ -98,6 +98,7 @@ Sau upload, chưa chuyển production ngay:
 ## 7. Trạng thái hiện tại
 
 Repository đã có EAS profiles, light/reduced-motion/deep-link/Sentry hardening, automated tests và
-Maestro fixture smoke. Chưa thực hiện EAS build, source-map upload thật, device matrix,
-TestFlight/Play upload hay rollout vì chưa có EAS/Sentry/store credentials, Supabase backend/staging,
-test recipients và authority deploy.
+Maestro fixture smoke. EAS project đã liên kết; signed Android internal APK đã build, cài và smoke
+trên TECNO KJ7/Android 14 với Supabase staging. Authenticated session restore, full device/accessibility
+matrix, Sentry source-map upload, iOS build, Maestro trên internal binary, TestFlight/Play upload và
+rollout vẫn chưa hoàn tất; provider acceptance còn chờ sender/recipient/device đã consent.

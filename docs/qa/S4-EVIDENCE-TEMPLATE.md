@@ -24,15 +24,17 @@ có bearer token.
   `https://im-okay-contact-staging.vercel.app`; privacy headers và invalid-token route pass.
 - Auth/CORS: Site URL + web/mobile redirect allowlist và exact web origin đã cấu hình.
 - Non-mutating preflight 09/08/2026 08:58 UTC: pass; p50 `169 ms`, p95 `1604 ms`/10 samples.
+- Guarded hosted security smoke: pass; hai synthetic `.test` users đã cleanup `2/2`, không gửi email.
+- Observability snapshot 09/08/2026 11:22 UTC: pass; 30 health samples và aggregate ops projection.
 - Hosted workers: bốn Cron active, recent runs succeeded, failure/queue/outbox/dead-letter đều `0`.
 - Android test device: đã có; Resend/consented recipients/backup target: chưa cấu hình;
   notification delivery vẫn tắt.
 
 ## Environment
 
-- Date/time: 09/08/2026 17:50 ICT (preflight 08:58 UTC; mobile smoke 10:50 UTC)
-- Commit SHA: base `32fbcf93c1d28dd7a13b62e73107e4f28ec90ac9`; EAS/app config cần commit
-  thật trong repository trước RC. Build hiện tại dùng clean snapshot tạm, không thay thế RC SHA.
+- Date/time: 09/08/2026 18:22 ICT (preflight 08:58 UTC; mobile smoke 10:50 UTC)
+- Commit SHA: base `e06d41df78fdf00ec1fbb4c04a0a6becc196cc24`; build hiện tại không thay thế
+  exact-commit RC gate.
 - Supabase project ref/region/plan: `xnaanctveihyksgcveup` / Singapore / Free
 - Migration versions: 8 version từ `20260804000100` đến `20260809000800`
 - Edge function versions: `api`, `public-api`, `notification-consumer`, `provider-receipts`, `ops` v1
@@ -54,18 +56,18 @@ có bearer token.
 | Expo ticket/receipt và Resend delivery              |         |                                                                                 |               |
 | Duplicate/concurrent/offline/timeout                |         |                                                                                 |               |
 | Function/queue/provider/reconciliation drills       |         |                                                                                 |               |
-| RLS/IDOR/JWT/token/rate limit                       | Partial | anon/RLS/token/origin/rate pass; IDOR/JWT pending                               | Test users    |
+| RLS/IDOR/JWT/token/rate limit                       | Pass    | anon + 2 synthetic users; actor/IDOR/JWT/token/origin/rate negative matrix pass |               |
 | Contact web 390/768/1440 + keyboard/SR/zoom         | Partial | hosted invalid-token route pass; full matrix pending                            | Device/SR     |
 | Mobile TalkBack/VoiceOver/font/focus/reduced motion | Partial | Android visual/navigation smoke pass; accessibility matrix pending              | Device/SR     |
 | Sentry symbolication/PII scrub                      |         |                                                                                 |               |
 | Backup restore/integrity                            |         |                                                                                 |               |
-| Monitoring/dashboard/alerts                         | Partial | Cron/ops snapshot healthy; alert thresholds pending                             | Operator      |
+| Monitoring/dashboard/alerts                         | Partial | 30-sample health + Cron/ops snapshot healthy; alert/SLO baseline pending        | Operator      |
 
 ## Measured baseline
 
-- Edge health/API p50/p95/error rate: `169/1604 ms`; 10 health samples; error rate 0/10
+- Edge health/API p50/p95/max/error rate: `161/258/790 ms`; 30 health samples; error rate `0/30`
 - Cron interval/run failures: scheduler/consumer 1 phút, receipt 5 phút; failures last hour `0`
-- Scheduler lag p50/p95/max: chưa đủ chuỗi đo; heartbeat age tại preflight `18 s`
+- Scheduler lag p50/p95/max: chưa đủ chuỗi đo; heartbeat age tại snapshot `40 s`
 - Queue depth/oldest age: `0/0 s`
 - Delivery retry/dead-letter/unknown: `0/0/0`
 - Email accepted/received latency:
@@ -75,6 +77,6 @@ có bearer token.
 ## Decision
 
 - Known limitations: chưa có provider/restore/full accessibility hoặc baseline dài hạn
-- Release blockers: consented recipient/Resend, authenticated E2E, drills và restore còn thiếu
+- Release blockers: consented recipient/Resend, authenticated mobile E2E, drills và restore còn thiếu
 - Go / hold / rollback: Hold S4; delivery giữ `false`
 - Follow-up owner/date:
