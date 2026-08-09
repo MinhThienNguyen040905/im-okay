@@ -77,6 +77,7 @@ export class ResendEmailProvider implements NotificationProvider {
           "idempotency-key": message.idempotencyKey,
         },
         method: "POST",
+        signal: AbortSignal.timeout(10_000),
       });
       const body = (await response.json().catch(() => null)) as {
         id?: unknown;
@@ -132,6 +133,7 @@ export class ExpoPushProvider implements NotificationProvider {
             "content-type": "application/json",
           },
           method: "POST",
+          signal: AbortSignal.timeout(10_000),
         },
       );
       if (response.status === 429 || response.status >= 500) {
@@ -175,6 +177,7 @@ export const getExpoReceipts = async (
         accept: "application/json",
         "content-type": "application/json",
       },
+      signal: AbortSignal.timeout(10_000),
       method: "POST",
     },
   );

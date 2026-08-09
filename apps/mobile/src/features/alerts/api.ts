@@ -29,6 +29,7 @@ const errorCopy: Record<string, string> = {
   ALERT_ALREADY_ACTIVE: "Một cảnh báo khác đang được xử lý.",
   INVALID_SNOOZE_DURATION: "Khoảng tạm hoãn này không được máy chủ cho phép.",
   NO_ELIGIBLE_CONTACTS: "Chưa có liên hệ đã xác nhận để nhận thông báo.",
+  RATE_LIMITED: "Yêu cầu đang được giới hạn. Vui lòng thử lại sau.",
   SAFETY_PLAN_INACTIVE: "Kế hoạch an toàn hiện không hoạt động.",
   SNOOZE_NOT_ALLOWED: "Không thể tạm hoãn ở trạng thái cảnh báo hiện tại.",
   SOS_RATE_LIMITED: "Yêu cầu SOS đang được giới hạn. Hãy kiểm tra trạng thái.",

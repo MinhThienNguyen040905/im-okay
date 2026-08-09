@@ -17,6 +17,7 @@ test("W01 and W02-W05 routes are token-scoped and never render the token", () =>
 
 test("public web declares privacy headers and keyboard-accessible controls", () => {
   const headers = read("../public/_headers");
+  const appConfig = JSON.parse(read("../app.json"));
   const invitation = read("../src/app/invitations/[token].tsx");
   const alert = read("../src/app/alerts/[token].tsx");
   for (const required of [
@@ -30,6 +31,7 @@ test("public web declares privacy headers and keyboard-accessible controls", () 
   assert.match(invitation, /accessibilityRole="checkbox"/);
   assert.match(alert, /accessibilityRole="radio"/);
   assert.match(invitation, /minHeight: 48/);
+  assert.equal(appConfig.expo.web.lang, "vi");
 });
 
 test("responsive shell is mobile-first with a bounded desktop container", () => {

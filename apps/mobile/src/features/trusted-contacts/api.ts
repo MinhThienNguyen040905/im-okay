@@ -40,6 +40,7 @@ const errorCopy: Record<string, string> = {
     "Danh sách đã thay đổi ở nơi khác. Hãy đồng bộ rồi thử lại.",
   INVITATION_ALREADY_ACCEPTED: "Liên hệ này đã chấp nhận lời mời.",
   INVITATION_COOLDOWN: "Chưa thể gửi lại lời mời. Vui lòng chờ hết thời gian.",
+  RATE_LIMITED: "Bạn đang thao tác quá nhanh. Vui lòng thử lại sau.",
   RESEND_COOLDOWN: "Chưa thể gửi lại lời mời. Vui lòng chờ hết thời gian.",
 };
 

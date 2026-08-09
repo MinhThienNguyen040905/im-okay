@@ -1,6 +1,7 @@
 import { createServiceRoleDatabaseGateway } from "../_shared/database.ts";
 import { errorResponse, getRequestId, jsonResponse } from "../_shared/http.ts";
 import { getExpoReceipts } from "../_shared/notification-providers.ts";
+import { notificationDeliveryEnabled } from "../_shared/notification-dispatcher.ts";
 
 Deno.serve(async (request) => {
   const requestId = getRequestId(request);
@@ -24,7 +25,10 @@ Deno.serve(async (request) => {
       "Phương thức không được hỗ trợ.",
     );
   }
-  if (Deno.env.get("NOTIFICATION_PROVIDER_MODE")?.trim() !== "live") {
+  if (
+    !notificationDeliveryEnabled() ||
+    Deno.env.get("NOTIFICATION_PROVIDER_MODE")?.trim() !== "live"
+  ) {
     return jsonResponse(
       { checked: 0, requested: 0 },
       { requestId, status: 200 },

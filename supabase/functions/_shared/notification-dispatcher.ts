@@ -25,7 +25,16 @@ export type NotificationDispatcher = {
 };
 
 const env = (name: string): string | undefined =>
-  Deno.env.get(name)?.trim() || undefined;
+  typeof Deno === "undefined"
+    ? undefined
+    : Deno.env.get(name)?.trim() || undefined;
+
+export const notificationDeliveryEnabled = (): boolean => {
+  const configured = env("NOTIFICATION_DELIVERY_ENABLED");
+  if (configured === "false") return false;
+  if (configured === "true") return true;
+  return env("NOTIFICATION_PROVIDER_MODE") !== "live";
+};
 
 const configuredProviders = (): Map<string, NotificationProvider> => {
   if (env("NOTIFICATION_PROVIDER_MODE") !== "live") {
@@ -64,10 +73,13 @@ const parseClaims = (value: unknown): ClaimedDelivery[] => {
 
 export const createNotificationDispatcher = (
   database: DatabaseGateway,
-  providers = configuredProviders(),
+  providers?: Map<string, NotificationProvider>,
   publicWebUrl = env("PUBLIC_CONTACT_WEB_URL") ?? "http://127.0.0.1:8082",
+  enabled = notificationDeliveryEnabled(),
 ): NotificationDispatcher => ({
   async dispatch(deliveryId) {
+    if (!enabled) return 0;
+    const activeProviders = providers ?? configuredProviders();
     const claimed = parseClaims(
       await database.call("internal_claim_notification_deliveries", {
         p_batch_size: deliveryId ? 1 : 20,
@@ -75,7 +87,7 @@ export const createNotificationDispatcher = (
       }),
     );
     for (const delivery of claimed) {
-      const provider = providers.get(delivery.channel);
+      const provider = activeProviders.get(delivery.channel);
       let outcome: ProviderOutcome;
       if (!provider) {
         outcome = { kind: "permanent", errorCode: "PROVIDER_DISABLED" };

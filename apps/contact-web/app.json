@@ -9,6 +9,7 @@
     "plugins": ["expo-router"],
     "web": {
       "bundler": "metro",
+      "lang": "vi",
       "output": "single"
     }
   }

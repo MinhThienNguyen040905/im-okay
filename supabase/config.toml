@@ -67,3 +67,7 @@ verify_jwt = false
 [functions.provider-receipts]
 enabled = true
 verify_jwt = false
+
+[functions.ops]
+enabled = true
+verify_jwt = false

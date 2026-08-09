@@ -6,9 +6,11 @@ export type RpcName =
   | "internal_create_trusted_contact"
   | "internal_disable_device"
   | "internal_disable_safety_plan"
+  | "internal_enforce_rate_limit"
   | "internal_get_alert_context"
   | "internal_get_history"
   | "internal_get_onboarding_state"
+  | "internal_get_operational_snapshot"
   | "internal_get_public_alert"
   | "internal_get_public_invitation"
   | "internal_get_safety_status"
@@ -54,9 +56,32 @@ const requiredEnvironment = (name: string): string => {
   return value;
 };
 
+const firstKeyFromDictionary = (name: string): string | undefined => {
+  if (typeof Deno === "undefined") return undefined;
+  const raw = Deno.env.get(name)?.trim();
+  if (!raw) return undefined;
+  try {
+    const dictionary = JSON.parse(raw) as Record<string, unknown>;
+    const preferred = dictionary.default;
+    if (typeof preferred === "string" && preferred.trim()) {
+      return preferred.trim();
+    }
+    return Object.values(dictionary)
+      .find(
+        (value): value is string =>
+          typeof value === "string" && value.trim().length > 0,
+      )
+      ?.trim();
+  } catch {
+    throw new DatabaseError("DATABASE_UNAVAILABLE", name);
+  }
+};
+
 export const createServiceRoleDatabaseGateway = (): DatabaseGateway => {
   const supabaseUrl = requiredEnvironment("SUPABASE_URL").replace(/\/$/, "");
-  const secretKey = Deno.env.get("SUPABASE_SECRET_KEY")?.trim();
+  const secretKey =
+    Deno.env.get("SUPABASE_SECRET_KEY")?.trim() ||
+    firstKeyFromDictionary("SUPABASE_SECRET_KEYS");
   const legacyServiceRoleKey = Deno.env
     .get("SUPABASE_SERVICE_ROLE_KEY")
     ?.trim();

@@ -12,11 +12,16 @@ import {
   parseJson,
 } from "./http.ts";
 import { logEvent } from "./logger.ts";
+import {
+  enforceRequestRateLimit,
+  type RequestRateLimiter,
+} from "./rate-limit.ts";
 
 export type PublicApiRouterOptions = {
   allowedOrigins?: string[];
   clock?: Clock;
   database?: DatabaseGateway;
+  rateLimiter?: RequestRateLimiter;
 };
 
 type PublicActionBody = {
@@ -170,23 +175,47 @@ export const createPublicApiRouter = (
         allowedOrigin,
       );
     }
-    const token = decodeURIComponent((invitation?.[1] ?? alert?.[1])!);
-    if (token.length < 32 || token.length > 128) {
-      return securityHeaders(
-        jsonResponse(
-          {
-            serverTime: clock.now().toISOString(),
-            status: "invalid",
-            allowedActions: [],
-          },
-          { requestId, status: 200 },
-        ),
-        allowedOrigin,
-      );
-    }
     const correlationId = crypto.randomUUID();
     try {
       const database = options.database ?? createServiceRoleDatabaseGateway();
+      const rateLimitPolicy =
+        request.method === "GET"
+          ? { limit: 60, scope: "public:projection", windowSeconds: 300 }
+          : { limit: 10, scope: "public:action", windowSeconds: 300 };
+      const decision = await (options.rateLimiter ?? enforceRequestRateLimit)(
+        database,
+        request,
+        invitation ? "public:invitation" : "public:alert",
+        rateLimitPolicy,
+      );
+      if (!decision.allowed) {
+        return securityHeaders(
+          errorResponse(
+            requestId,
+            429,
+            "RATE_LIMITED",
+            "Bạn đang thao tác quá nhanh. Vui lòng thử lại sau.",
+            true,
+            { retryAt: decision.retryAt },
+          ),
+          allowedOrigin,
+        );
+      }
+
+      const token = decodeURIComponent((invitation?.[1] ?? alert?.[1])!);
+      if (token.length < 32 || token.length > 128) {
+        return securityHeaders(
+          jsonResponse(
+            {
+              serverTime: clock.now().toISOString(),
+              status: "invalid",
+              allowedActions: [],
+            },
+            { requestId, status: 200 },
+          ),
+          allowedOrigin,
+        );
+      }
       let result: unknown;
       if (request.method === "GET") {
         result = await database.call(

@@ -20,12 +20,15 @@ Supabase migrations/RLS/seed và authenticated/public Edge routers đã có; pro
 device token, safety plan, authoritative check-in/deadline, Cron batch, outbox/PGMQ lease,
 stale-job check, reconciliation, trusted contacts, public invitation/alert response, correction,
 snooze/SOS/drill, history/settings và account request đều chạy bằng backend thật. Database reset từ
-trống, 123 pgTAP test, S2/S3 local smoke, 22 Edge test, 109 mobile test và client builds đều xanh.
-W01–W05 đã có production web build; local/CI chỉ dùng fake email/push. S4 staging/provider/device
-acceptance là bước tiếp theo.
+trống, 150 pgTAP test, S2/S3 local smoke, 26 Edge test, 109 mobile test và client builds đều xanh.
+W01–W05 đã có production web build. Ngày 09/08/2026, S4 repository readiness bổ sung rate limit,
+provider kill switch/timeout, aggregate ops snapshot, Vault-backed hosted Cron, guarded deploy/preflight,
+runbook và browser QA nền 390/768/1440 px. Local/CI vẫn chỉ dùng fake email/push; Supabase CLI chưa
+đăng nhập/chưa link project nên staging/provider/device/restore acceptance vẫn mở.
 Invariant cycle, policy 24/36/48 và recovery được ghi tại
 [`ADR 0009`](docs/adr/0009-core-check-in-cycle-scheduling.md); contact/token/alert/provider workflow
-được ghi tại [`ADR 0010`](docs/adr/0010-contact-alert-notification-workflows.md).
+được ghi tại [`ADR 0010`](docs/adr/0010-contact-alert-notification-workflows.md); staging security và
+observability được ghi tại [`ADR 0011`](docs/adr/0011-staging-security-observability.md).
 
 Kiến trúc MVP đã chốt Supabase-first ngày 04/08/2026: Supabase Auth + PostgreSQL/RLS,
 Edge Functions, Cron và Queues thay cho kế hoạch NestJS/Prisma/Redis/BullMQ cũ. Quyết định
@@ -147,6 +150,7 @@ Các Edge consumer S3 mặc định không gửi mạng. Xem biến mẫu phía 
 Resend/Expo secrets và test recipients/devices đã consent. Local smoke trực tiếp chạy claim → fake
 provider → persist outcome, bao gồm retry/unknown và invalid Expo token qua unit test.
 
-Parity gap sau S3: local chưa chứng minh hosted Cron invocation, email deliverability, Expo receipt
-trên thiết bị thật, backup/restore, monitoring hoặc contact-web visual/accessibility trên browser
-matrix. Các phần đó thuộc S4/release gate; không có deploy hay notification thật trong setup local.
+Parity gap sau phần S4 repository readiness: local chưa chứng minh hosted Cron invocation, email
+deliverability, Expo receipt trên thiết bị thật, backup/PITR restore hoặc measured monitoring/SLO.
+Browser nền đã kiểm tra 390/768/1440, keyboard focus và `lang=vi`; zoom 200%, screen reader và device
+matrix vẫn mở. Các phần này thuộc S4/release gate; không có deploy hay notification thật trong setup local.

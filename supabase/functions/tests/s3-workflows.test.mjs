@@ -10,6 +10,7 @@ import {
   ResendEmailProvider,
 } from "../_shared/notification-providers.ts";
 import { renderNotification } from "../_shared/notification-templates.ts";
+import { createOpsRouter } from "../_shared/ops-router.ts";
 import { createPublicApiRouter } from "../_shared/public-api-router.ts";
 import { FakeClock } from "../_shared/testing/fakes.ts";
 
@@ -20,6 +21,12 @@ const actor = {
   role: "authenticated",
   userId: "11111111-1111-4111-8111-111111111111",
 };
+const allowRateLimiter = async () => ({
+  allowed: true,
+  limit: 100,
+  remaining: 99,
+  retryAt: "2026-08-04T00:05:00.000Z",
+});
 
 const database = (handler) => {
   const calls = [];
@@ -50,6 +57,7 @@ test("contact mutation unwraps the safe projection and dispatches after commit",
         return 1;
       },
     },
+    rateLimiter: allowRateLimiter,
   })(
     new Request("http://local/functions/v1/api/v1/trusted-contacts", {
       body: JSON.stringify({
@@ -85,6 +93,7 @@ test("atomic reorder forwards the complete UUID order", async () => {
     authorize: () => actor,
     clock,
     database: db.gateway,
+    rateLimiter: allowRateLimiter,
   })(
     new Request("http://local/v1/trusted-contacts/reorder", {
       body: JSON.stringify({ orderedContactIds: ids }),
@@ -102,6 +111,7 @@ test("S3 routes distinguish invalid input from unsupported methods", async () =>
     authorize: () => actor,
     clock,
     database: db.gateway,
+    rateLimiter: allowRateLimiter,
   });
   const invalid = await router(
     new Request("http://local/v1/trusted-contacts", {
@@ -131,6 +141,7 @@ test("sensitive account workflow requires a recent verified JWT", async () => {
     }),
     clock,
     database: db.gateway,
+    rateLimiter: allowRateLimiter,
   })(
     new Request("http://local/v1/account/deletion-requests", {
       body: "{}",
@@ -160,6 +171,7 @@ test("public invitation GET is projection-only and emits privacy headers", async
     allowedOrigins: ["https://contacts.example.test"],
     clock,
     database: db.gateway,
+    rateLimiter: allowRateLimiter,
   })(
     new Request(`http://local/v1/public/invitations/${token}`, {
       headers: { origin: "https://contacts.example.test" },
@@ -182,6 +194,7 @@ test("public POST scopes actions and rejects an untrusted browser origin", async
     allowedOrigins: ["https://contacts.example.test"],
     clock,
     database: db.gateway,
+    rateLimiter: allowRateLimiter,
   });
   const forbidden = await router(
     new Request(`http://local/v1/public/invitations/${token}`, {
@@ -338,4 +351,95 @@ test("Expo ticket and receipt adapters preserve DeviceNotRegistered", async () =
     status: "error",
     errorCode: "DeviceNotRegistered",
   });
+});
+
+test("authenticated mutations stop before domain work when rate limited", async () => {
+  const db = database(() => {
+    throw new Error("domain call must not run");
+  });
+  const response = await createApiRouter({
+    authorize: () => actor,
+    clock,
+    database: db.gateway,
+    rateLimiter: async () => ({
+      allowed: false,
+      limit: 4,
+      remaining: 0,
+      retryAt: "2026-08-04T00:10:00.000Z",
+    }),
+  })(
+    new Request("http://local/v1/alerts/sos", {
+      headers: { "idempotency-key": "sos-rate-limited" },
+      method: "POST",
+    }),
+  );
+  assert.equal(response.status, 429);
+  assert.equal((await response.json()).error.code, "SOS_RATE_LIMITED");
+  assert.equal(db.calls.length, 0);
+});
+
+test("public rate limiting preserves privacy headers and generic errors", async () => {
+  const db = database(() => {
+    throw new Error("token projection must not run");
+  });
+  const response = await createPublicApiRouter({
+    allowedOrigins: ["https://contacts.example.test"],
+    clock,
+    database: db.gateway,
+    rateLimiter: async () => ({
+      allowed: false,
+      limit: 10,
+      remaining: 0,
+      retryAt: "2026-08-04T00:05:00.000Z",
+    }),
+  })(
+    new Request(`http://local/v1/public/alerts/${"c".repeat(43)}`, {
+      headers: { origin: "https://contacts.example.test" },
+      method: "GET",
+    }),
+  );
+  assert.equal(response.status, 429);
+  assert.equal(response.headers.get("cache-control"), "no-store");
+  assert.equal(response.headers.get("referrer-policy"), "no-referrer");
+  assert.equal((await response.json()).error.code, "RATE_LIMITED");
+  assert.equal(db.calls.length, 0);
+});
+
+test("notification kill switch leaves delivery work unclaimed", async () => {
+  const db = database(() => {
+    throw new Error("claim must not run while disabled");
+  });
+  const dispatched = await createNotificationDispatcher(
+    db.gateway,
+    new Map([["email", new FakeProvider("email")]]),
+    "https://contacts.example.test",
+    false,
+  ).dispatch();
+  assert.equal(dispatched, 0);
+  assert.equal(db.calls.length, 0);
+});
+
+test("ops snapshot requires the internal secret and returns only aggregate signals", async () => {
+  const snapshot = {
+    serverTime: now.toISOString(),
+    scheduler: { heartbeatAgeSeconds: 12 },
+    queue: { depth: 0 },
+    deliveries: { deadLetter: 0 },
+  };
+  const db = database(() => snapshot);
+  const router = createOpsRouter({
+    database: db.gateway,
+    internalSecret: "ops-test-secret",
+  });
+  const denied = await router(new Request("http://local/ops"));
+  assert.equal(denied.status, 401);
+  const accepted = await router(
+    new Request("http://local/ops", {
+      headers: { "x-internal-function-secret": "ops-test-secret" },
+    }),
+  );
+  assert.equal(accepted.status, 200);
+  assert.deepEqual(await accepted.json(), snapshot);
+  assert.equal(db.calls[0].name, "internal_get_operational_snapshot");
+  assert.doesNotMatch(JSON.stringify(snapshot), /email|recipient|token/i);
 });

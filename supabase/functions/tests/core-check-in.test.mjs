@@ -10,6 +10,12 @@ const actor = {
   userId: "11111111-1111-4111-8111-111111111111",
 };
 const clock = new FakeClock(new Date("2026-08-04T00:00:00.000Z"));
+const allowRateLimiter = async () => ({
+  allowed: true,
+  limit: 100,
+  remaining: 99,
+  retryAt: "2026-08-04T00:01:00.000Z",
+});
 
 const createDatabase = (result) => {
   const calls = [];
@@ -30,6 +36,7 @@ const router = (database) =>
     authorize: () => actor,
     clock,
     database,
+    rateLimiter: allowRateLimiter,
   });
 
 test("status route calls only the internal actor-scoped projection", async () => {

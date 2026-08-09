@@ -21,12 +21,18 @@ import {
   createNotificationDispatcher,
   type NotificationDispatcher,
 } from "./notification-dispatcher.ts";
+import {
+  enforceRequestRateLimit,
+  type RateLimitPolicy,
+  type RequestRateLimiter,
+} from "./rate-limit.ts";
 
 export type ApiRouterOptions = {
   authorize?: Authorize;
   clock?: Clock;
   database?: DatabaseGateway;
   dispatcher?: NotificationDispatcher;
+  rateLimiter?: RequestRateLimiter;
 };
 
 type JsonObject = Record<string, unknown>;
@@ -515,6 +521,26 @@ const isMethodAllowed = (path: string, method: string): boolean => {
   return false;
 };
 
+const apiRateLimitPolicy = (
+  path: string,
+  method: string,
+): RateLimitPolicy | null => {
+  if (["GET", "OPTIONS"].includes(method)) return null;
+  if (path === "/v1/check-ins") {
+    return { limit: 12, scope: "api:check-in", windowSeconds: 60 };
+  }
+  if (path === "/v1/alerts/sos" || path === "/v1/alerts/drill") {
+    return { limit: 4, scope: "api:immediate-alert", windowSeconds: 600 };
+  }
+  if (/\/resend-invitation$/.test(path)) {
+    return { limit: 2, scope: "api:invitation-resend", windowSeconds: 300 };
+  }
+  if (path.startsWith("/v1/account/")) {
+    return { limit: 5, scope: "api:account-workflow", windowSeconds: 3600 };
+  }
+  return { limit: 30, scope: "api:mutation", windowSeconds: 60 };
+};
+
 export const createApiRouter = (
   options: ApiRouterOptions = {},
 ): ((request: Request) => Promise<Response>) => {
@@ -586,6 +612,31 @@ export const createApiRouter = (
     const correlationId = crypto.randomUUID();
     try {
       const database = options.database ?? createServiceRoleDatabaseGateway();
+      const rateLimitPolicy = apiRateLimitPolicy(path, request.method);
+      if (rateLimitPolicy) {
+        const decision = await (options.rateLimiter ?? enforceRequestRateLimit)(
+          database,
+          request,
+          `user:${actor.userId}`,
+          rateLimitPolicy,
+        );
+        if (!decision.allowed) {
+          const code =
+            path === "/v1/alerts/sos"
+              ? "SOS_RATE_LIMITED"
+              : path === "/v1/alerts/drill"
+                ? "DRILL_RATE_LIMITED"
+                : "RATE_LIMITED";
+          return errorResponse(
+            requestId,
+            429,
+            code,
+            "Bạn đang thao tác quá nhanh. Vui lòng thử lại sau.",
+            true,
+            { retryAt: decision.retryAt },
+          );
+        }
+      }
       const result = await routeDatabaseRequest(
         request,
         actor,

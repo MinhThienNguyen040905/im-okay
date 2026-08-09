@@ -265,6 +265,21 @@ Mục tiêu: chứng minh reliability và security trên môi trường gần pr
 - [ ] Chạy mobile remote gates và contact-web 390/768/1440 px, keyboard/screen-reader/zoom 200%.
 - [ ] Ghi measured SLO baseline, known limitations và runbook cho outage/backlog/unknown delivery.
 
+Repository readiness evidence 09/08/2026 (chưa thay thế staging evidence):
+
+- Migration S4 thêm fixed-window rate limit chỉ lưu SHA-256 subject, aggregate operational snapshot,
+  hosted Cron invocation qua Vault và cleanup; reset từ database trống cùng 150 pgTAP test đều xanh.
+- Authenticated/public mutation rate limit, notification kill switch mặc định tắt ở live, provider HTTP
+  timeout, internal `ops` route và hosted secret-key compatibility có 26 Edge test xanh.
+- S2/S3 local smoke vẫn xanh sau hardening; mobile 109 test/34 suite, contact web 4 test, contracts
+  3 test, lint/typecheck và Android/iOS/web export đều xanh.
+- Contact web production build không tràn ngang tại 390/768/1440 px, native link nhận focus bằng Tab,
+  một H1 và `lang=vi`. Browser zoom 200%, screen reader và toàn bộ token-state routes vẫn là gate mở.
+- Đã có deploy dry-run/apply guard, non-mutating staging preflight, evidence template và
+  [`staging operations runbook`](../release/STAGING-OPERATIONS-RUNBOOK.md).
+- Supabase CLI chưa có access token/project link; staging project/domain/provider/device/backup target
+  chưa được owner chọn. Vì vậy toàn bộ checkbox S4 cần external evidence vẫn để mở.
+
 Exit:
 
 - Không còn check-in false success, duplicate/missing alert hoặc authorization/token blocker.
@@ -298,6 +313,8 @@ Supabase MVP hoàn thành khi:
 
 ## 9. Bước tiếp theo
 
-S1–S3 đã hoàn tất trong local/integration. Bước tiếp theo là S4 staging acceptance; không đánh dấu
-provider/device/visual gate hoàn tất bằng fake-provider evidence.
+S1–S3 đã hoàn tất trong local/integration và phần repository readiness của S4 đã có. Bước tiếp theo là
+owner tạo/chọn staging project, domain, provider recipients/devices đã consent và đăng nhập Supabase
+CLI để chạy deploy dry-run, preflight rồi mới bật notification có giám sát. Không đánh dấu
+provider/device/restore/monitoring gate hoàn tất bằng fake-provider hoặc config-only evidence.
 Mỗi stage chỉ đóng khi exit criteria xanh và có bằng chứng trong repository/staging.
