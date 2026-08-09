@@ -12,7 +12,8 @@ có bearer token.
 - Mobile 109/109, contact web 4/4, contracts 3/3, Edge 26/26: pass.
 - Lint/typecheck và mobile Android/iOS/web + contact web production export: pass.
 - Browser root shell: 390/768/1440 không tràn ngang; Tab focus, một H1 và `lang=vi`: pass.
-- Zoom 200%, screen reader, token-state route matrix, thiết bị thật: chưa chạy.
+- Android device smoke onboarding → login: pass trên TECNO KJ7/Android 14; không có FATAL.
+- Zoom 200%, screen reader và token-state route matrix: chưa chạy đủ.
 - Hosted project: `im-okay-staging`, Singapore, healthy; CLI login/link pass.
 - Migration dry-run: 8 local migration pending, không seed; đã review trước apply.
 - Backend deploy 09/08/2026: 8/8 remote migration khớp local; 5/5 Edge Functions `ACTIVE`.
@@ -24,37 +25,41 @@ có bearer token.
 - Auth/CORS: Site URL + web/mobile redirect allowlist và exact web origin đã cấu hình.
 - Non-mutating preflight 09/08/2026 08:58 UTC: pass; p50 `169 ms`, p95 `1604 ms`/10 samples.
 - Hosted workers: bốn Cron active, recent runs succeeded, failure/queue/outbox/dead-letter đều `0`.
-- Resend/test device/backup target: chưa cấu hình; notification delivery vẫn tắt.
+- Android test device: đã có; Resend/consented recipients/backup target: chưa cấu hình;
+  notification delivery vẫn tắt.
 
 ## Environment
 
-- Date/time: 09/08/2026 15:58 ICT (preflight 08:58 UTC)
-- Commit SHA: base `09afdeed62f69b8681baf7044bab683cb49aafec`; staging config cần commit trước RC
+- Date/time: 09/08/2026 17:50 ICT (preflight 08:58 UTC; mobile smoke 10:50 UTC)
+- Commit SHA: base `32fbcf93c1d28dd7a13b62e73107e4f28ec90ac9`; EAS/app config cần commit
+  thật trong repository trước RC. Build hiện tại dùng clean snapshot tạm, không thay thế RC SHA.
 - Supabase project ref/region/plan: `xnaanctveihyksgcveup` / Singapore / Free
 - Migration versions: 8 version từ `20260804000100` đến `20260809000800`
 - Edge function versions: `api`, `public-api`, `notification-consumer`, `provider-receipts`, `ops` v1
 - Contact web build/domain: Vercel `dpl_7su9H5GAA8Zbw7b8ytYCCNVho1xN` / staging alias ở trên
-- Mobile EAS build ID/device/OS: chưa có; EAS chưa login/project ID, ADB chưa thấy thiết bị
+- Mobile EAS project/build: `3ea9c673-0f86-4d5e-a802-53899da19dcb` /
+  `be78049b-0f7e-4bee-a7f4-c18637d00b65`; version `0.1.0` (`1`), signed internal APK
+- Mobile device/OS: TECNO KJ7 / Android 14, API 34, arm64-v8a; ADB install/launch pass
 - Test users/contacts consent reference:
 - Operator và go/hold owner:
 
 ## Results
 
-| Gate                                                | Result  | Sanitized evidence                                   | Blocker/owner |
-| --------------------------------------------------- | ------- | ---------------------------------------------------- | ------------- |
-| Backend deploy order                                | Pass    | 8 migration + 5 functions; delivery off              |               |
-| Full preflight sau contact-web deploy               | Pass    | HTTPS/headers/CORS/auth/ops; 10 samples              |               |
-| Auth/redirect/session restore                       | Partial | Site URL + 2 redirects; chưa test session            | EAS/device    |
-| Invitation → alert → response → correction          |         |                                                      |               |
-| Expo ticket/receipt và Resend delivery              |         |                                                      |               |
-| Duplicate/concurrent/offline/timeout                |         |                                                      |               |
-| Function/queue/provider/reconciliation drills       |         |                                                      |               |
-| RLS/IDOR/JWT/token/rate limit                       | Partial | anon/RLS/token/origin/rate pass; IDOR/JWT pending    | Test users    |
-| Contact web 390/768/1440 + keyboard/SR/zoom         | Partial | hosted invalid-token route pass; full matrix pending | Device/SR     |
-| Mobile TalkBack/VoiceOver/font/focus/reduced motion |         |                                                      |               |
-| Sentry symbolication/PII scrub                      |         |                                                      |               |
-| Backup restore/integrity                            |         |                                                      |               |
-| Monitoring/dashboard/alerts                         | Partial | Cron/ops snapshot healthy; alert thresholds pending  | Operator      |
+| Gate                                                | Result  | Sanitized evidence                                                              | Blocker/owner |
+| --------------------------------------------------- | ------- | ------------------------------------------------------------------------------- | ------------- |
+| Backend deploy order                                | Pass    | 8 migration + 5 functions; delivery off                                         |               |
+| Full preflight sau contact-web deploy               | Pass    | HTTPS/headers/CORS/auth/ops; 10 samples                                         |               |
+| Auth/redirect/session restore                       | Partial | Site URL + 2 redirects; onboarding/login UI pass; authenticated session pending | Test account  |
+| Invitation → alert → response → correction          |         |                                                                                 |               |
+| Expo ticket/receipt và Resend delivery              |         |                                                                                 |               |
+| Duplicate/concurrent/offline/timeout                |         |                                                                                 |               |
+| Function/queue/provider/reconciliation drills       |         |                                                                                 |               |
+| RLS/IDOR/JWT/token/rate limit                       | Partial | anon/RLS/token/origin/rate pass; IDOR/JWT pending                               | Test users    |
+| Contact web 390/768/1440 + keyboard/SR/zoom         | Partial | hosted invalid-token route pass; full matrix pending                            | Device/SR     |
+| Mobile TalkBack/VoiceOver/font/focus/reduced motion | Partial | Android visual/navigation smoke pass; accessibility matrix pending              | Device/SR     |
+| Sentry symbolication/PII scrub                      |         |                                                                                 |               |
+| Backup restore/integrity                            |         |                                                                                 |               |
+| Monitoring/dashboard/alerts                         | Partial | Cron/ops snapshot healthy; alert thresholds pending                             | Operator      |
 
 ## Measured baseline
 
@@ -69,7 +74,7 @@ có bearer token.
 
 ## Decision
 
-- Known limitations: chưa có provider/device/restore/full accessibility hoặc baseline dài hạn
-- Release blockers: EAS/test device, consented recipient/Resend, drills và restore còn thiếu
+- Known limitations: chưa có provider/restore/full accessibility hoặc baseline dài hạn
+- Release blockers: consented recipient/Resend, authenticated E2E, drills và restore còn thiếu
 - Go / hold / rollback: Hold S4; delivery giữ `false`
 - Follow-up owner/date:

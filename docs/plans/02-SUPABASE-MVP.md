@@ -273,7 +273,7 @@ Mục tiêu: chứng minh reliability và security trên môi trường gần pr
 - [x] Deploy contact-web HTTPS staging và cấu hình Auth site URL/redirect tách production.
 - [x] Cấu hình exact public CORS/link URL và chạy non-mutating hosted preflight với delivery off.
 - [ ] Cấu hình Resend sender, test recipients/devices đã consent và provider acceptance secrets.
-- [ ] Tạo EAS project/environment, cấp publishable key và chạy mobile staging build trên thiết bị.
+- [x] Tạo EAS project/environment, cấp publishable key và chạy mobile staging build trên thiết bị.
 - [ ] Chạy accelerated full alert flow với Expo Push và email thật.
 - [ ] Đo Edge Function error/latency, cron run, scheduler lag, queue age/depth/retry/dead-letter.
 - [ ] Chạy function termination, queue loss/lease expiry, provider outage và reconciliation drill.
@@ -313,9 +313,15 @@ Hosted backend deployment evidence 09/08/2026:
 - Hosted public negative checks: invalid token trả projection generic, action sai `400`, origin sai
   `403` không ACAO và request thứ 11 trong public-action window trả `429`. RLS active và anon không
   có INSERT trên bốn bảng nhạy cảm đã kiểm tra; IDOR/authenticated-user matrix vẫn chưa chạy.
-- Contact-web hosted invalid-token route hiển thị trạng thái an toàn, không render token. Resend/test
-  recipients, EAS project/device, provider flow, full accessibility, monitoring/fault drill và backup
-  restore vẫn là gate mở; delivery tiếp tục tắt.
+- Contact-web hosted invalid-token route hiển thị trạng thái an toàn, không render token.
+- EAS project `@minh004/im-okay` đã liên kết với project ID
+  `3ea9c673-0f86-4d5e-a802-53899da19dcb`; Preview environment chỉ có các biến public staging.
+  Android internal APK build `be78049b-0f7e-4bee-a7f4-c18637d00b65` đã ký và hoàn tất.
+- APK staging đã cài trên TECNO KJ7, Android 14/API 34; onboarding → login smoke pass và
+  logcat không có FATAL/React Native error. Sentry source-map upload được tắt riêng cho
+  local/staging khi chưa có Sentry auth; production không bị tắt.
+- Resend/test recipients, provider flow, full accessibility, monitoring/fault drill và backup restore
+  vẫn là gate mở; delivery tiếp tục tắt.
 
 Exit:
 
@@ -350,9 +356,10 @@ Supabase MVP hoàn thành khi:
 
 ## 9. Bước tiếp theo
 
-S1–S3, S4A, backend/contact-web deploy, Auth URL/CORS và non-mutating preflight của S4B đã hoàn tất.
-Bước tiếp theo là đăng nhập/tạo EAS project, cấu hình publishable environment và chạy mobile staging
-trên thiết bị; đồng thời chuẩn bị Resend sender cùng test recipients đã consent trước provider smoke.
-Không đánh dấu
-provider/device/restore/monitoring gate hoàn tất bằng fake-provider hoặc config-only evidence.
+S1–S3, S4A, backend/contact-web deploy, Auth URL/CORS, non-mutating preflight và Android staging
+device smoke của S4B đã hoàn tất. Bước tiếp theo là chuẩn bị Resend sender cùng
+test recipients đã consent, sau đó chạy accelerated alert/correction flow với delivery được
+bật có kiểm soát. Song song, hoàn tất hosted IDOR/JWT matrix, fault/reconciliation drill,
+backup restore và accessibility matrix. Không đánh dấu provider/restore/monitoring gate hoàn tất
+bằng fake-provider hoặc config-only evidence.
 Mỗi stage chỉ đóng khi exit criteria xanh và có bằng chứng trong repository/staging.
