@@ -24,9 +24,9 @@ Mốc tham chiếu: 2026-08-09.
 | Mobile M01–M12                        | Client MA0–MA6 và MA7 repository hardening hoàn tất                                       |
 | Mobile remote/device acceptance       | Còn mở; theo dõi trong Plan 01                                                            |
 | Contact web W01–W05                   | Đã build; browser nền 390/768/1440 + keyboard xanh, full accessibility/staging còn mở     |
-| Supabase backend                      | S1–S3 và S4 repository readiness hoàn tất; hosted acceptance còn mở                       |
+| Supabase backend                      | 8 migration + 5 Edge Functions đã deploy staging; hosted acceptance còn mở                |
 | Workspace/CI                          | Mobile/contact/contracts/functions/database đã có root scripts và GitHub Actions workflow |
-| Staging/store                         | Supabase staging Singapore đã tạo/link/dry-run; chưa apply/deploy                         |
+| Staging/store                         | Backend staging Singapore đã deploy; web/mobile/provider/restore còn mở                   |
 
 Việc rút sáu plan cũ thành ba plan không reset mobile. Chi tiết 57 checkbox client đã
 hoàn thành được tóm tắt trong Plan 01 và giữ bằng chứng tại ADR 0001–0007.
@@ -100,7 +100,7 @@ Gate:
 
 ### P2 — Full alert flow on staging
 
-Trạng thái: **S3 và S4 repository readiness hoàn tất; staging đã link/dry-run, chưa deploy.**
+Trạng thái: **S3, S4 repository readiness và backend staging deploy đã hoàn tất.**
 
 Phạm vi: S3 Contacts/alerts/contact web + S4 Staging acceptance trong Plan 02.
 
@@ -149,9 +149,10 @@ S4 Staging acceptance (current)
 P3 Internal release gate
 ```
 
-S4 đang ở hosted acceptance: rate limit/kill switch/ops/Vault Cron, deploy guard,
-preflight/runbook và local browser baseline đã có; Supabase staging Singapore đã tạo/link và dry-run
-8 migration nhưng chưa apply/deploy, còn domain/provider/device/restore target chưa có. Không dùng fake-provider/local evidence để đóng các gate cần hosted Supabase, provider thật,
+S4 đang ở hosted acceptance: 8 migration, 5 Edge Functions và Vault worker secrets đã deploy lên
+Supabase staging Singapore; health/auth negative checks xanh và delivery kill switch vẫn tắt.
+Contact-web domain/Auth redirect, provider/test device, monitoring/fault drill và restore target còn
+thiếu. Không dùng fake-provider/local evidence để đóng các gate cần provider thật,
 trình duyệt/thiết bị thật, monitoring hoặc restore drill.
 
 ## 7. Quy tắc cập nhật

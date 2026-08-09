@@ -14,8 +14,12 @@ có bearer token.
 - Browser root shell: 390/768/1440 không tràn ngang; Tab focus, một H1 và `lang=vi`: pass.
 - Zoom 200%, screen reader, token-state route matrix, thiết bị thật: chưa chạy.
 - Hosted project: `im-okay-staging`, Singapore, healthy; CLI login/link pass.
-- Migration dry-run: 8 local migration pending, không seed, chưa apply.
-- Domain/provider/backup target: chưa cấu hình.
+- Migration dry-run: 8 local migration pending, không seed; đã review trước apply.
+- Backend deploy 09/08/2026: 8/8 remote migration khớp local; 5/5 Edge Functions `ACTIVE`.
+- Hosted health: public `200`, internal ops `200`, API không JWT `401`.
+- Hosted workers: ba Vault secret đã cấu hình; không ghi giá trị secret vào evidence.
+- Notification delivery: tắt; chưa gọi email/push provider thật.
+- Domain/Resend/test device/backup target: chưa cấu hình.
 
 ## Environment
 
@@ -31,20 +35,21 @@ có bearer token.
 
 ## Results
 
-| Gate                                                | Result | Sanitized evidence | Blocker/owner |
-| --------------------------------------------------- | ------ | ------------------ | ------------- |
-| Deploy order và preflight                           |        |                    |               |
-| Auth/redirect/session restore                       |        |                    |               |
-| Invitation → alert → response → correction          |        |                    |               |
-| Expo ticket/receipt và Resend delivery              |        |                    |               |
-| Duplicate/concurrent/offline/timeout                |        |                    |               |
-| Function/queue/provider/reconciliation drills       |        |                    |               |
-| RLS/IDOR/JWT/token/rate limit                       |        |                    |               |
-| Contact web 390/768/1440 + keyboard/SR/zoom         |        |                    |               |
-| Mobile TalkBack/VoiceOver/font/focus/reduced motion |        |                    |               |
-| Sentry symbolication/PII scrub                      |        |                    |               |
-| Backup restore/integrity                            |        |                    |               |
-| Monitoring/dashboard/alerts                         |        |                    |               |
+| Gate                                                | Result | Sanitized evidence                      | Blocker/owner |
+| --------------------------------------------------- | ------ | --------------------------------------- | ------------- |
+| Backend deploy order                                | Pass   | 8 migration + 5 functions; delivery off |               |
+| Full preflight sau contact-web deploy               |        |                                         |               |
+| Auth/redirect/session restore                       |        |                                         |               |
+| Invitation → alert → response → correction          |        |                                         |               |
+| Expo ticket/receipt và Resend delivery              |        |                                         |               |
+| Duplicate/concurrent/offline/timeout                |        |                                         |               |
+| Function/queue/provider/reconciliation drills       |        |                                         |               |
+| RLS/IDOR/JWT/token/rate limit                       |        |                                         |               |
+| Contact web 390/768/1440 + keyboard/SR/zoom         |        |                                         |               |
+| Mobile TalkBack/VoiceOver/font/focus/reduced motion |        |                                         |               |
+| Sentry symbolication/PII scrub                      |        |                                         |               |
+| Backup restore/integrity                            |        |                                         |               |
+| Monitoring/dashboard/alerts                         |        |                                         |               |
 
 ## Measured baseline
 

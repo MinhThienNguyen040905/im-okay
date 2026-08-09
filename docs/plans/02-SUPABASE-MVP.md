@@ -267,10 +267,12 @@ Mục tiêu: chứng minh reliability và security trên môi trường gần pr
 #### S4B — Hosted staging acceptance
 
 - [x] Tạo Supabase project `im-okay-staging` tại Singapore và xác minh CLI login/project healthy.
-- [x] Link repository đúng staging project và review dry-run: 8 migration pending, không seed/apply.
+- [x] Link repository đúng staging project và review dry-run: 8 migration pending, không seed.
+- [x] Cấu hình internal/rate-limit secrets, ba Vault secret cho hosted workers và giữ delivery off.
+- [x] Apply 8 expand migration và deploy 5 backward-compatible Edge Functions.
 - [ ] Chọn/deploy contact-web HTTPS domain và cấu hình Auth site URL/redirect tách production.
-- [ ] Cấu hình project secrets, Vault, test sender/recipients/devices đã consent; giữ provider off.
-- [ ] Deploy expand migration → backward-compatible functions → contact web/mobile config.
+- [ ] Cấu hình Resend sender, test recipients/devices đã consent và provider acceptance secrets.
+- [ ] Deploy contact web và mobile staging config.
 - [ ] Chạy accelerated full alert flow với Expo Push và email thật.
 - [ ] Đo Edge Function error/latency, cron run, scheduler lag, queue age/depth/retry/dead-letter.
 - [ ] Chạy function termination, queue loss/lease expiry, provider outage và reconciliation drill.
@@ -292,8 +294,18 @@ Repository readiness evidence 09/08/2026 (chưa thay thế staging evidence):
 - Đã có deploy dry-run/apply guard, non-mutating staging preflight, evidence template và
   [`staging operations runbook`](../release/STAGING-OPERATIONS-RUNBOOK.md).
 - Supabase project `im-okay-staging` đã được tạo tại Singapore, CLI login/link đã xác minh và dry-run
-  liệt kê đúng 8 migration pending mà không apply/seed; domain/provider/device/backup target cùng mọi
-  hosted acceptance gate còn lại vẫn để mở.
+  liệt kê đúng 8 migration pending mà không seed.
+
+Hosted backend deployment evidence 09/08/2026:
+
+- Đã apply đủ 8 migration; remote migration history khớp cả 8 version local.
+- Năm Edge Functions `api`, `public-api`, `notification-consumer`, `provider-receipts` và `ops`
+  đều ở trạng thái `ACTIVE`.
+- Đã cấu hình internal/rate-limit secret và ba Vault secret cho hosted workers mà không ghi giá trị
+  vào repository/log; `NOTIFICATION_DELIVERY_ENABLED=false` nên chưa gửi notification thật.
+- Public health và internal ops health trả `200`; authenticated API health không JWT trả `401`.
+- Contact-web domain/Auth redirect, Resend/test recipients, mobile device, provider flow,
+  monitoring/fault drill và backup restore vẫn là gate mở.
 
 Exit:
 
@@ -328,9 +340,8 @@ Supabase MVP hoàn thành khi:
 
 ## 9. Bước tiếp theo
 
-S1–S3 và S4A repository readiness đã hoàn tất. Supabase staging project đã được tạo, CLI login/link và
-migration dry-run đã xác minh. Bước tiếp theo là apply 8 migration + backward-compatible functions với
-provider vẫn tắt, sau đó chọn contact-web HTTPS domain, cấu hình secrets/Vault/Auth redirect rồi chạy
-preflight trước khi bật notification có giám sát. Không đánh dấu
+S1–S3, S4A và phần backend deploy của S4B đã hoàn tất. Bước tiếp theo là chọn/deploy contact-web
+HTTPS domain, cấu hình Auth redirect và Resend/test recipients/devices đã consent, rồi chạy preflight
+trước khi bật notification có giám sát. Không đánh dấu
 provider/device/restore/monitoring gate hoàn tất bằng fake-provider hoặc config-only evidence.
 Mỗi stage chỉ đóng khi exit criteria xanh và có bằng chứng trong repository/staging.

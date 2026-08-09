@@ -24,8 +24,9 @@ trống, 150 pgTAP test, S2/S3 local smoke, 26 Edge test, 109 mobile test và cl
 W01–W05 đã có production web build. Ngày 09/08/2026, S4 repository readiness bổ sung rate limit,
 provider kill switch/timeout, aggregate ops snapshot, Vault-backed hosted Cron, guarded deploy/preflight,
 runbook và browser QA nền 390/768/1440 px. Project `im-okay-staging` tại Singapore đã được tạo,
-CLI login/link và dry-run 8 migration đã xác minh; project chưa apply/deploy và local/CI vẫn chỉ dùng fake email/push, nên
-domain/provider/device/restore acceptance vẫn mở.
+CLI login/link đã xác minh; 8 migration và 5 Edge Functions đã deploy, Vault cho hosted workers đã
+cấu hình, public/ops health đều trả `200`, còn API không JWT trả `401`. Notification delivery vẫn
+tắt; contact-web domain, Resend/test recipients, thiết bị thật, monitoring và restore acceptance còn mở.
 Invariant cycle, policy 24/36/48 và recovery được ghi tại
 [`ADR 0009`](docs/adr/0009-core-check-in-cycle-scheduling.md); contact/token/alert/provider workflow
 được ghi tại [`ADR 0010`](docs/adr/0010-contact-alert-notification-workflows.md); staging security và
@@ -151,7 +152,8 @@ Các Edge consumer S3 mặc định không gửi mạng. Xem biến mẫu phía 
 Resend/Expo secrets và test recipients/devices đã consent. Local smoke trực tiếp chạy claim → fake
 provider → persist outcome, bao gồm retry/unknown và invalid Expo token qua unit test.
 
-Parity gap sau phần S4 repository readiness: local chưa chứng minh hosted Cron invocation, email
+Parity gap sau backend staging deploy: chưa chứng minh hosted Cron run end-to-end, email
 deliverability, Expo receipt trên thiết bị thật, backup/PITR restore hoặc measured monitoring/SLO.
 Browser nền đã kiểm tra 390/768/1440, keyboard focus và `lang=vi`; zoom 200%, screen reader và device
-matrix vẫn mở. Các phần này thuộc S4/release gate; không có deploy hay notification thật trong setup local.
+matrix vẫn mở. Các phần này thuộc S4/release gate; chưa có notification thật vì staging kill switch
+vẫn tắt.

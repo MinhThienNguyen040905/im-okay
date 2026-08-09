@@ -14,7 +14,7 @@ Ghi vào evidence, không commit secret:
 - Android/iOS test device và Expo project/build ID.
 - Người phụ trách go/hold/rollback và incident contact.
 
-CLI phải đăng nhập bằng access token của operator. Không dán token, database password, secret key,
+CLI phải đăng nhập bằng `npx supabase login` của operator. Không dán token, database password, secret key,
 Resend key hoặc internal secret vào issue/chat/log.
 
 ## 2. Deploy theo thứ tự expand-first
@@ -36,7 +36,7 @@ Resend key hoặc internal secret vào issue/chat/log.
 3. Review migration dry-run:
 
    ```powershell
-   $env:SUPABASE_ACCESS_TOKEN = '<operator token>'
+   npx supabase login # chỉ cần khi CLI chưa đăng nhập trên máy
    .\scripts\deploy-staging.ps1 -ProjectRef '<project-ref>'
    ```
 
