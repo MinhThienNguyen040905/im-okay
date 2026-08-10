@@ -38,7 +38,7 @@ có bearer token.
 
 ## Environment
 
-- Date/time: 09/08/2026 22:05 ICT (preflight 08:58 UTC; mobile smoke bắt đầu 10:50 UTC)
+- Date/time: 10/08/2026 16:46 ICT (preflight 09/08; provider readiness audit 10/08)
 - Commit SHA: base `13af8a468b89a0a101521f7a7daed281058ba52f`; callback-fix build dùng dirty
   snapshot nên không thay thế exact-commit RC gate.
 - Supabase project ref/region/plan: `xnaanctveihyksgcveup` / Singapore / Free
@@ -54,22 +54,22 @@ có bearer token.
 
 ## Results
 
-| Gate                                                | Result  | Sanitized evidence                                                              | Blocker/owner |
-| --------------------------------------------------- | ------- | ------------------------------------------------------------------------------- | ------------- |
-| Backend deploy order                                | Pass    | 8 migration + 5 functions; delivery off                                         |               |
-| Full preflight sau contact-web deploy               | Pass    | HTTPS/headers/CORS/auth/ops; 10 samples                                         |               |
-| Auth/redirect/session restore                       | Pass    | Magic link mở app; session còn sau force-stop/mở lại trên TECNO KJ7             |               |
-| Mobile scheduled-alert semantics                    | Pass    | 128 test; scheduled không hiện warning card/button; relaunch/logcat sạch        |               |
-| Invitation → alert → response → correction          |         |                                                                                 |               |
-| Expo ticket/receipt và Resend delivery              |         |                                                                                 |               |
-| Duplicate/concurrent/offline/timeout                |         |                                                                                 |               |
-| Function/queue/provider/reconciliation drills       |         |                                                                                 |               |
-| RLS/IDOR/JWT/token/rate limit                       | Pass    | anon + 2 synthetic users; actor/IDOR/JWT/token/origin/rate negative matrix pass |               |
-| Contact web 390/768/1440 + keyboard/SR/zoom         | Partial | hosted invalid-token route pass; full matrix pending                            | Device/SR     |
-| Mobile TalkBack/VoiceOver/font/focus/reduced motion | Partial | Android login font 200% + focus pass; TalkBack/full journey pending             | Device/SR     |
-| Sentry symbolication/PII scrub                      |         |                                                                                 |               |
-| Backup restore/integrity                            |         |                                                                                 |               |
-| Monitoring/dashboard/alerts                         | Partial | 30-sample health + Cron/ops snapshot healthy; alert/SLO baseline pending        | Operator      |
+| Gate                                                | Result  | Sanitized evidence                                                              | Blocker/owner  |
+| --------------------------------------------------- | ------- | ------------------------------------------------------------------------------- | -------------- |
+| Backend deploy order                                | Pass    | 8 migration + 5 functions; delivery off                                         |                |
+| Full preflight sau contact-web deploy               | Pass    | HTTPS/headers/CORS/auth/ops; 10 samples                                         |                |
+| Auth/redirect/session restore                       | Pass    | Magic link mở app; session còn sau force-stop/mở lại trên TECNO KJ7             |                |
+| Mobile scheduled-alert semantics                    | Pass    | 128 test; scheduled không hiện warning card/button; relaunch/logcat sạch        |                |
+| Invitation → alert → response → correction          |         |                                                                                 |                |
+| Expo ticket/receipt và Resend delivery              | Blocked | Guard fail-closed: thiếu Resend secrets + sender/recipient/device confirmations | Owner/operator |
+| Duplicate/concurrent/offline/timeout                |         |                                                                                 |                |
+| Function/queue/provider/reconciliation drills       |         |                                                                                 |                |
+| RLS/IDOR/JWT/token/rate limit                       | Pass    | anon + 2 synthetic users; actor/IDOR/JWT/token/origin/rate negative matrix pass |                |
+| Contact web 390/768/1440 + keyboard/SR/zoom         | Partial | hosted invalid-token route pass; full matrix pending                            | Device/SR      |
+| Mobile TalkBack/VoiceOver/font/focus/reduced motion | Partial | Android login font 200% + focus pass; TalkBack/full journey pending             | Device/SR      |
+| Sentry symbolication/PII scrub                      |         |                                                                                 |                |
+| Backup restore/integrity                            |         |                                                                                 |                |
+| Monitoring/dashboard/alerts                         | Partial | 30-sample health + Cron/ops snapshot healthy; alert/SLO baseline pending        | Operator       |
 
 ## Measured baseline
 

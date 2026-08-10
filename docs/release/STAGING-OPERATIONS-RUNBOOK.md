@@ -123,7 +123,22 @@ Một snapshot xanh chỉ đóng bước đo tức thời; chưa đủ để t�
 ## 5. Bật provider và accelerated acceptance
 
 Chỉ đổi `NOTIFICATION_DELIVERY_ENABLED=true` khi test user/contact/device đã consent và preflight
-xanh. Dùng một test account riêng; không sửa policy production. Để chạy nhanh, tạo cycle cho test
+xanh. Trước khi review giá trị và bật delivery, chạy guard chỉ đọc tên secret sau; lệnh không in giá
+trị secret, không gọi provider và không thay đổi kill switch:
+
+```powershell
+$env:STAGING_EXPECTED_PROJECT_REF = '<project-ref>'
+$env:S4_RESEND_SENDER_VERIFIED = 'true'
+$env:S4_PROVIDER_RECIPIENTS_CONSENTED = 'true'
+$env:S4_PROVIDER_DEVICE_CONSENTED = 'true'
+npm run staging:provider-readiness
+```
+
+Guard chỉ chứng minh đủ tên secret và có explicit confirmation. Operator vẫn phải review thủ công
+`NOTIFICATION_PROVIDER_MODE=live`, `NOTIFICATION_DELIVERY_ENABLED=false` và `RESEND_FROM` khớp sender
+đã verify trước smoke. Không dùng email từng nhận Auth magic link như bằng chứng consent cho alert.
+
+Dùng một test account riêng; không sửa policy production. Để chạy nhanh, tạo cycle cho test
 account với authoritative timestamps trong quá khứ ở isolated staging transaction, sau đó chạy
 scheduler/consumer theo các mốc tương đương 24h → 32h → 35h → 36h → 38h. Ghi correlation ID,
 delivery ID/provider ID đã scrub và timestamp thực nhận; không ghi raw link token.

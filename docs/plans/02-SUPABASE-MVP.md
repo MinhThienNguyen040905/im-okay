@@ -339,6 +339,10 @@ Hosted backend deployment evidence 09/08/2026:
 - Client đã tách alert `scheduled` khỏi nhóm cần chú ý và làm rõ copy check-in trước notification mà
   không đổi backend/state machine. 128 mobile test pass; EAS snapshot trên đã cài đè, giữ session và
   UI dump trên TECNO KJ7 xác nhận không còn card/nút cảnh báo cho chu kỳ `scheduled`; logcat sạch.
+- Đã thêm `staging:provider-readiness`: guard chỉ đọc tên secret, yêu cầu explicit sender/recipient/
+  device confirmation, không in secret value và không mutate delivery. Ba guard test cùng 26 Edge
+  test pass. Lần chạy thật ngày 10/08/2026 fail-closed vì còn thiếu `RESEND_API_KEY`, `RESEND_FROM`
+  và ba confirmation; ADB chưa thấy thiết bị online trong phiên audit này.
 - Resend/test recipients, provider flow, Google/fresh-user onboarding, full accessibility,
   fault/reconciliation drill, SLO dài hạn và backup restore vẫn là gate mở; delivery tiếp tục tắt.
 
@@ -377,9 +381,10 @@ Supabase MVP hoàn thành khi:
 
 S1–S3, S4A, backend/contact-web deploy, Auth URL/CORS, non-mutating preflight, hosted security
 negative matrix, observability snapshot và Android staging device smoke của S4B đã hoàn tất.
-Bước tiếp theo là chuẩn bị Resend sender cùng
-test recipients đã consent, sau đó chạy accelerated alert/correction flow với delivery được
-bật có kiểm soát. Song song, hoàn tất Google/fresh-user onboarding, fault/reconciliation drill,
+Bước tiếp theo là verify Resend sender, cấu hình `RESEND_API_KEY`/`RESEND_FROM`, ghi rõ test recipients
+và device đã consent rồi chạy lại `staging:provider-readiness`. Chỉ sau khi guard xanh và operator
+review kill switch mới chạy accelerated alert/correction flow với delivery được bật có kiểm soát.
+Song song, hoàn tất Google/fresh-user onboarding, fault/reconciliation drill,
 backup restore, accessibility matrix và baseline SLO dài hạn. Không đánh dấu provider/restore/SLO gate hoàn tất
 bằng fake-provider hoặc config-only evidence.
 Mỗi stage chỉ đóng khi exit criteria xanh và có bằng chứng trong repository/staging.
