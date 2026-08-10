@@ -30,4 +30,3 @@ Tạo một màn hình mobile full-screen cho trạng thái người dùng sắp
 - Countdown về 0 chuyển sang state “Đang gửi cảnh báo”; không cho snooze nhưng vẫn cho xác nhận an toàn.
 
 **CONSTRAINTS:** Dùng design system hiện có. Đây là warning trước alert, không thiết kế như SOS và không dùng ngôn ngữ khẳng định đã có tai nạn.
-

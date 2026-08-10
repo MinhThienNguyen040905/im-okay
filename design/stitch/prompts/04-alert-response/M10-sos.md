@@ -23,4 +23,3 @@ Tạo màn hình xác nhận gửi SOS ngay đến các liên hệ.
 **INTERACTIONS:** Hold đủ ba giây → sending → sent confirmation. Cung cấp accessible two-step alternative cho người không thể press-and-hold.
 
 **CONSTRAINTS:** Không flashing, continuous vibration hoặc một-tap send. Dùng alert language của M09 nhưng phân biệt rõ SOS đã chủ động kích hoạt.
-

@@ -13,12 +13,10 @@ Tạo bước 1/3 của setup flow.
 3. Copy “Tên này sẽ xuất hiện trong thông báo gửi đến người bạn tin tưởng.”
 4. Avatar placeholder `M` và optional action “Thêm ảnh”.
 5. Input “Tên hiển thị”, value “Minh Anh”.
-6. Optional input “Số điện thoại”, prefix `+84`, helper “Không dùng để đăng nhập trong phiên bản này.”
-7. Select “Múi giờ”, value “Asia/Ho_Chi_Minh (GMT+7)”.
-8. Privacy message “Chúng tôi chỉ chia sẻ thông tin cần thiết khi cảnh báo được kích hoạt.”
-9. Primary bottom action “Tiếp tục”.
+6. Select “Múi giờ”, value “Asia/Ho_Chi_Minh (GMT+7)”.
+7. Privacy message “Chúng tôi chỉ chia sẻ thông tin cần thiết khi cảnh báo được kích hoạt.”
+8. Primary bottom action “Tiếp tục”.
 
 **STATES:** Inline validation, keyboard-safe layout và giữ dữ liệu khi Back.
 
 **CONSTRAINTS:** Không thêm địa chỉ, bệnh nền, ngày sinh hoặc giới tính. Dùng design system project.
-

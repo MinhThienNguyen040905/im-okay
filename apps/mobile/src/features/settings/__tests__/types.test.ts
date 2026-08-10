@@ -29,7 +29,10 @@ describe("settings projection contract", () => {
   it("validates IANA timezone and authoritative deadline", () => {
     expect(isIanaTimezone("Asia/Ho_Chi_Minh")).toBe(true);
     expect(isIanaTimezone("GMT+7-ish")).toBe(false);
-    expect(settingsProjectionSchema.parse(settingsProjection).safetyPlan.nextDeadlineAt).toBeTruthy();
+    expect(
+      settingsProjectionSchema.parse(settingsProjection).safetyPlan
+        .nextDeadlineAt,
+    ).toBeTruthy();
   });
 
   it("rejects an inactive plan that still has a deadline", () => {

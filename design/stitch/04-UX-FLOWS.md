@@ -68,4 +68,3 @@ MVP không tự gọi dịch vụ cấp cứu và không chia sẻ vị trí.
 - Không có navigation marketing hoặc tài khoản.
 - Web có kết thúc rõ: đã xử lý, chuyển tiếp, hết hạn hoặc không hợp lệ.
 - Token trong URL không được hiển thị trong UI.
-

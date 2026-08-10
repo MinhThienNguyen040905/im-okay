@@ -37,6 +37,7 @@ import {
 } from "@/features/settings/actionAttemptStore";
 import { createSettingsApi } from "@/features/settings/api";
 import { settingsQueryKey } from "@/features/settings/query";
+import { SettingsErrorCard } from "@/features/settings/SettingsErrorCard";
 import {
   isIanaTimezone,
   SettingsApiError,
@@ -138,6 +139,7 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
     draft.pushDecision,
   );
   const [formError, setFormError] = useState<string | null>(null);
+  const [pushError, setPushError] = useState<string | null>(null);
   const [resultMessage, setResultMessage] = useState<string | null>(null);
 
   const settingsQuery = useQuery({
@@ -270,7 +272,7 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
   const pushMutation = useMutation({
     mutationFn: requestPush,
     onMutate: () => {
-      setFormError(null);
+      setPushError(null);
       setResultMessage(null);
     },
     onSuccess: async (result) => {
@@ -281,17 +283,17 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
         return;
       }
       if (result.decision === "denied") {
-        setFormError(
+        setPushError(
           "Thông báo đang bị tắt. Hãy mở cài đặt hệ thống để cấp quyền rồi thử lại.",
         );
         return;
       }
-      setFormError(
+      setPushError(
         "Đã có quyền thông báo nhưng máy chủ chưa xác nhận thiết bị. Hãy kiểm tra kết nối rồi thử lại.",
       );
     },
     onError: () =>
-      setFormError(
+      setPushError(
         "Không thể đăng ký thông báo đẩy lúc này. Hãy kiểm tra kết nối rồi thử lại.",
       ),
   });
@@ -589,13 +591,10 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
           </View>
         </Card>
       ) : null}
-      {mutationError ? (
-        <Card style={styles.errorCard}>
-          <Text accessibilityLiveRegion="assertive" style={styles.errorText}>
-            {friendlyError(mutationError)}
-          </Text>
-        </Card>
-      ) : null}
+      <SettingsErrorCard message={pushError} />
+      <SettingsErrorCard
+        message={mutationError ? friendlyError(mutationError) : null}
+      />
 
       <Button
         accessibilityLabel="Đăng xuất khỏi I’m Okay"
@@ -689,11 +688,6 @@ const styles = StyleSheet.create({
   helpText: { ...typography.bodyMedium, color: colors.textSecondary },
   inlineRow: { alignItems: "center", flexDirection: "row", gap: spacing.sm },
   successText: { ...typography.bodyMedium, color: colors.success, flex: 1 },
-  errorCard: {
-    backgroundColor: colors.dangerContainer,
-    borderColor: colors.danger,
-  },
-  errorText: { ...typography.bodyMedium, color: colors.danger },
   dangerText: { color: colors.danger },
   version: {
     ...typography.caption,

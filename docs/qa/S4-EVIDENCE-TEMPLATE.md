@@ -40,44 +40,49 @@ có bearer token.
   delivery vẫn tắt.
 - Gmail SMTP invitation 10/08/2026: `sent`, provider `gmail_smtp`, một attempt, không có error;
   contact còn `pending` nên chưa chạy alert flow. Evidence chỉ giữ delivery hash đã scrub.
-- Push readiness: Android permission bật nhưng hosted `user_devices` là `0`; Settings retry fix qua
-  lint/typecheck và 128 test. EAS snapshot `2a6cb1be-85c0-48d1-bc75-f0f97ff10842` đang build.
+- Push readiness: Android permission bật nhưng hosted `user_devices` là `0`. EAS snapshot
+  `2a6cb1be-85c0-48d1-bc75-f0f97ff10842` đã `FINISHED` và cài trên TECNO KJ7; retry không tạo
+  device. Audit phát hiện thiếu FCM V1 credential và `google-services.json`. Source đã hiển thị
+  push error bằng live region và đọc `android.googleServicesFile` từ EAS file variable
+  `GOOGLE_SERVICES_JSON`; root gate xanh với 131 mobile test/37 suite, nhưng fix này chưa nằm
+  trong APK đã cài.
 
 ## Environment
 
-- Date/time: 10/08/2026 17:28 ICT (preflight 09/08; Gmail SMTP deploy/readiness audit 10/08)
+- Date/time: 10/08/2026 21:45 ICT (preflight 09/08; Gmail SMTP/push readiness audit 10/08)
 - Commit SHA: base `13af8a468b89a0a101521f7a7daed281058ba52f`; callback-fix build dùng dirty
   snapshot nên không thay thế exact-commit RC gate.
 - Supabase project ref/region/plan: `xnaanctveihyksgcveup` / Singapore / Free
 - Migration versions: 8 version từ `20260804000100` đến `20260809000800`
-- Edge function versions: `api` v4, `notification-consumer` v4; `public-api`, `provider-receipts`,
-  `ops` v3
+- Edge function versions at latest read-only audit: `api` v9, `notification-consumer` v9;
+  `public-api`, `provider-receipts`, `ops` v8
 - Contact web build/domain: Vercel `dpl_7su9H5GAA8Zbw7b8ytYCCNVho1xN` / staging alias ở trên
 - Mobile EAS project/build: `3ea9c673-0f86-4d5e-a802-53899da19dcb` /
-  latest snapshot `ecb41bd6-1c40-4c54-84ab-ed0f015b80ea`; version `0.1.0` (`1`), signed internal APK;
-  SHA-256 `CF42EE3A3853DF78210972680FBFF826BC82B93D9D4305ECFDDD883E3CF06615`
+  latest installed snapshot `2a6cb1be-85c0-48d1-bc75-f0f97ff10842`; version `0.1.0` (`1`),
+  signed internal APK; SHA-256
+  `E52AA620AFE2AB239EF81ED3442B3E368101D4752BEE416C78235554173F731C`
 - Mobile device/OS: TECNO KJ7 / Android 14, API 34, arm64-v8a; ADB install/launch pass
 - Test users/contacts consent reference: operator confirmation 10/08/2026; không ghi PII
 - Operator và go/hold owner:
 
 ## Results
 
-| Gate                                                | Result  | Sanitized evidence                                                                | Blocker/owner  |
-| --------------------------------------------------- | ------- | --------------------------------------------------------------------------------- | -------------- |
-| Backend deploy order                                | Pass    | 8 migration + 5 functions; delivery off                                           |                |
-| Full preflight sau contact-web deploy               | Pass    | HTTPS/headers/CORS/auth/ops; 10 samples                                           |                |
-| Auth/redirect/session restore                       | Pass    | Magic link mở app; session còn sau force-stop/mở lại trên TECNO KJ7               |                |
-| Mobile scheduled-alert semantics                    | Pass    | 128 test; scheduled không hiện warning card/button; relaunch/logcat sạch          |                |
-| Invitation → alert → response → correction          |         |                                                                                   |                |
-| Expo ticket/receipt và Gmail SMTP delivery          | Partial | Gmail invitation sent 1 attempt; push token/receipt và contact acceptance pending | Owner/operator |
-| Duplicate/concurrent/offline/timeout                |         |                                                                                   |                |
-| Function/queue/provider/reconciliation drills       |         |                                                                                   |                |
-| RLS/IDOR/JWT/token/rate limit                       | Pass    | anon + 2 synthetic users; actor/IDOR/JWT/token/origin/rate negative matrix pass   |                |
-| Contact web 390/768/1440 + keyboard/SR/zoom         | Partial | hosted invalid-token route pass; full matrix pending                              | Device/SR      |
-| Mobile TalkBack/VoiceOver/font/focus/reduced motion | Partial | Android login font 200% + focus pass; TalkBack/full journey pending               | Device/SR      |
-| Sentry symbolication/PII scrub                      |         |                                                                                   |                |
-| Backup restore/integrity                            |         |                                                                                   |                |
-| Monitoring/dashboard/alerts                         | Partial | 30-sample health + Cron/ops snapshot healthy; alert/SLO baseline pending          | Operator       |
+| Gate                                                | Result  | Sanitized evidence                                                              | Blocker/owner  |
+| --------------------------------------------------- | ------- | ------------------------------------------------------------------------------- | -------------- |
+| Backend deploy order                                | Pass    | 8 migration + 5 functions; delivery off                                         |                |
+| Full preflight sau contact-web deploy               | Pass    | HTTPS/headers/CORS/auth/ops; 10 samples                                         |                |
+| Auth/redirect/session restore                       | Pass    | Magic link mở app; session còn sau force-stop/mở lại trên TECNO KJ7             |                |
+| Mobile scheduled-alert semantics                    | Pass    | 131 test; scheduled không hiện warning card/button; relaunch/logcat sạch        |                |
+| Invitation → alert → response → correction          |         |                                                                                 |                |
+| Expo ticket/receipt và Gmail SMTP delivery          | Partial | Gmail invitation sent 1 attempt; Android FCM config/token/receipt pending       | Owner/operator |
+| Duplicate/concurrent/offline/timeout                |         |                                                                                 |                |
+| Function/queue/provider/reconciliation drills       |         |                                                                                 |                |
+| RLS/IDOR/JWT/token/rate limit                       | Pass    | anon + 2 synthetic users; actor/IDOR/JWT/token/origin/rate negative matrix pass |                |
+| Contact web 390/768/1440 + keyboard/SR/zoom         | Partial | hosted invalid-token route pass; full matrix pending                            | Device/SR      |
+| Mobile TalkBack/VoiceOver/font/focus/reduced motion | Partial | Android login font 200% + focus pass; TalkBack/full journey pending             | Device/SR      |
+| Sentry symbolication/PII scrub                      |         |                                                                                 |                |
+| Backup restore/integrity                            |         |                                                                                 |                |
+| Monitoring/dashboard/alerts                         | Partial | 30-sample health + Cron/ops snapshot healthy; alert/SLO baseline pending        | Operator       |
 
 ## Measured baseline
 
@@ -92,8 +97,10 @@ có bearer token.
 
 ## Decision
 
-- Known limitations: mới có Gmail invitation accepted; chưa có push receipt/full alert flow, restore,
+- Known limitations: mới có Gmail invitation `sent`; Android còn thiếu FCM config, chưa có
+  push receipt/full alert flow, restore,
   full accessibility hoặc baseline dài hạn
-- Release blockers: contact acceptance, push token/receipt, full provider E2E, drills và restore còn thiếu
+- Release blockers: Android FCM credential/config, contact acceptance, push token/receipt, full provider
+  E2E, drills và restore còn thiếu
 - Go / hold / rollback: Hold S4; delivery giữ `false`
 - Follow-up owner/date:

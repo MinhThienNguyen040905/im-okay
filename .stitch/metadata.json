@@ -11,37 +11,228 @@
     "source": "design/stitch/DESIGN.md"
   },
   "screens": [
-    { "code": "M01", "screenId": "8510af4c363e49778b9dcb81a984ce1d", "title": "Giới thiệu (Tiếng Việt) - I'm Okay", "deviceType": "MOBILE", "status": "approved-after-illustration-text-removal", "html": ".stitch/designs/M01.html", "screenshotBeforeFinalEdit": ".stitch/designs/M01.png" },
-    { "code": "M02", "screenId": "8e5b2b6aaeef4e8d92b26f60b2e91185", "title": "Đăng nhập - I'm Okay", "deviceType": "MOBILE", "status": "approved", "html": ".stitch/designs/M02.html", "screenshot": ".stitch/designs/M02.png" },
-    { "code": "M03", "screenId": "36c0dee181ef4ae39f1140f830865e0e", "title": "Thiết lập hồ sơ - Bước 1/3", "deviceType": "MOBILE", "status": "approved", "html": ".stitch/designs/M03.html", "screenshot": ".stitch/designs/M03.png" },
-    { "code": "M04", "screenId": "2470598ae39d42068a089332f1e8f15b", "title": "Thiết lập thông báo - Bước 2/3", "deviceType": "MOBILE", "status": "approved", "html": ".stitch/designs/M04.html", "screenshot": ".stitch/designs/M04.png" },
-    { "code": "M05", "screenId": "c3aa1a30c2c5464fab266e989c8e29e9", "title": "Thiết lập kế hoạch - Bước 3/3", "deviceType": "MOBILE", "status": "approved", "html": ".stitch/designs/M05.html", "screenshot": ".stitch/designs/M05.png" },
-    { "code": "M06", "screenId": "481b794256684316a57f73d7e0bd682b", "title": "Trang chủ - I'm Okay", "deviceType": "MOBILE", "status": "approved-anchor", "html": ".stitch/designs/M06-trang-chu.html", "screenshot": ".stitch/designs/M06-trang-chu.png" },
-    { "code": "M07", "screenId": "3ba8241c772b474a8922e55758579207", "title": "Liên hệ tin cậy - I'm Okay", "deviceType": "MOBILE", "status": "approved", "html": ".stitch/designs/M07.html", "screenshot": ".stitch/designs/M07.png" },
-    { "code": "M08", "screenId": "3e2a33760df94e16a8006490da9d8d5e", "title": "Thêm liên hệ - I'm Okay", "deviceType": "MOBILE", "status": "approved-after-removing-phone-and-sms", "htmlBeforeEdit": ".stitch/designs/M08.html", "screenshotBeforeEdit": ".stitch/designs/M08.png" },
-    { "code": "M09", "screenId": "d073d9ee2ca4448e932885f9ee34bb3d", "title": "Cảnh báo - I'm Okay", "deviceType": "MOBILE", "status": "approved-anchor", "html": ".stitch/designs/M09-canh-bao-sap-kich-hoat.html", "screenshot": ".stitch/designs/M09-canh-bao-sap-kich-hoat.png" },
-    { "code": "M10", "screenId": "9ea098fa3ea64810a7eea0e7e0985911", "title": "Trợ giúp khẩn cấp - I'm Okay", "deviceType": "MOBILE", "status": "approved", "html": ".stitch/designs/M10.html", "screenshot": ".stitch/designs/M10.png" },
-    { "code": "M11", "screenId": "d4b4e6264113498581bf87c47b6785da", "title": "Lịch sử - I'm Okay", "deviceType": "MOBILE", "status": "approved-after-localization", "htmlBeforeEdit": ".stitch/designs/M11.html", "screenshotBeforeEdit": ".stitch/designs/M11.png" },
-    { "code": "M12", "screenId": "57321c421cc44cf4bb24ca2726d3383a", "title": "Cài đặt - I'm Okay", "deviceType": "MOBILE", "status": "approved", "html": ".stitch/designs/M12.html", "screenshot": ".stitch/designs/M12.png" },
-    { "code": "W01", "screenId": "ac2397be12564e91b4fe98242d2de921", "title": "Xác nhận lời mời - I'm Okay", "deviceType": "DESKTOP", "status": "approved-after-footer-localization", "htmlBeforeEdit": ".stitch/designs/W01.html", "screenshotBeforeEdit": ".stitch/designs/W01.png" },
-    { "code": "W02", "screenId": "dbec91acd280469a818aff234b47bc48", "title": "Cảnh báo an toàn - I'm Okay", "deviceType": "DESKTOP", "status": "approved-after-brand-localization", "html": ".stitch/designs/W02-chi-tiet-canh-bao.html", "screenshotBeforeEdit": ".stitch/designs/W02-chi-tiet-canh-bao.png" },
-    { "code": "W03", "screenId": "6fedf8253abe414692afa5559139d93a", "title": "Chọn hành động xử lý - I'm Okay", "deviceType": "DESKTOP", "status": "approved", "html": ".stitch/designs/W03.html", "screenshot": ".stitch/designs/W03.png" },
-    { "code": "W04", "screenId": "c03d14c2e3ab4d998d32e8d0f3ab7e0d", "title": "Theo dõi xử lý - I'm Okay", "deviceType": "DESKTOP", "status": "approved-after-footer-localization", "htmlBeforeEdit": ".stitch/designs/W04.html", "screenshotBeforeEdit": ".stitch/designs/W04.png" },
-    { "code": "W05", "screenId": "cd273b79343e40138b111e913bc9c257", "title": "Kết quả cảnh báo - I'm Okay", "deviceType": "DESKTOP", "status": "approved-after-footer-localization", "htmlBeforeEdit": ".stitch/designs/W05.html", "screenshotBeforeEdit": ".stitch/designs/W05.png" }
+    {
+      "code": "M01",
+      "screenId": "8510af4c363e49778b9dcb81a984ce1d",
+      "title": "Giới thiệu (Tiếng Việt) - I'm Okay",
+      "deviceType": "MOBILE",
+      "status": "approved-after-illustration-text-removal",
+      "html": ".stitch/designs/M01.html",
+      "screenshotBeforeFinalEdit": ".stitch/designs/M01.png"
+    },
+    {
+      "code": "M02",
+      "screenId": "8e5b2b6aaeef4e8d92b26f60b2e91185",
+      "title": "Đăng nhập - I'm Okay",
+      "deviceType": "MOBILE",
+      "status": "approved",
+      "html": ".stitch/designs/M02.html",
+      "screenshot": ".stitch/designs/M02.png"
+    },
+    {
+      "code": "M03",
+      "screenId": "36c0dee181ef4ae39f1140f830865e0e",
+      "title": "Thiết lập hồ sơ - Bước 1/3",
+      "deviceType": "MOBILE",
+      "status": "approved",
+      "html": ".stitch/designs/M03.html",
+      "screenshot": ".stitch/designs/M03.png"
+    },
+    {
+      "code": "M04",
+      "screenId": "2470598ae39d42068a089332f1e8f15b",
+      "title": "Thiết lập thông báo - Bước 2/3",
+      "deviceType": "MOBILE",
+      "status": "approved",
+      "html": ".stitch/designs/M04.html",
+      "screenshot": ".stitch/designs/M04.png"
+    },
+    {
+      "code": "M05",
+      "screenId": "c3aa1a30c2c5464fab266e989c8e29e9",
+      "title": "Thiết lập kế hoạch - Bước 3/3",
+      "deviceType": "MOBILE",
+      "status": "approved",
+      "html": ".stitch/designs/M05.html",
+      "screenshot": ".stitch/designs/M05.png"
+    },
+    {
+      "code": "M06",
+      "screenId": "481b794256684316a57f73d7e0bd682b",
+      "title": "Trang chủ - I'm Okay",
+      "deviceType": "MOBILE",
+      "status": "approved-anchor",
+      "html": ".stitch/designs/M06-trang-chu.html",
+      "screenshot": ".stitch/designs/M06-trang-chu.png"
+    },
+    {
+      "code": "M07",
+      "screenId": "3ba8241c772b474a8922e55758579207",
+      "title": "Liên hệ tin cậy - I'm Okay",
+      "deviceType": "MOBILE",
+      "status": "approved",
+      "html": ".stitch/designs/M07.html",
+      "screenshot": ".stitch/designs/M07.png"
+    },
+    {
+      "code": "M08",
+      "screenId": "3e2a33760df94e16a8006490da9d8d5e",
+      "title": "Thêm liên hệ - I'm Okay",
+      "deviceType": "MOBILE",
+      "status": "approved-after-removing-phone-and-sms",
+      "htmlBeforeEdit": ".stitch/designs/M08.html",
+      "screenshotBeforeEdit": ".stitch/designs/M08.png"
+    },
+    {
+      "code": "M09",
+      "screenId": "d073d9ee2ca4448e932885f9ee34bb3d",
+      "title": "Cảnh báo - I'm Okay",
+      "deviceType": "MOBILE",
+      "status": "approved-anchor",
+      "html": ".stitch/designs/M09-canh-bao-sap-kich-hoat.html",
+      "screenshot": ".stitch/designs/M09-canh-bao-sap-kich-hoat.png"
+    },
+    {
+      "code": "M10",
+      "screenId": "9ea098fa3ea64810a7eea0e7e0985911",
+      "title": "Trợ giúp khẩn cấp - I'm Okay",
+      "deviceType": "MOBILE",
+      "status": "approved",
+      "html": ".stitch/designs/M10.html",
+      "screenshot": ".stitch/designs/M10.png"
+    },
+    {
+      "code": "M11",
+      "screenId": "d4b4e6264113498581bf87c47b6785da",
+      "title": "Lịch sử - I'm Okay",
+      "deviceType": "MOBILE",
+      "status": "approved-after-localization",
+      "htmlBeforeEdit": ".stitch/designs/M11.html",
+      "screenshotBeforeEdit": ".stitch/designs/M11.png"
+    },
+    {
+      "code": "M12",
+      "screenId": "57321c421cc44cf4bb24ca2726d3383a",
+      "title": "Cài đặt - I'm Okay",
+      "deviceType": "MOBILE",
+      "status": "approved",
+      "html": ".stitch/designs/M12.html",
+      "screenshot": ".stitch/designs/M12.png"
+    },
+    {
+      "code": "W01",
+      "screenId": "ac2397be12564e91b4fe98242d2de921",
+      "title": "Xác nhận lời mời - I'm Okay",
+      "deviceType": "DESKTOP",
+      "status": "approved-after-footer-localization",
+      "htmlBeforeEdit": ".stitch/designs/W01.html",
+      "screenshotBeforeEdit": ".stitch/designs/W01.png"
+    },
+    {
+      "code": "W02",
+      "screenId": "dbec91acd280469a818aff234b47bc48",
+      "title": "Cảnh báo an toàn - I'm Okay",
+      "deviceType": "DESKTOP",
+      "status": "approved-after-brand-localization",
+      "html": ".stitch/designs/W02-chi-tiet-canh-bao.html",
+      "screenshotBeforeEdit": ".stitch/designs/W02-chi-tiet-canh-bao.png"
+    },
+    {
+      "code": "W03",
+      "screenId": "6fedf8253abe414692afa5559139d93a",
+      "title": "Chọn hành động xử lý - I'm Okay",
+      "deviceType": "DESKTOP",
+      "status": "approved",
+      "html": ".stitch/designs/W03.html",
+      "screenshot": ".stitch/designs/W03.png"
+    },
+    {
+      "code": "W04",
+      "screenId": "c03d14c2e3ab4d998d32e8d0f3ab7e0d",
+      "title": "Theo dõi xử lý - I'm Okay",
+      "deviceType": "DESKTOP",
+      "status": "approved-after-footer-localization",
+      "htmlBeforeEdit": ".stitch/designs/W04.html",
+      "screenshotBeforeEdit": ".stitch/designs/W04.png"
+    },
+    {
+      "code": "W05",
+      "screenId": "cd273b79343e40138b111e913bc9c257",
+      "title": "Kết quả cảnh báo - I'm Okay",
+      "deviceType": "DESKTOP",
+      "status": "approved-after-footer-localization",
+      "htmlBeforeEdit": ".stitch/designs/W05.html",
+      "screenshotBeforeEdit": ".stitch/designs/W05.png"
+    }
   ],
   "draftAssets": [
-    { "screenId": "42f8e2f785c04e8dab86425c7c1e7f21", "reason": "M01 cũ có illustration text tiếng Anh" },
-    { "screenId": "6a34915389c949daaca7559a9d22b782", "reason": "Illustration asset M01 cũ" },
-    { "screenId": "c5aa18185035476d9f02f993f6d7cea3", "reason": "Illustration asset M01 có text bị cắt" },
-    { "screenId": "85a624e5e16f4aad9d30191e12875ad4", "reason": "Illustration asset M01 không chữ, bản được chọn" }
+    {
+      "screenId": "42f8e2f785c04e8dab86425c7c1e7f21",
+      "reason": "M01 cũ có illustration text tiếng Anh"
+    },
+    {
+      "screenId": "6a34915389c949daaca7559a9d22b782",
+      "reason": "Illustration asset M01 cũ"
+    },
+    {
+      "screenId": "c5aa18185035476d9f02f993f6d7cea3",
+      "reason": "Illustration asset M01 có text bị cắt"
+    },
+    {
+      "screenId": "85a624e5e16f4aad9d30191e12875ad4",
+      "reason": "Illustration asset M01 không chữ, bản được chọn"
+    }
   ],
   "stateAssets": [
-    { "sourceCode": "M06", "sourceScreenId": "481b794256684316a57f73d7e0bd682b", "states": ["submitting", "success", "offline-failure", "loading", "push-disabled"], "generatedCount": 5 },
-    { "sourceCode": "M04", "sourceScreenId": "2470598ae39d42068a089332f1e8f15b", "states": ["permission-denied", "permission-disabled-later"], "generatedCount": 2 },
-    { "sourceCode": "M02", "sourceScreenId": "8e5b2b6aaeef4e8d92b26f60b2e91185", "states": ["session-expired"], "generatedCount": 1 },
-    { "sourceCode": "M09", "sourceScreenId": "d073d9ee2ca4448e932885f9ee34bb3d", "states": ["triggering", "accepted-for-sending", "partial-channel-failure", "correction-pending", "cancelled-before-send"], "generatedCount": 5 },
-    { "sourceCode": "M10", "sourceScreenId": "9ea098fa3ea64810a7eea0e7e0985911", "states": ["hold-in-progress", "accessible-two-step"], "generatedCount": 2 },
-    { "sourceCode": "M10", "screenId": "cd6ac89b2b7f41a08bc8cbbb11a29161", "title": "SOS - Đã gửi yêu cầu trợ giúp - I'm Okay", "states": ["sos-accepted-for-sending"], "generatedCount": 1 }
+    {
+      "sourceCode": "M06",
+      "sourceScreenId": "481b794256684316a57f73d7e0bd682b",
+      "states": [
+        "submitting",
+        "success",
+        "offline-failure",
+        "loading",
+        "push-disabled"
+      ],
+      "generatedCount": 5
+    },
+    {
+      "sourceCode": "M04",
+      "sourceScreenId": "2470598ae39d42068a089332f1e8f15b",
+      "states": ["permission-denied", "permission-disabled-later"],
+      "generatedCount": 2
+    },
+    {
+      "sourceCode": "M02",
+      "sourceScreenId": "8e5b2b6aaeef4e8d92b26f60b2e91185",
+      "states": ["session-expired"],
+      "generatedCount": 1
+    },
+    {
+      "sourceCode": "M09",
+      "sourceScreenId": "d073d9ee2ca4448e932885f9ee34bb3d",
+      "states": [
+        "triggering",
+        "accepted-for-sending",
+        "partial-channel-failure",
+        "correction-pending",
+        "cancelled-before-send"
+      ],
+      "generatedCount": 5
+    },
+    {
+      "sourceCode": "M10",
+      "sourceScreenId": "9ea098fa3ea64810a7eea0e7e0985911",
+      "states": ["hold-in-progress", "accessible-two-step"],
+      "generatedCount": 2
+    },
+    {
+      "sourceCode": "M10",
+      "screenId": "cd6ac89b2b7f41a08bc8cbbb11a29161",
+      "title": "SOS - Đã gửi yêu cầu trợ giúp - I'm Okay",
+      "states": ["sos-accepted-for-sending"],
+      "generatedCount": 1
+    }
   ],
   "ma0": {
     "status": "completed-navigation-contract",
@@ -49,8 +240,28 @@
     "stateDesignCount": 16,
     "accessibilityPass": {
       "status": "completed-by-stitch-mcp",
-      "screenCodes": ["M01", "M02", "M03", "M04", "M05", "M06", "M07", "M08", "M09", "M10", "M11", "M12"],
-      "requirements": ["360-390px", "200%-text-scaling", "48px-touch-targets", "safe-areas", "screen-reader-status", "icon-plus-wording"]
+      "screenCodes": [
+        "M01",
+        "M02",
+        "M03",
+        "M04",
+        "M05",
+        "M06",
+        "M07",
+        "M08",
+        "M09",
+        "M10",
+        "M11",
+        "M12"
+      ],
+      "requirements": [
+        "360-390px",
+        "200%-text-scaling",
+        "48px-touch-targets",
+        "safe-areas",
+        "screen-reader-status",
+        "icon-plus-wording"
+      ]
     },
     "prototype": {
       "mapping": "design/stitch/06-MA0-DESIGN-READINESS.md",

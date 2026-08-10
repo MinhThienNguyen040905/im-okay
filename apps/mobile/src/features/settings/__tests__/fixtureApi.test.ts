@@ -15,9 +15,10 @@ describe("local settings fixture", () => {
     const projection = await api.updateSafetyPlan(48);
     expect(projection.safetyPlan.intervalHours).toBe(48);
     expect(projection.safetyPlan.nextDeadlineAt).not.toBeNull();
-    expect(Date.parse(projection.safetyPlan.nextDeadlineAt!) - Date.parse(projection.serverTime)).toBe(
-      48 * 60 * 60_000,
-    );
+    expect(
+      Date.parse(projection.safetyPlan.nextDeadlineAt!) -
+        Date.parse(projection.serverTime),
+    ).toBe(48 * 60 * 60_000);
   });
 
   it("creates and persists a new schedule when timezone changes", async () => {
@@ -30,9 +31,12 @@ describe("local settings fixture", () => {
     const restored = await api.getSettings();
     expect(changed.profile.timezone).toBe("Asia/Ho_Chi_Minh");
     expect(
-      Date.parse(changed.safetyPlan.nextDeadlineAt!) - Date.parse(changed.serverTime),
+      Date.parse(changed.safetyPlan.nextDeadlineAt!) -
+        Date.parse(changed.serverTime),
     ).toBe(36 * 60 * 60_000);
-    expect(restored.safetyPlan.nextDeadlineAt).toBe(changed.safetyPlan.nextDeadlineAt);
+    expect(restored.safetyPlan.nextDeadlineAt).toBe(
+      changed.safetyPlan.nextDeadlineAt,
+    );
   });
 
   it("replays account requests and disables only with an inactive projection", async () => {

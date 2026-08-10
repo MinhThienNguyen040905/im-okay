@@ -28,4 +28,3 @@ Sau khi tạo, mô tả ngắn trade-off của từng variant theo:
 - Thumb reach hoặc scan path.
 - Khả năng mở rộng với state dài hơn.
 - Accessibility.
-

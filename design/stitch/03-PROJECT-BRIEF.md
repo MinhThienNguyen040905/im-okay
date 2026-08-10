@@ -44,4 +44,3 @@ Chưa hiển thị SMS, voice call, theo dõi vị trí liên tục, dữ liệu
 - Không có snooze vô thời hạn.
 - Màu không phải dấu hiệu trạng thái duy nhất.
 - Không hiển thị dữ liệu nhạy cảm trên link công khai mặc định.
-

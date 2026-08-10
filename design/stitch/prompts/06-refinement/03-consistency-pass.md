@@ -18,4 +18,3 @@ Review các screen được chọn như một user flow của I’m Okay và ch�
 Giữ project design system làm nguồn sự thật. Không thêm màu, font, component hoặc decoration mới chỉ để tạo sự khác biệt giữa screen.
 
 Liệt kê những điểm đã được chỉnh và những khác biệt còn lại có chủ đích.
-

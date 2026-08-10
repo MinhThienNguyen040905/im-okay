@@ -48,4 +48,28 @@ describe("MA7 mobile release configuration", () => {
       /SENTRY_AUTH_TOKEN|APP_PASSWORD|\.p12|\.jks/,
     );
   });
+
+  it("loads Android google-services from a non-public file variable", () => {
+    const previousValue = process.env.GOOGLE_SERVICES_JSON;
+    process.env.GOOGLE_SERVICES_JSON = "C:/eas/secrets/google-services.json";
+
+    jest.resetModules();
+    const configureApp = jest.requireActual("../../app.config.js") as (input: {
+      config: typeof appConfig.expo;
+    }) => typeof appConfig.expo & {
+      android: typeof appConfig.expo.android & { googleServicesFile?: string };
+    };
+    const configured = configureApp({ config: appConfig.expo });
+
+    expect(configured.android.googleServicesFile).toBe(
+      "C:/eas/secrets/google-services.json",
+    );
+    expect(JSON.stringify(appConfig)).not.toContain("google-services.json");
+
+    if (previousValue === undefined) {
+      delete process.env.GOOGLE_SERVICES_JSON;
+    } else {
+      process.env.GOOGLE_SERVICES_JSON = previousValue;
+    }
+  });
 });

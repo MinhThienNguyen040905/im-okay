@@ -68,7 +68,8 @@ const project = (
   nowMs = Date.now(),
 ): SettingsProjection => {
   const contacts = record.trustedContacts ?? [];
-  const intervalHours = record.status?.plan.intervalHours ?? record.safetyPlan?.intervalHours ?? 36;
+  const intervalHours =
+    record.status?.plan.intervalHours ?? record.safetyPlan?.intervalHours ?? 36;
   const planState = record.status?.plan.state ?? "active";
   const nextDeadlineAt =
     planState === "inactive"
@@ -78,7 +79,10 @@ const project = (
   return settingsProjectionSchema.parse({
     serverTime: new Date(nowMs).toISOString(),
     profile: {
-      displayName: record.profile?.displayName ?? session.user.email.split("@")[0] ?? "Bạn",
+      displayName:
+        record.profile?.displayName ??
+        session.user.email.split("@")[0] ??
+        "Bạn",
       email: session.user.email,
       timezone: record.profile?.timezone ?? "UTC",
     },
@@ -90,7 +94,9 @@ const project = (
     },
     contacts: {
       totalCount: contacts.length,
-      acceptedCount: contacts.filter(({ invitation }) => invitation.status === "accepted").length,
+      acceptedCount: contacts.filter(
+        ({ invitation }) => invitation.status === "accepted",
+      ).length,
     },
     push: { registration: record.device ? "registered" : "none" },
     account: {
@@ -108,7 +114,9 @@ const project = (
 };
 
 export const createFixtureSettingsApi = (session: AuthSession): SettingsApi => {
-  const mutate = (action: (record: FixtureRecord, nowMs: number) => FixtureRecord) =>
+  const mutate = (
+    action: (record: FixtureRecord, nowMs: number) => FixtureRecord,
+  ) =>
     serialize(session.user.id, async () => {
       const nowMs = Date.now();
       const current = await readFixture(session.user.id);
@@ -154,7 +162,10 @@ export const createFixtureSettingsApi = (session: AuthSession): SettingsApi => {
     },
     updateProfile: (profile) =>
       mutate((record, nowMs) => {
-        const intervalHours = record.status?.plan.intervalHours ?? record.safetyPlan?.intervalHours ?? 36;
+        const intervalHours =
+          record.status?.plan.intervalHours ??
+          record.safetyPlan?.intervalHours ??
+          36;
         return {
           ...record,
           profile,
@@ -181,12 +192,17 @@ export const createFixtureSettingsApi = (session: AuthSession): SettingsApi => {
           serverTime: new Date(nowMs).toISOString(),
           plan: {
             state: "inactive",
-            intervalHours: record.status?.plan.intervalHours ?? record.safetyPlan?.intervalHours ?? 36,
+            intervalHours:
+              record.status?.plan.intervalHours ??
+              record.safetyPlan?.intervalHours ??
+              36,
             lastCheckInAt: record.status?.plan.lastCheckInAt ?? null,
             nextDeadlineAt: null,
             snoozedUntil: null,
           },
-          contactSummary: record.status?.contactSummary ?? { confirmedCount: 0 },
+          contactSummary: record.status?.contactSummary ?? {
+            confirmedCount: 0,
+          },
           currentAlert: null,
           lastAlertOutcome: null,
         },

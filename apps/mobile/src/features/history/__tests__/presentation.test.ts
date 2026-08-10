@@ -1,8 +1,4 @@
-import {
-  buildHistoryRows,
-  filterHistory,
-  historyCopy,
-} from "../presentation";
+import { buildHistoryRows, filterHistory, historyCopy } from "../presentation";
 import type { HistoryItem } from "../types";
 
 const items: HistoryItem[] = [

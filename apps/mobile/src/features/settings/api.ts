@@ -29,7 +29,11 @@ export const createRemoteSettingsApi = (
 ): SettingsApi => {
   const request = async (
     path: string,
-    options?: { method?: "GET" | "PATCH" | "PUT" | "POST"; body?: unknown; key?: string },
+    options?: {
+      method?: "GET" | "PATCH" | "PUT" | "POST";
+      body?: unknown;
+      key?: string;
+    },
   ) => {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
@@ -41,14 +45,19 @@ export const createRemoteSettingsApi = (
           "Content-Type": "application/json",
           ...(options?.key ? { "Idempotency-Key": options.key } : {}),
         },
-        body: options?.body === undefined ? undefined : JSON.stringify(options.body),
+        body:
+          options?.body === undefined
+            ? undefined
+            : JSON.stringify(options.body),
         signal: controller.signal,
       });
       const body = await response.json().catch(() => null);
       if (!response.ok) {
         const parsed = errorEnvelopeSchema.safeParse(body);
         throw new SettingsApiError(
-          parsed.success ? parsed.data.error.message : "Máy chủ chưa thể cập nhật cài đặt.",
+          parsed.success
+            ? parsed.data.error.message
+            : "Máy chủ chưa thể cập nhật cài đặt.",
           "server",
           parsed.success
             ? (parsed.data.error.retryable ?? false)
@@ -71,10 +80,18 @@ export const createRemoteSettingsApi = (
     } catch (cause) {
       if (cause instanceof SettingsApiError) throw cause;
       if (cause instanceof Error && cause.name === "AbortError") {
-        throw new SettingsApiError("Yêu cầu quá thời gian chờ.", "timeout", true);
+        throw new SettingsApiError(
+          "Yêu cầu quá thời gian chờ.",
+          "timeout",
+          true,
+        );
       }
       if (cause instanceof TypeError) {
-        throw new SettingsApiError("Không có kết nối tới máy chủ.", "offline", true);
+        throw new SettingsApiError(
+          "Không có kết nối tới máy chủ.",
+          "offline",
+          true,
+        );
       }
       throw new SettingsApiError(
         "Phản hồi cài đặt không đúng hợp đồng an toàn.",

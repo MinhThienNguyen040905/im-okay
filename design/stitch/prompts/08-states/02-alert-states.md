@@ -12,4 +12,3 @@ Từ M09/M10 đã được duyệt, tạo các state nhất quán:
 8. Alert cancelled before external notification.
 
 Mỗi state phải mô tả điều đã xảy ra, điều hệ thống đang làm và action còn khả dụng. Không coi provider “sent” là contact đã đọc hoặc đang xử lý.
-

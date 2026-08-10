@@ -20,4 +20,3 @@ Kiểm tra:
 10. Loading/error/disabled state có chỗ hiển thị hợp lý.
 
 Sau findings, đề xuất tối đa ba targeted edits có tác động lớn nhất. Không tự đổi theme.
-

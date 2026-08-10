@@ -26,4 +26,3 @@ Tạo bước 3/3 để chọn chu kỳ check-in.
 **INTERACTIONS:** Chọn preset cập nhật timeline ngay; toàn bộ option card là touch target.
 
 **CONSTRAINTS:** Không dùng slider hoặc custom interval trong MVP. Nói rõ deadline tính từ check-in gần nhất. Dùng design system project.
-

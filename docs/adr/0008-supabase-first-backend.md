@@ -5,6 +5,7 @@
 - Phạm vi: backend, scheduling, notification, data/infra, contract mobile/contact web
 - Thay thế: kiến trúc MVP NestJS + Prisma + Redis/BullMQ + worker trong roadmap/plan cũ
 - Bị thay thế một phần bởi: ADR 0012 cho email provider của personal pilot
+- Được làm rõ bởi: ADR 0013 cho FCM chỉ là Android transport của Expo Push
 
 ## Bối cảnh
 
@@ -54,9 +55,10 @@ Contact web -----------/                 |
                             `-- Voice disabled
 ```
 
-Firebase không được thêm song song trong MVP. Nó sẽ nhân đôi auth, data model, secret,
-observability và quy trình deploy trong khi PostgreSQL phù hợp hơn với transaction và quan hệ
-của I’m Okay.
+Firebase không được thêm như application backend song song trong MVP. Nó sẽ nhân đôi
+auth, data model, secret, observability và quy trình deploy trong khi PostgreSQL phù hợp hơn với
+transaction và quan hệ của I’m Okay. ADR 0013 cho phép Firebase project hẹp chỉ để cấp
+FCM transport bắt buộc cho Android Expo Push; không dùng Firebase Auth/data/functions.
 
 ### 2. Giữ contract client đã hoàn thành
 

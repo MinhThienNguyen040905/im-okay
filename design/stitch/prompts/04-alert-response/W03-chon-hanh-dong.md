@@ -23,4 +23,3 @@ Tạo responsive web page sau khi Lan chọn “Tôi sẽ kiểm tra” ở W02.
 **INTERACTIONS:** Chỉ chọn một option; toàn bộ card là target; submit dẫn W04 hoặc chuyển tiếp khi chọn nhờ người khác.
 
 **CONSTRAINTS:** Không lộ email/số điện thoại của Lan. Dùng design system và web component language của W02.
-

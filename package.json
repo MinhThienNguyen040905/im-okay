@@ -22,13 +22,13 @@
     "staging:observability": "node scripts/staging-observability-baseline.mjs",
     "staging:provider-readiness": "node scripts/staging-provider-readiness.mjs",
     "staging:security-smoke": "node scripts/staging-auth-security-smoke.mjs",
-    "supabase:reset": "supabase db reset --local",
+    "supabase:reset": "supabase stop --no-backup && supabase start",
     "supabase:start": "supabase start",
     "supabase:status": "supabase status",
     "supabase:stop": "supabase stop --no-backup",
     "test": "turbo run test && node --test supabase/functions/tests/*.test.mjs scripts/tests/*.test.mjs",
     "test:db": "supabase test db",
-    "test:integration": "supabase db reset --local && supabase test db && node scripts/supabase-smoke.mjs && node scripts/supabase-s3-smoke.mjs",
+    "test:integration": "npm run supabase:reset && supabase test db && node scripts/supabase-smoke.mjs && node scripts/supabase-s3-smoke.mjs",
     "typecheck": "turbo run typecheck && tsc -p supabase/functions/tsconfig.json"
   },
   "devDependencies": {

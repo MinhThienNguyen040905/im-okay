@@ -26,4 +26,3 @@ Tạo responsive web page Lan mở từ invitation email.
 **STATES:** Disabled accept, submitting, accepted, declined, expired và revoked.
 
 **CONSTRAINTS:** Không yêu cầu tài khoản/password; không hiển thị dữ liệu nhạy cảm của Minh Anh. Dùng design system web được khóa từ W02.
-

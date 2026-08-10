@@ -4,11 +4,7 @@ import { env, requireApiUrl } from "@/config/env";
 import type { AuthSession } from "@/features/auth/types";
 
 import { createFixtureHistoryApi } from "./fixtureApi";
-import {
-  HistoryApiError,
-  historyPageSchema,
-  type HistoryApi,
-} from "./types";
+import { HistoryApiError, historyPageSchema, type HistoryApi } from "./types";
 
 const REQUEST_TIMEOUT_MS = 12_000;
 const errorEnvelopeSchema = z.object({
@@ -37,7 +33,9 @@ export const createRemoteHistoryApi = (
       if (!response.ok) {
         const parsed = errorEnvelopeSchema.safeParse(body);
         throw new HistoryApiError(
-          parsed.success ? parsed.data.error.message : "Máy chủ chưa thể tải lịch sử.",
+          parsed.success
+            ? parsed.data.error.message
+            : "Máy chủ chưa thể tải lịch sử.",
           "server",
           response.status === 429 || response.status >= 500,
           response.headers.get("x-request-id") ?? undefined,
@@ -55,10 +53,18 @@ export const createRemoteHistoryApi = (
     } catch (cause) {
       if (cause instanceof HistoryApiError) throw cause;
       if (cause instanceof Error && cause.name === "AbortError") {
-        throw new HistoryApiError("Yêu cầu lịch sử quá thời gian chờ.", "timeout", true);
+        throw new HistoryApiError(
+          "Yêu cầu lịch sử quá thời gian chờ.",
+          "timeout",
+          true,
+        );
       }
       if (cause instanceof TypeError) {
-        throw new HistoryApiError("Không có kết nối tới máy chủ.", "offline", true);
+        throw new HistoryApiError(
+          "Không có kết nối tới máy chủ.",
+          "offline",
+          true,
+        );
       }
       throw new HistoryApiError(
         "Phản hồi lịch sử không đúng hợp đồng an toàn.",

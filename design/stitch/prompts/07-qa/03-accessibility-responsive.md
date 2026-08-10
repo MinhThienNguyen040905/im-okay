@@ -27,4 +27,3 @@ Review các screen được chọn theo accessibility và responsive behavior. K
 - Motion không flashing và có thể giảm.
 
 Trả về findings theo Blocker/Major/Minor và targeted fixes. Không thêm theme mới.
-

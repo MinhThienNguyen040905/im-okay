@@ -359,8 +359,21 @@ Hosted backend deployment evidence 09/08/2026:
   kill switch đã tắt lại trong lúc chờ contact chấp nhận. Không ghi email, raw token hoặc provider ID vào
   evidence.
 - Smoke phát hiện Android permission đã bật nhưng staging account chưa có Expo token (`0` device).
-  Settings đã bổ sung retry đăng ký và chỉ báo thành công sau server projection `registered`; 128 test,
-  lint/typecheck pass, EAS snapshot `2a6cb1be-85c0-48d1-bc75-f0f97ff10842` đang build.
+  Settings đã bổ sung retry đăng ký và chỉ báo thành công sau server projection `registered`.
+  EAS snapshot `2a6cb1be-85c0-48d1-bc75-f0f97ff10842` đã `FINISHED`; APK SHA-256
+  `E52AA620AFE2AB239EF81ED3442B3E368101D4752BEE416C78235554173F731C` đã cài trên TECNO KJ7,
+  giữ session và không có FATAL/React error. Thử retry vẫn giữ hosted `user_devices=0`.
+- Audit config xác nhận APK trên chưa có `google-services.json` và chưa có FCM V1 credential
+  evidence cho EAS. Source đã thêm dynamic Expo config đọc `android.googleServicesFile` từ EAS
+  file variable `GOOGLE_SERVICES_JSON`, giữ file/key ngoài Git. Credential/file variable thật vẫn là
+  blocker cho Android Expo token; không bật delivery trước khi hoàn tất config và token smoke.
+- Source đã sửa việc push-registration error bị ẩn, thêm assertive error card và regression test.
+  Root format/lint/typecheck/test/build gate xanh; mobile có 131 test/37 suite. Fix feedback/config này chưa
+  nằm trong APK vừa cài và cần build lại sau khi cấu hình FCM.
+- Local stack đã dựng lại từ 8 migration và seed; 150/150 pgTAP, S2 smoke và S3 smoke đều
+  xanh. Do `supabase db reset --local` gặp `uv_spawn` trên Windows với path workspace này,
+  `supabase:reset`/`test:integration` nay recreate stack bằng `stop --no-backup` → `start`, giữ đúng
+  fresh-migration semantics và chạy được bằng lệnh chuẩn trong repository.
 - Contact acceptance, push receipt/provider flow, Google/fresh-user onboarding, full accessibility,
   fault/reconciliation drill, SLO dài hạn và backup restore vẫn là gate mở; delivery tiếp tục tắt.
 
@@ -399,9 +412,11 @@ Supabase MVP hoàn thành khi:
 
 S1–S3, S4A, backend/contact-web deploy, Auth URL/CORS, non-mutating preflight, hosted security
 negative matrix, observability snapshot, Android staging device smoke, Gmail SMTP readiness và một
-invitation delivery thật của S4B đã hoàn tất. Bước tiếp theo là để test contact chấp nhận invitation, cài
-snapshot có push-registration retry, xác minh Expo token/receipt rồi chạy accelerated alert/correction flow
-với delivery được bật có kiểm soát; sau smoke phải tắt lại nếu chưa bắt đầu supervised testing.
+invitation delivery thật của S4B đã hoàn tất. Bước tiếp theo là cấu hình FCM V1 credential,
+`google-services.json`/`android.googleServicesFile`, build lại snapshot có push-error feedback, rồi xác minh
+Expo token/ticket/receipt. Khi token gate xanh, để test contact chấp nhận invitation và chạy
+accelerated alert/correction flow với delivery được bật có kiểm soát; sau smoke phải tắt lại
+nếu chưa bắt đầu supervised testing.
 Song song, hoàn tất Google/fresh-user onboarding, fault/reconciliation drill,
 backup restore, accessibility matrix và baseline SLO dài hạn. Không đánh dấu provider/restore/SLO gate hoàn tất
 bằng fake-provider hoặc config-only evidence.

@@ -23,4 +23,3 @@ Tạo màn hình onboarding đầu tiên cho I’m Okay.
 **INTERACTIONS:** Cả hai action dẫn tới M02; action thứ hai đánh dấu onboarding intro đã xem.
 
 **CONSTRAINTS:** Dùng design system project. Chỉ một onboarding page, không thêm carousel dots hoặc nội dung marketing dài.
-

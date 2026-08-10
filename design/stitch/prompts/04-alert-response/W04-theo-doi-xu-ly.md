@@ -25,4 +25,3 @@ Tạo responsive web page sau khi Lan xác nhận đang gọi Minh Anh.
 **INTERACTIONS:** Safe result cần confirmation; unreachable tiếp tục escalation; need-help chuyển tiếp; alert đã được người khác resolve thì khóa action và chuyển W05.
 
 **CONSTRAINTS:** Không đánh dấu resolved chỉ vì email đã gửi hoặc Lan nhận xử lý. Dùng design system web hiện có.
-

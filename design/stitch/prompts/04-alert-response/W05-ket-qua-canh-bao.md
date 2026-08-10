@@ -25,4 +25,3 @@ Tạo responsive web page cho alert đã được giải quyết.
 **VARIANTS TO SUPPORT LATER:** User self-checked-in, another contact is handling, expired link, invalid link and completed drill.
 
 **CONSTRAINTS:** Không action lại trên resolved alert; không confetti; không hiển thị provider ID hoặc dữ liệu nhạy cảm. Dùng design system web hiện có.
-

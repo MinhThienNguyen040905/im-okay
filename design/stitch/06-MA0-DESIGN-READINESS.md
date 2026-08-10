@@ -4,16 +4,16 @@
 
 MA0 được thực hiện ngày 02/08/2026 trên Stitch project `I’m Okay Safety System` (`9249994988754984867`) với design system `assets/cbd4d1ec489847ac84e45f592436c1f3`.
 
-| Hạng mục | Kết quả |
-|---|---|
-| Check-in states | Hoàn tất |
-| Push denied/disabled | Hoàn tất |
-| Auth expired | Hoàn tất |
-| Alert states | Hoàn tất |
-| SOS hold/two-step/sent | Hoàn tất |
-| M01–M12 accessibility consistency pass | Hoàn tất qua Stitch MCP |
-| Navigation mapping | Hoàn tất |
-| Cross-screen prototype links | Không được Stitch Web hỗ trợ; chuyển thành implementation contract |
+| Hạng mục                               | Kết quả                                                            |
+| -------------------------------------- | ------------------------------------------------------------------ |
+| Check-in states                        | Hoàn tất                                                           |
+| Push denied/disabled                   | Hoàn tất                                                           |
+| Auth expired                           | Hoàn tất                                                           |
+| Alert states                           | Hoàn tất                                                           |
+| SOS hold/two-step/sent                 | Hoàn tất                                                           |
+| M01–M12 accessibility consistency pass | Hoàn tất qua Stitch MCP                                            |
+| Navigation mapping                     | Hoàn tất                                                           |
+| Cross-screen prototype links           | Không được Stitch Web hỗ trợ; chuyển thành implementation contract |
 
 MA0 đạt exit gate ở mức design readiness. Luồng click-through sẽ được hiện thực bằng Expo Router và kiểm thử E2E vì Stitch Web không cung cấp cross-screen prototype linking cho các screen độc lập.
 
@@ -70,54 +70,54 @@ Stitch MCP đã chạy targeted edit trên M01–M12 và xác nhận:
 
 ### Onboarding
 
-| Từ | Interaction | Đến |
-|---|---|---|
-| M01 | Bắt đầu/Tiếp tục | M02 |
-| M02 | Đăng nhập thành công | M03 |
+| Từ                  | Interaction              | Đến                           |
+| ------------------- | ------------------------ | ----------------------------- |
+| M01                 | Bắt đầu/Tiếp tục         | M02                           |
+| M02                 | Đăng nhập thành công     | M03                           |
 | M02 session expired | Đăng nhập lại thành công | Route cũ hợp lệ, mặc định M06 |
-| M03 | Tiếp tục | M04 |
-| M04 | Bật thông báo/thành công | M05 |
-| M04 denied | Tiếp tục mà không bật | M05 |
-| M05 | Hoàn tất | M06 |
+| M03                 | Tiếp tục                 | M04                           |
+| M04                 | Bật thông báo/thành công | M05                           |
+| M04 denied          | Tiếp tục mà không bật    | M05                           |
+| M05                 | Hoàn tất                 | M06                           |
 
 ### Check-in
 
-| Từ | Interaction | Đến |
-|---|---|---|
-| M06 | Tôi vẫn ổn | M06 submitting |
-| M06 submitting | Backend success | M06 success |
-| M06 submitting | Offline/error | M06 offline failure |
-| M06 success | Đóng | M06 updated |
-| M06 offline | Thử lại | M06 submitting |
+| Từ                | Interaction       | Đến                                       |
+| ----------------- | ----------------- | ----------------------------------------- |
+| M06               | Tôi vẫn ổn        | M06 submitting                            |
+| M06 submitting    | Backend success   | M06 success                               |
+| M06 submitting    | Offline/error     | M06 offline failure                       |
+| M06 success       | Đóng              | M06 updated                               |
+| M06 offline       | Thử lại           | M06 submitting                            |
 | M06 push disabled | Bật lại thông báo | M04 disabled-later/system settings intent |
 
 ### Contacts
 
-| Từ | Interaction | Đến |
-|---|---|---|
-| M06 | Liên hệ tin cậy | M07 |
-| M07 | Thêm liên hệ | M08 |
-| M08 | Gửi lời mời thành công | M07 pending |
-| W01 | Chấp nhận | M07 confirmed state trong app sau refresh |
+| Từ  | Interaction            | Đến                                       |
+| --- | ---------------------- | ----------------------------------------- |
+| M06 | Liên hệ tin cậy        | M07                                       |
+| M07 | Thêm liên hệ           | M08                                       |
+| M08 | Gửi lời mời thành công | M07 pending                               |
+| W01 | Chấp nhận              | M07 confirmed state trong app sau refresh |
 
 ### Alert và SOS
 
-| Từ | Interaction | Đến |
-|---|---|---|
-| M09 warning | Tôi vẫn ổn | M06 success/updated |
-| M09 warning | Tạm hoãn | Snooze sheet hữu hạn → M06 snoozed |
-| M09 warning | Countdown về 0 | M09 triggering |
-| M09 triggering | Provider accepted | M09 accepted-for-sending |
-| M09 triggering | Partial failure | M09 retry |
-| M09 active | User check-in | M09 correction pending → M06 |
-| M09 warning | Hủy trước external send | M09 cancelled → M06 |
-| M06 | Cần trợ giúp ngay | M10 |
-| M10 | Giữ SOS | M10 hold-progress |
-| M10 | Thả trước 3 giây | M10 base |
-| M10 | Xác nhận hai bước | M10 two-step |
-| M10 hold/two-step | Backend accepted | SOS sent state |
-| SOS sent | Về trang chủ | M06 |
-| SOS sent | Xem trạng thái cảnh báo | M09 accepted-for-sending |
+| Từ                | Interaction             | Đến                                |
+| ----------------- | ----------------------- | ---------------------------------- |
+| M09 warning       | Tôi vẫn ổn              | M06 success/updated                |
+| M09 warning       | Tạm hoãn                | Snooze sheet hữu hạn → M06 snoozed |
+| M09 warning       | Countdown về 0          | M09 triggering                     |
+| M09 triggering    | Provider accepted       | M09 accepted-for-sending           |
+| M09 triggering    | Partial failure         | M09 retry                          |
+| M09 active        | User check-in           | M09 correction pending → M06       |
+| M09 warning       | Hủy trước external send | M09 cancelled → M06                |
+| M06               | Cần trợ giúp ngay       | M10                                |
+| M10               | Giữ SOS                 | M10 hold-progress                  |
+| M10               | Thả trước 3 giây        | M10 base                           |
+| M10               | Xác nhận hai bước       | M10 two-step                       |
+| M10 hold/two-step | Backend accepted        | SOS sent state                     |
+| SOS sent          | Về trang chủ            | M06                                |
+| SOS sent          | Xem trạng thái cảnh báo | M09 accepted-for-sending           |
 
 ### Bottom navigation và child screens
 

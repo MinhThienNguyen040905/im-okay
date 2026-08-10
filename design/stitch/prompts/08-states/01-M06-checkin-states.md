@@ -9,4 +9,3 @@ Từ screen M06 đã được duyệt, tạo state variants dùng cùng layout v
 5. **Approaching deadline:** Thời gian còn dưới bốn giờ; tăng urgency nhưng chưa dùng SOS language.
 
 Giữ nguyên navigation, content hierarchy và design system. Tạo component/state frames, không tạo năm visual themes khác nhau.
-

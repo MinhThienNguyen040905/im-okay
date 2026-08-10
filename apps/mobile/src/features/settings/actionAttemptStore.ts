@@ -8,7 +8,8 @@ const attemptSchema = z.object({
   createdAtMs: z.number().int().nonnegative(),
 });
 
-export type SettingsAction = "disable-plan" | "account-export" | "account-deletion";
+export type SettingsAction =
+  "disable-plan" | "account-export" | "account-deletion";
 const storageKey = (userId: string, action: SettingsAction) =>
   `imokay.settings-attempt.${userId}.${action}.v1`;
 

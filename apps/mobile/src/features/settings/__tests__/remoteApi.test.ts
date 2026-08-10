@@ -43,9 +43,11 @@ describe("remote settings API", () => {
   it("does not report disable success when the server still returns active", async () => {
     const fetcher = jest.fn().mockResolvedValue(response(settingsProjection));
     await expect(
-      createRemoteSettingsApi(session, "https://api.example.test", fetcher).disableSafetyPlan(
-        "11111111-1111-4111-8111-111111111111",
-      ),
+      createRemoteSettingsApi(
+        session,
+        "https://api.example.test",
+        fetcher,
+      ).disableSafetyPlan("11111111-1111-4111-8111-111111111111"),
     ).rejects.toEqual(expect.objectContaining({ kind: "contract" }));
   });
 
@@ -60,9 +62,11 @@ describe("remote settings API", () => {
         },
       }),
     );
-    await createRemoteSettingsApi(session, "https://api.example.test", fetcher).requestAccountDeletion(
-      "11111111-1111-4111-8111-111111111111",
-    );
+    await createRemoteSettingsApi(
+      session,
+      "https://api.example.test",
+      fetcher,
+    ).requestAccountDeletion("11111111-1111-4111-8111-111111111111");
     expect(fetcher).toHaveBeenCalledWith(
       "https://api.example.test/v1/account/deletion-requests",
       expect.objectContaining({

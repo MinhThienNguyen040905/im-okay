@@ -38,7 +38,11 @@ describe("remote history API", () => {
       }),
     );
     await expect(
-      createRemoteHistoryApi(session, "https://api.example.test", fetcher).getHistory(),
+      createRemoteHistoryApi(
+        session,
+        "https://api.example.test",
+        fetcher,
+      ).getHistory(),
     ).rejects.toEqual(expect.objectContaining({ kind: "contract" }));
   });
 });

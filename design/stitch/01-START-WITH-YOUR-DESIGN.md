@@ -42,4 +42,3 @@ Trước khi nhấn Continue, kiểm tra:
 - Additional instructions đã có nội dung.
 - Không có GitHub URL private trong ô public repository.
 - Không upload file chứa secret, `.env`, API key hoặc thông tin cá nhân thật.
-

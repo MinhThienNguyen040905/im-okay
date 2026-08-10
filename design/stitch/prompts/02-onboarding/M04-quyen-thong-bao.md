@@ -23,4 +23,3 @@ Tạo pre-permission screen ở bước 2/3; không giả lập permission dialo
 **INTERACTIONS:** Primary mở native permission dialog; “Để sau” vẫn đi M05 nhưng M06 phải có configuration warning.
 
 **CONSTRAINTS:** Không dùng dark pattern và không tuyên bố push luôn được giao. Dùng design system project.
-

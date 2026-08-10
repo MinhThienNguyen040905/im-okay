@@ -22,4 +22,3 @@ Tạo màn hình quản lý các liên hệ sẽ nhận alert.
 **STATES:** Empty list, pending invitation, invalid email và reorder success phải dùng cùng layout.
 
 **CONSTRAINTS:** Không dùng icon thùng rác làm action chính. Dùng design system và component language của M06.
-

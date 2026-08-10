@@ -104,9 +104,16 @@ Tại lần kiểm tra S3 ngày 04/08/2026:
   restore và UI dump trên TECNO KJ7 đều pass; snapshot trên vẫn chưa phải RC exact-commit.
 - Provider smoke trên TECNO KJ7 phát hiện Android đã cấp quyền notification nhưng app không có đường
   retry đăng ký Expo token sau onboarding; database vẫn có `0` device. Settings đã gọi lại
-  `requestPush` và chỉ báo sẵn sàng sau server projection `registered`; lint/typecheck và 128 mobile test
-  pass. EAS staging snapshot `2a6cb1be-85c0-48d1-bc75-f0f97ff10842` đang build, nên push receipt gate
-  vẫn mở cho tới khi cài đè và xác minh trên thiết bị.
+  `requestPush` và chỉ báo sẵn sàng sau server projection `registered`. EAS staging snapshot
+  `2a6cb1be-85c0-48d1-bc75-f0f97ff10842` đã `FINISHED`, APK SHA-256
+  `E52AA620AFE2AB239EF81ED3442B3E368101D4752BEE416C78235554173F731C` đã cài đè; session
+  được giữ và logcat không có FATAL/React error. Thử lại vẫn không tạo device vì Android build
+  chưa có `google-services.json` và FCM V1 credential cho EAS.
+- Lỗi đăng ký push trước đó bị ghi vào state không được render. Source hiện đã hiển thị feedback
+  an toàn bằng assertive live region. Dynamic Expo config cũng đã sẵn sàng đọc
+  `android.googleServicesFile` từ EAS file variable `GOOGLE_SERVICES_JSON`, không commit file/key.
+  Root quality gate xanh với 131 mobile test/37 suite. Các fix này chưa nằm trong APK trên và
+  cần build lại sau khi nạp FCM config/credential.
 
 Phải chạy lại các check thực tế sau mỗi thay đổi. Baseline cũ không chứng minh
 build hiện tại hoặc remote backend đang hoạt động.
@@ -126,6 +133,7 @@ Mobile sẵn sàng internal release khi:
 
 Không làm lại M01–M12. S1–S3 trong [`02-SUPABASE-MVP.md`](02-SUPABASE-MVP.md), EAS project,
 Android signed build, email callback/session restore và check-in/history staging smoke đã hoàn tất.
-Tiếp theo chạy Google/fresh-user onboarding, provider E2E, push receipt, accessibility matrix,
+Tiếp theo cấu hình Android FCM transport cho Expo Push, build lại staging và xác minh
+token/ticket/receipt. Sau đó chạy Google/fresh-user onboarding, provider E2E, accessibility matrix,
 Sentry symbolication và iOS/store gates.
 Chỉ đóng gate bằng evidence thật.

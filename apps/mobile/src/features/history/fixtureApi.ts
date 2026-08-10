@@ -72,7 +72,10 @@ export const createFixtureHistoryApi = (session: AuthSession): HistoryApi => ({
     }
     const items = historyEvents
       .map((item) => historyItemSchema.parse(item))
-      .sort((left, right) => Date.parse(right.occurredAt) - Date.parse(left.occurredAt));
+      .sort(
+        (left, right) =>
+          Date.parse(right.occurredAt) - Date.parse(left.occurredAt),
+      );
     const offset = parseOffset(cursor);
     const limit = Math.min(Math.max(requestedLimit, 1), 50);
     const pageItems = items.slice(offset, offset + limit);
@@ -89,7 +92,8 @@ export const createFixtureHistoryApi = (session: AuthSession): HistoryApi => ({
         ).length,
       },
       items: pageItems,
-      nextCursor: nextOffset < items.length ? `${CURSOR_PREFIX}${nextOffset}` : null,
+      nextCursor:
+        nextOffset < items.length ? `${CURSOR_PREFIX}${nextOffset}` : null,
     });
   },
 });

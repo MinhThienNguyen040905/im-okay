@@ -7,7 +7,7 @@ Design a product named “I’m Okay”, a safety check-in experience for people
 The product has two connected surfaces inside the same Stitch project:
 
 1. A native mobile app for the person being protected.
-2. A mobile-first responsive web experience opened by trusted contacts from email or SMS links.
+2. A mobile-first responsive web experience opened by trusted contacts from email links.
 
 Use the uploaded I’m Okay DESIGN.md as the single source of truth for colors, typography, spacing, shapes and components. Do not invent a second theme. Keep all future screens visually consistent with the approved anchor screens.
 
@@ -36,4 +36,3 @@ Use these consistent sample data across screens:
 - Sample contact email: lan.nguyen@example.com.
 
 Create only the screen requested in each future prompt. Preserve previously approved components and navigation patterns unless the prompt explicitly asks for a targeted change.
-

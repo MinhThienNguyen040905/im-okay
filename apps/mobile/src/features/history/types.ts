@@ -24,8 +24,13 @@ export const historyItemSchema = z
     event: historyEventSchema,
     occurredAt: timestampSchema,
     nextDeadlineAt: timestampSchema.nullable().optional(),
-    durationHours: z.union([z.literal(1), z.literal(4), z.literal(8)]).optional(),
-    channels: z.array(z.enum(["push", "email"])).max(2).optional(),
+    durationHours: z
+      .union([z.literal(1), z.literal(4), z.literal(8)])
+      .optional(),
+    channels: z
+      .array(z.enum(["push", "email"]))
+      .max(2)
+      .optional(),
     source: z.enum(["deadline", "sos", "drill"]).optional(),
   })
   .strict();

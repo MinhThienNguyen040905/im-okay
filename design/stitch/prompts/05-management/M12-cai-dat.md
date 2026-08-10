@@ -31,4 +31,3 @@ Tạo màn hình settings có thể cuộn, nhóm action theo mức độ rủi 
 **INTERACTIONS:** Snooze/tạm dừng luôn cần end time; disable safety plan yêu cầu re-authentication và confirmation; drill phải được gắn nhãn xuyên suốt.
 
 **CONSTRAINTS:** Không hiển thị SMS, voice hoặc payment trong MVP. Dùng mobile component language của M06.
-

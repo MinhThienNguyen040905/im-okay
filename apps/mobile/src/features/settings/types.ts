@@ -45,14 +45,26 @@ export const settingsProjectionSchema = z
       .object({
         exportRequest: z
           .object({
-            status: z.enum(["requested", "processing", "ready", "completed", "failed"]),
+            status: z.enum([
+              "requested",
+              "processing",
+              "ready",
+              "completed",
+              "failed",
+            ]),
             requestedAt: timestampSchema,
           })
           .strict()
           .nullable(),
         deletionRequest: z
           .object({
-            status: z.enum(["requested", "scheduled", "processing", "completed", "cancelled"]),
+            status: z.enum([
+              "requested",
+              "scheduled",
+              "processing",
+              "completed",
+              "cancelled",
+            ]),
             requestedAt: timestampSchema,
           })
           .strict()
@@ -94,10 +106,14 @@ export type SettingsProfileInput = { displayName: string; timezone: string };
 export type SettingsApi = {
   getSettings: () => Promise<SettingsProjection>;
   updateProfile: (input: SettingsProfileInput) => Promise<SettingsProjection>;
-  updateSafetyPlan: (intervalHours: SettingsInterval) => Promise<SettingsProjection>;
+  updateSafetyPlan: (
+    intervalHours: SettingsInterval,
+  ) => Promise<SettingsProjection>;
   disableSafetyPlan: (idempotencyKey: string) => Promise<SettingsProjection>;
   requestAccountExport: (idempotencyKey: string) => Promise<SettingsProjection>;
-  requestAccountDeletion: (idempotencyKey: string) => Promise<SettingsProjection>;
+  requestAccountDeletion: (
+    idempotencyKey: string,
+  ) => Promise<SettingsProjection>;
 };
 
 export type SettingsErrorKind = "offline" | "timeout" | "server" | "contract";

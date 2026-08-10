@@ -22,4 +22,3 @@ Tạo màn hình activity history cho người dùng app.
 **STATES:** Filter sheet, empty result, loading và failure dùng cùng content area.
 
 **CONSTRAINTS:** Phân biệt drill bằng text/badge, không chỉ màu. Không hiển thị token hoặc nội dung email đầy đủ. Dùng mobile component language của M06.
-

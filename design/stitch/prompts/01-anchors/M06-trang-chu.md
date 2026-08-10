@@ -31,4 +31,3 @@ Tạo một màn hình Trang chủ high-fidelity cho ứng dụng safety check-i
 **IMPORTANT STATES TO SUPPORT LATER:** Sending, success, offline failure, push permission disabled and deadline approaching. Giữ chỗ hợp lý để state message không làm layout nhảy mạnh.
 
 **CONSTRAINTS:** Dùng design system hiện có của project. Không tạo theme mới, không dùng medical imagery, không thêm tính năng ngoài brief và không đặt màn hình trong device mockup.
-

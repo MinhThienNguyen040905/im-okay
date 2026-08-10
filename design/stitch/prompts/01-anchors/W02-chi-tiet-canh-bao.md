@@ -31,4 +31,3 @@ Tạo responsive web page chi tiết một cảnh báo thật mà Lan mở từ 
 - Link hết hạn hoặc alert đã resolve phải thay toàn bộ action area bằng status phù hợp.
 
 **CONSTRAINTS:** Dùng design system hiện có. Không hiển thị địa chỉ, map, health data, token hoặc danh sách đầy đủ liên hệ. Không thêm nút gọi dịch vụ cấp cứu trong MVP.
-

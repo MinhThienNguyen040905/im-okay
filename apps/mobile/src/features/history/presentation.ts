@@ -1,8 +1,4 @@
-import type {
-  HistoryEvent,
-  HistoryFilter,
-  HistoryItem,
-} from "./types";
+import type { HistoryEvent, HistoryFilter, HistoryItem } from "./types";
 
 const checkInEvents = new Set<HistoryEvent>(["check_in_recorded"]);
 const drillEvents = new Set<HistoryEvent>([
@@ -26,7 +22,9 @@ export const historyCopy = (item: HistoryItem) => {
   const copy: Record<HistoryEvent, { title: string; detail?: string }> = {
     check_in_recorded: {
       title: "Đã xác nhận an toàn",
-      detail: item.nextDeadlineAt ? "Máy chủ đã tạo thời hạn tiếp theo" : undefined,
+      detail: item.nextDeadlineAt
+        ? "Máy chủ đã tạo thời hạn tiếp theo"
+        : undefined,
     },
     reminder_sent: {
       title: "Đã gửi lời nhắc",
@@ -34,7 +32,9 @@ export const historyCopy = (item: HistoryItem) => {
     },
     snooze_applied: {
       title: "Đã tạm hoãn bảo vệ",
-      detail: item.durationHours ? `Trong ${item.durationHours} giờ` : undefined,
+      detail: item.durationHours
+        ? `Trong ${item.durationHours} giờ`
+        : undefined,
     },
     alert_triggered: { title: "Cảnh báo đã được kích hoạt" },
     alert_acknowledged: { title: "Máy chủ đã nhận cảnh báo" },

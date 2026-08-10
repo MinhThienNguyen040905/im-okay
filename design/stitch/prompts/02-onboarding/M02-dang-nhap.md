@@ -21,4 +21,3 @@ Tạo màn hình authentication chung cho người mới và người quay lại
 **STATES:** Invalid email dùng inline error; submit loading nằm trong button; button disabled khi email chưa hợp lệ.
 
 **CONSTRAINTS:** Không thêm password, phone, Facebook hoặc Apple. Dùng design system project và giữ CTA nhìn thấy khi keyboard mở.
-

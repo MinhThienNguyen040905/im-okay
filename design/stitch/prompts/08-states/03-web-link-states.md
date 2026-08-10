@@ -12,4 +12,3 @@ Từ W01–W05 đã được duyệt, tạo state frames dùng cùng web shell:
 8. Network failure while submitting response — giữ lựa chọn và cho retry.
 
 Không hiển thị token, provider ID, email/số điện thoại của contact khác hoặc dữ liệu nhạy cảm. Không cho action lại trên alert đã kết thúc.
-

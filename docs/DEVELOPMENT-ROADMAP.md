@@ -62,8 +62,9 @@ Expo Push + EmailProvider
 ```
 
 ADR 0008 là quyết định hiện hành: không scaffold NestJS/Prisma/Redis/BullMQ và không
-thêm Firebase song song trong MVP. PostgreSQL domain state phải đủ để dựng lại missing
-queue work.
+thêm Firebase làm application backend song song trong MVP. ADR 0013 chỉ cho phép FCM transport
+bắt buộc cho Android Expo Push; không có Firebase Auth/data/functions. PostgreSQL domain state
+phải đủ để dựng lại missing queue work.
 
 ## 5. Bốn milestone sản phẩm
 
@@ -153,8 +154,10 @@ P3 Internal release gate
 S4 đang ở hosted acceptance: 8 migration, 5 Edge Functions và Vault worker secrets đã deploy lên
 Supabase staging Singapore; contact web Vercel, Auth URL/CORS, non-mutating preflight, hosted security
 negative matrix, ops snapshot và Android signed-build/device smoke đã xanh; delivery kill switch vẫn
-tắt. Gmail SMTP personal-pilot secrets/consented recipients, full accessibility, fault drill, SLO dài
-hạn và restore target còn thiếu. Không dùng fake-provider/local evidence để đóng các gate cần provider thật,
+tắt. Android Expo Push đang bị chặn bởi FCM V1 credential và `google-services.json` chưa
+nạp; source đã có dynamic `android.googleServicesFile` qua EAS file variable. APK staging mới nhất đã cài nhưng
+hosted `user_devices` vẫn bằng `0`. Gmail SMTP personal-pilot secrets/consented recipients, full
+accessibility, fault drill, SLO dài hạn và restore target còn thiếu. Không dùng fake-provider/local evidence để đóng các gate cần provider thật,
 trình duyệt/thiết bị thật, monitoring dài hạn hoặc restore drill.
 
 ## 7. Quy tắc cập nhật
