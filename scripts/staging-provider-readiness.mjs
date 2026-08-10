@@ -3,14 +3,24 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
-export const requiredProviderSecretNames = [
+const commonProviderSecretNames = [
+  "EMAIL_PROVIDER",
   "INTERNAL_FUNCTION_SECRET",
   "NOTIFICATION_DELIVERY_ENABLED",
   "NOTIFICATION_PROVIDER_MODE",
   "PUBLIC_CONTACT_WEB_ORIGINS",
   "PUBLIC_CONTACT_WEB_URL",
-  "RESEND_API_KEY",
-  "RESEND_FROM",
+];
+
+export const supportedEmailProviders = ["gmail_smtp", "resend"];
+
+export const requiredProviderSecretNames = (emailProvider) => [
+  ...commonProviderSecretNames,
+  ...(emailProvider === "gmail_smtp"
+    ? ["GMAIL_SMTP_APP_PASSWORD", "GMAIL_SMTP_FROM", "GMAIL_SMTP_USERNAME"]
+    : emailProvider === "resend"
+      ? ["RESEND_API_KEY", "RESEND_FROM"]
+      : []),
 ];
 
 export const extractSecretNames = (records) =>
@@ -24,15 +34,16 @@ export const extractSecretNames = (records) =>
 
 export const assessProviderReadiness = ({
   deviceConsented,
+  emailProvider,
   recipientsConsented,
   secretNames,
-  senderVerified,
+  senderConfirmed,
 }) => {
-  const missingSecretNames = requiredProviderSecretNames.filter(
+  const missingSecretNames = requiredProviderSecretNames(emailProvider).filter(
     (name) => !secretNames.has(name),
   );
   const missingConfirmations = [
-    ["verified Resend sender", senderVerified],
+    ["confirmed email sender account", senderConfirmed],
     ["consented test recipients", recipientsConsented],
     ["consented test device", deviceConsented],
   ].flatMap(([label, confirmed]) => (confirmed ? [] : [label]));
@@ -92,15 +103,31 @@ const run = () => {
   if (!/^[a-z0-9]{20}$/.test(projectRef)) {
     throw new Error("STAGING_EXPECTED_PROJECT_REF không hợp lệ.");
   }
+  const emailProvider = required("S4_EMAIL_PROVIDER");
+  if (!supportedEmailProviders.includes(emailProvider)) {
+    throw new Error("S4_EMAIL_PROVIDER không được hỗ trợ.");
+  }
 
   const repoRoot = path.resolve(import.meta.dirname, "..");
   const secretNames = readStagingSecretNames(repoRoot, projectRef);
   const readiness = assessProviderReadiness({
     deviceConsented: confirmed("S4_PROVIDER_DEVICE_CONSENTED"),
+    emailProvider,
     recipientsConsented: confirmed("S4_PROVIDER_RECIPIENTS_CONSENTED"),
     secretNames,
-    senderVerified: confirmed("S4_RESEND_SENDER_VERIFIED"),
+    senderConfirmed: confirmed("S4_EMAIL_SENDER_CONFIRMED"),
   });
+  const providerReview =
+    emailProvider === "gmail_smtp"
+      ? [
+          "EMAIL_PROVIDER=gmail_smtp",
+          "GMAIL_SMTP_FROM uses the same dedicated Gmail account as GMAIL_SMTP_USERNAME",
+          "GMAIL_SMTP_APP_PASSWORD is separate from the Supabase Auth SMTP App Password",
+        ]
+      : [
+          "EMAIL_PROVIDER=resend",
+          "RESEND_FROM matches the verified sender domain",
+        ];
 
   console.info(
     JSON.stringify(
@@ -110,8 +137,9 @@ const run = () => {
         manualValueReviewRequired: [
           "NOTIFICATION_PROVIDER_MODE=live",
           "NOTIFICATION_DELIVERY_ENABLED=false before smoke",
-          "RESEND_FROM matches the verified sender",
+          ...providerReview,
         ],
+        emailProvider,
         projectRef,
         ...readiness,
       },

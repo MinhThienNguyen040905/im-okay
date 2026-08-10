@@ -39,7 +39,8 @@ hoàn thành được tóm tắt trong Plan 01 và giữ bằng chứng tại AD
 - Check-in 24/36/48 giờ với authoritative deadline khi app đóng.
 - Tối đa ba trusted contacts, invitation acceptance và public alert response.
 - Supabase Cron + Queues/outbox cho scheduling, retry và reconciliation.
-- Expo Push + Resend/EmailProvider cho reminder, invitation, alert và correction.
+- Expo Push + EmailProvider cho reminder, invitation, alert và correction; Gmail SMTP chỉ là
+  personal-pilot adapter, verified-domain HTTP provider là gate trước triển khai rộng.
 - Snooze có thời hạn, guarded SOS, drill, history, settings và account-data request.
 - Audit, idempotency, security/privacy, monitoring và backup/restore.
 
@@ -152,7 +153,7 @@ P3 Internal release gate
 S4 đang ở hosted acceptance: 8 migration, 5 Edge Functions và Vault worker secrets đã deploy lên
 Supabase staging Singapore; contact web Vercel, Auth URL/CORS, non-mutating preflight, hosted security
 negative matrix, ops snapshot và Android signed-build/device smoke đã xanh; delivery kill switch vẫn
-tắt. Provider/consented recipients, authenticated mobile flow, full accessibility, fault drill, SLO dài
+tắt. Gmail SMTP personal-pilot secrets/consented recipients, full accessibility, fault drill, SLO dài
 hạn và restore target còn thiếu. Không dùng fake-provider/local evidence để đóng các gate cần provider thật,
 trình duyệt/thiết bị thật, monitoring dài hạn hoặc restore drill.
 

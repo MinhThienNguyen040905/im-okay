@@ -4,6 +4,7 @@
 - Ngày: 2026-08-04
 - Phạm vi: backend, scheduling, notification, data/infra, contract mobile/contact web
 - Thay thế: kiến trúc MVP NestJS + Prisma + Redis/BullMQ + worker trong roadmap/plan cũ
+- Bị thay thế một phần bởi: ADR 0012 cho email provider của personal pilot
 
 ## Bối cảnh
 
@@ -31,7 +32,8 @@ Dùng một Supabase project tách biệt cho mỗi môi trường:
 - Supabase Cron kích hoạt scan deadline/reconciliation định kỳ.
 - Supabase Queues/Postgres outbox lưu công việc cần retry; không dùng Redis/BullMQ.
 - Expo Push và một email provider HTTP qua adapter. Resend là lựa chọn mặc định
-  cho MVP serverless; Gmail SMTP không còn là kiến trúc mặc định.
+  cho MVP serverless; ADR 0012 cho phép Gmail SMTP tạm thời trong personal pilot không domain,
+  nhưng không thay đổi đường production verified-domain provider.
 
 ```text
 Expo mobile -----------\

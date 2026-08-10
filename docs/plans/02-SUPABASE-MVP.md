@@ -8,7 +8,7 @@ Plan này là kế hoạch implementation đang hoạt động cho toàn bộ MV
 - Edge Function HTTP router cho mobile và public contact web.
 - Responsive contact web W01–W05.
 - Cron, Queues/outbox, retry và reconciliation.
-- Expo Push, email HTTP provider và alert escalation/correction.
+- Expo Push, configurable email provider và alert escalation/correction.
 - Local development, CI và staging acceptance.
 
 Mobile M01–M12 đã hoàn tất client; plan này chỉ nối remote contract và không làm
@@ -17,6 +17,8 @@ lại UI. Release/store/production gate thuộc [`03-RELEASE.md`](03-RELEASE.md)
 Kiến trúc chi tiết và trade-off đã chốt trong
 [`ADR 0008`](../adr/0008-supabase-first-backend.md). State machine, public-token và notification
 workflow S3 được ghi tại [`ADR 0010`](../adr/0010-contact-alert-notification-workflows.md).
+Gmail SMTP tạm thời cho personal pilot và đường nâng cấp verified-domain provider được ghi tại
+[`ADR 0012`](../adr/0012-temporary-gmail-smtp-personal-pilot.md).
 
 ## 2. Kiến trúc và trust boundary
 
@@ -34,7 +36,7 @@ Contact web -----------/                 |
                                  v
                         Edge Function consumers
                            |-- Expo Push
-                           |-- Resend/EmailProvider
+                           |-- Gmail SMTP tạm thời / Resend EmailProvider
                            |-- SMS disabled
                            `-- Voice disabled
 ```
@@ -263,6 +265,7 @@ Mục tiêu: chứng minh reliability và security trên môi trường gần pr
 - [x] Viết ADR, staging operations runbook và evidence template.
 - [x] Reset database từ trống; chạy 150 pgTAP, S2/S3 smoke, 26 Edge và 109 mobile test.
 - [x] Build Android/iOS/web và kiểm tra contact web nền ở 390/768/1440 px + keyboard focus.
+- [x] Thêm provider selection, Gmail SMTP personal-pilot adapter và giữ Resend upgrade path.
 
 #### S4B — Hosted staging acceptance
 
@@ -272,7 +275,7 @@ Mục tiêu: chứng minh reliability và security trên môi trường gần pr
 - [x] Apply 8 expand migration và deploy 5 backward-compatible Edge Functions.
 - [x] Deploy contact-web HTTPS staging và cấu hình Auth site URL/redirect tách production.
 - [x] Cấu hình exact public CORS/link URL và chạy non-mutating hosted preflight với delivery off.
-- [ ] Cấu hình Resend sender, test recipients/devices đã consent và provider acceptance secrets.
+- [ ] Cấu hình Gmail SMTP bằng dedicated account/App Password, test recipients/devices đã consent.
 - [x] Tạo EAS project/environment, cấp publishable key và chạy mobile staging build trên thiết bị.
 - [ ] Chạy accelerated full alert flow với Expo Push và email thật.
 - [x] Đo snapshot Edge Function error/latency, cron run, queue age/depth/retry/dead-letter.
@@ -340,10 +343,13 @@ Hosted backend deployment evidence 09/08/2026:
   không đổi backend/state machine. 128 mobile test pass; EAS snapshot trên đã cài đè, giữ session và
   UI dump trên TECNO KJ7 xác nhận không còn card/nút cảnh báo cho chu kỳ `scheduled`; logcat sạch.
 - Đã thêm `staging:provider-readiness`: guard chỉ đọc tên secret, yêu cầu explicit sender/recipient/
-  device confirmation, không in secret value và không mutate delivery. Ba guard test cùng 26 Edge
-  test pass. Lần chạy thật ngày 10/08/2026 fail-closed vì còn thiếu `RESEND_API_KEY`, `RESEND_FROM`
-  và ba confirmation; ADB chưa thấy thiết bị online trong phiên audit này.
-- Resend/test recipients, provider flow, Google/fresh-user onboarding, full accessibility,
+  device confirmation, không in secret value và không mutate delivery. Gmail SMTP adapter dùng TLS,
+  deterministic Message-ID/hash, timeout và outcome classification; Resend adapter vẫn còn cho đường
+  nâng cấp. Tổng 33 Edge/guard test và typecheck pass.
+- Staging đã đặt `EMAIL_PROVIDER=gmail_smtp`, giữ `NOTIFICATION_DELIVERY_ENABLED=false` rồi deploy
+  `api`/`notification-consumer` v4; Supabase bundler nhận Nodemailer, public health `200`, API không JWT
+  `401`. Readiness fail-closed đúng vì còn thiếu ba Gmail SMTP secret và ba confirmation; chưa gửi email.
+- Gmail SMTP/test recipients, provider flow, Google/fresh-user onboarding, full accessibility,
   fault/reconciliation drill, SLO dài hạn và backup restore vẫn là gate mở; delivery tiếp tục tắt.
 
 Exit:
@@ -381,8 +387,9 @@ Supabase MVP hoàn thành khi:
 
 S1–S3, S4A, backend/contact-web deploy, Auth URL/CORS, non-mutating preflight, hosted security
 negative matrix, observability snapshot và Android staging device smoke của S4B đã hoàn tất.
-Bước tiếp theo là verify Resend sender, cấu hình `RESEND_API_KEY`/`RESEND_FROM`, ghi rõ test recipients
-và device đã consent rồi chạy lại `staging:provider-readiness`. Chỉ sau khi guard xanh và operator
+Bước tiếp theo là tạo dedicated Google account cùng hai App Password tách biệt, cấu hình ba Edge
+secret `GMAIL_SMTP_USERNAME`/`GMAIL_SMTP_APP_PASSWORD`/`GMAIL_SMTP_FROM`, ghi rõ test
+recipients/device đã consent rồi chạy lại `staging:provider-readiness`. Chỉ sau khi guard xanh và operator
 review kill switch mới chạy accelerated alert/correction flow với delivery được bật có kiểm soát.
 Song song, hoàn tất Google/fresh-user onboarding, fault/reconciliation drill,
 backup restore, accessibility matrix và baseline SLO dài hạn. Không đánh dấu provider/restore/SLO gate hoàn tất

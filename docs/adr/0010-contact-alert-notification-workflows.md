@@ -3,6 +3,7 @@
 - Trạng thái: Accepted
 - Ngày: 2026-08-04
 - Phạm vi: trusted contacts, public token, alert state machine, provider dispatch, contact web và account workflow
+- Bị thay thế một phần bởi: ADR 0012 cho email provider của personal pilot
 
 ## Bối cảnh
 
@@ -43,8 +44,9 @@ provider timeout không rõ kết quả, và trạng thái `sent`/`delivered` b�
   `sent`, `transient`, `permanent` hoặc `unknown`; transient/unknown retry bằng exponential backoff,
   terminal outcome dừng retry.
 - Expo ticket và receipt được theo dõi riêng. Receipt `DeviceNotRegistered` vô hiệu device token.
-- Local/CI mặc định dùng fake provider và không gửi mạng. Resend/Expo chỉ được bật khi
-  `NOTIFICATION_PROVIDER_MODE=live` cùng secrets phía server.
+- Local/CI mặc định dùng fake provider và không gửi mạng. Expo cùng email provider được chọn bởi
+  `EMAIL_PROVIDER` chỉ được bật khi `NOTIFICATION_PROVIDER_MODE=live`, kill switch và secrets phía
+  server hợp lệ; ADR 0012 quy định Gmail SMTP tạm thời và đường quay lại Resend.
 
 ### API, contact web và account workflow
 

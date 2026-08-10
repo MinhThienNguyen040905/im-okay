@@ -132,7 +132,8 @@ Triển khai:
 - Tối đa ba trusted contacts, có invitation acceptance.
 - Check-in “Tôi vẫn ổn”, last check-in và next deadline.
 - Expo Push nhắc người dùng.
-- Email HTTP provider qua adapter cho invitation/alert; Resend là mặc định MVP.
+- EmailProvider qua adapter cho invitation/alert; ADR 0012 dùng Gmail SMTP tạm thời cho personal
+  pilot, còn verified-domain HTTP provider là đường triển khai rộng.
 - Alert escalation nếu chưa có contact nhận xử lý.
 - Snooze có thời hạn, SOS có guard, drill, history và settings.
 - Audit, delivery log, retry, reconciliation và observability.
@@ -186,7 +187,8 @@ Dùng:
 - Versioned Zod/TypeScript contracts; generated DB types không thay public contract. OpenAPI
   không bắt buộc cho MVP nếu chưa có consumer/tooling cần.
 - Supabase Cron + Queues/Postgres outbox cho scheduling/retry/reconciliation.
-- Expo Push Notifications và email HTTP provider/Resend trong MVP.
+- Expo Push Notifications và configurable EmailProvider; Gmail SMTP chỉ dùng cho personal pilot,
+  Resend/HTTP provider giữ làm đường verified-domain deployment.
 - Sentry/log/metrics cho mobile, web, Edge Functions, cron, queue và provider.
 
 Không cho client ghi trực tiếp `alerts`, `alert_steps`, `alert_responses`,
@@ -296,16 +298,19 @@ Mỗi delivery tối thiểu có:
 - `attempt_count`, `last_attempt_at`, `last_error_code`, sanitized detail.
 - `template_key`, `template_version`, correlation/alert ID.
 
-Email HTTP provider MVP:
+Email provider cho personal pilot:
 
 ```text
-RESEND_API_KEY=
-EMAIL_FROM=
-PUBLIC_APP_URL=
+EMAIL_PROVIDER=gmail_smtp
+GMAIL_SMTP_USERNAME=
+GMAIL_SMTP_APP_PASSWORD=
+GMAIL_SMTP_FROM=
 ```
 
-- Resend là adapter mặc định theo ADR 0008; luôn bọc trong `EmailProvider` để có
-  thể thay bằng provider khác.
+- ADR 0012 cho phép Gmail SMTP tạm thời khi chưa có domain; Resend adapter vẫn được giữ để chuyển sang
+  verified-domain provider trước khi triển khai rộng.
+- Gmail SMTP không có idempotency guarantee mạnh như HTTP provider; deterministic Message-ID chỉ hỗ
+  trợ correlation và unknown outcome vẫn phải kiểm tra duplicate trong supervised smoke.
 - Không commit API key/token/email cá nhân; secret chỉ ở Supabase project secrets.
 - Provider `accepted` chỉ chuyển delivery thành `sent`; không suy ra đã đọc/delivered.
 - Local/CI dùng fake provider; smoke thật chỉ với explicit flag và test recipient đã consent.

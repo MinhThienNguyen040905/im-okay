@@ -6,6 +6,7 @@ import { createNotificationDispatcher } from "../_shared/notification-dispatcher
 import {
   ExpoPushProvider,
   FakeProvider,
+  GmailSmtpEmailProvider,
   getExpoReceipts,
   ResendEmailProvider,
 } from "../_shared/notification-providers.ts";
@@ -304,6 +305,94 @@ test("Resend adapter sends a stable provider idempotency key", async () => {
   });
   assert.equal(outcome.kind, "sent");
   assert.equal(requests[0].init.headers["idempotency-key"], "delivery-1");
+});
+
+test("Gmail SMTP adapter uses a stable hashed Message-ID", async () => {
+  const requests = [];
+  const provider = new GmailSmtpEmailProvider(
+    "I’m Okay <sender@gmail.com>",
+    async (options) => {
+      requests.push(options);
+      return { accepted: [options.to], messageId: options.messageId };
+    },
+  );
+  const message = {
+    body: "body",
+    channel: "email",
+    html: "<p>body</p>",
+    idempotencyKey: "delivery-1",
+    recipient: "contact@example.test",
+    subject: "subject",
+    title: "title",
+  };
+
+  const first = await provider.send(message);
+  const second = await provider.send(message);
+
+  assert.equal(first.kind, "sent");
+  assert.deepEqual(second, first);
+  assert.equal(requests[0].messageId, requests[1].messageId);
+  assert.match(
+    requests[0].messageId,
+    /^<imokay-[a-f0-9]{64}@imokay\.invalid>$/,
+  );
+  assert.match(
+    requests[0].headers["X-Im-Okay-Delivery-Hash"],
+    /^[a-f0-9]{64}$/,
+  );
+  assert.doesNotMatch(JSON.stringify(requests[0]), /delivery-1/);
+});
+
+test("Gmail SMTP adapter classifies retry and permanent failures", async () => {
+  const message = {
+    body: "body",
+    channel: "email",
+    idempotencyKey: "delivery-2",
+    recipient: "contact@example.test",
+    subject: "subject",
+    title: "title",
+  };
+  const failingProvider = (error) =>
+    new GmailSmtpEmailProvider("sender@gmail.com", async () => {
+      throw error;
+    });
+
+  assert.deepEqual(await failingProvider({ responseCode: 451 }).send(message), {
+    kind: "transient",
+    errorCode: "SMTP_451",
+  });
+  assert.deepEqual(await failingProvider({ responseCode: 550 }).send(message), {
+    kind: "permanent",
+    errorCode: "SMTP_550",
+  });
+  assert.deepEqual(await failingProvider({ code: "EAUTH" }).send(message), {
+    kind: "permanent",
+    errorCode: "SMTP_AUTH_FAILED",
+  });
+  assert.deepEqual(await failingProvider({ code: "ETIMEDOUT" }).send(message), {
+    kind: "unknown",
+    errorCode: "SMTP_OUTCOME_UNKNOWN",
+  });
+});
+
+test("Gmail SMTP adapter rejects an unaccepted recipient", async () => {
+  const provider = new GmailSmtpEmailProvider(
+    "sender@gmail.com",
+    async (options) => ({ rejected: [options.to] }),
+  );
+  const outcome = await provider.send({
+    body: "body",
+    channel: "email",
+    idempotencyKey: "delivery-3",
+    recipient: "contact@example.test",
+    subject: "subject",
+    title: "title",
+  });
+
+  assert.deepEqual(outcome, {
+    kind: "permanent",
+    errorCode: "SMTP_RECIPIENT_REJECTED",
+  });
 });
 
 test("Expo ticket and receipt adapters preserve DeviceNotRegistered", async () => {

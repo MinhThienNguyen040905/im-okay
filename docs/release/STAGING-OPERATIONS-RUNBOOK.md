@@ -10,12 +10,13 @@ Ghi vào evidence, không commit secret:
 - Supabase organization/project ref, region và plan staging đã được owner chấp thuận.
 - HTTPS contact-web domain và hosting provider đã chọn.
 - Auth site URL, `imokay://**` redirect và Google OAuth redirect staging.
-- Resend verified staging sender; danh sách test recipients đã consent.
+- Dedicated Gmail account cho personal pilot, hai App Password tách biệt và danh sách test recipients
+  đã consent. Verified-domain provider vẫn là gate trước triển khai rộng.
 - Android/iOS test device và Expo project/build ID.
 - Người phụ trách go/hold/rollback và incident contact.
 
 CLI phải đăng nhập bằng `npx supabase login` của operator. Không dán token, database password, secret key,
-Resend key hoặc internal secret vào issue/chat/log.
+Google App Password, Resend key hoặc internal secret vào issue/chat/log.
 
 ## 2. Deploy theo thứ tự expand-first
 
@@ -29,9 +30,16 @@ Resend key hoặc internal secret vào issue/chat/log.
    RATE_LIMIT_HASH_SALT=<random salt riêng staging>
    PUBLIC_CONTACT_WEB_URL=https://<contact-domain>
    PUBLIC_CONTACT_WEB_ORIGINS=https://<contact-domain>
-   RESEND_API_KEY=<staging key>
-   RESEND_FROM=I’m Okay <alerts@<verified-domain>>
+   EMAIL_PROVIDER=gmail_smtp
+   GMAIL_SMTP_USERNAME=<dedicated Gmail account>
+   GMAIL_SMTP_APP_PASSWORD=<App Password riêng cho Edge notifications>
+   GMAIL_SMTP_FROM=I’m Okay <dedicated-account@gmail.com>
    ```
+
+   `GMAIL_SMTP_APP_PASSWORD` không phải mật khẩu Google account thường và phải khác App Password
+   dùng cho Supabase Auth custom SMTP. Nhập các giá trị trực tiếp trong Dashboard; không đặt secret
+   vào command history hoặc file trong repository. Khi có verified domain, đổi `EMAIL_PROVIDER=resend`
+   và cấu hình `RESEND_API_KEY`/`RESEND_FROM` theo ADR 0012.
 
 3. Review migration dry-run:
 
@@ -54,6 +62,18 @@ Resend key hoặc internal secret vào issue/chat/log.
    `https://im-okay-contact-staging.vercel.app` cho staging.
 6. Cấu hình mobile preview environment bằng publishable values; tuyệt đối không đưa secret key vào
    `EXPO_PUBLIC_*`.
+
+### Gmail account và hai App Password
+
+1. Dùng một Google account riêng cho I’m Okay, bật 2-Step Verification và tạo hai App Password có
+   nhãn khác nhau, ví dụ `Im Okay Auth` và `Im Okay Edge Alerts`.
+2. Trong Supabase Dashboard → Authentication → Emails → SMTP Settings, bật custom SMTP và nhập trực
+   tiếp credential `Im Okay Auth`: sender/username là dedicated Gmail account, host `smtp.gmail.com`,
+   port `465`, password là Auth App Password. Không chụp hoặc copy password vào evidence.
+3. Trong Supabase Dashboard → Edge Functions → Secrets, dùng credential `Im Okay Edge Alerts` cho
+   `GMAIL_SMTP_APP_PASSWORD`; đặt `GMAIL_SMTP_USERNAME` và `GMAIL_SMTP_FROM` cùng dedicated account.
+4. Không dùng lại một App Password cho cả Auth và Edge. Nếu một credential bị lộ hoặc bị thu hồi, giữ
+   credential còn lại độc lập và thay đúng secret tương ứng.
 
 ## 3. Cấu hình Vault cho hosted workers
 
@@ -128,15 +148,17 @@ trị secret, không gọi provider và không thay đổi kill switch:
 
 ```powershell
 $env:STAGING_EXPECTED_PROJECT_REF = '<project-ref>'
-$env:S4_RESEND_SENDER_VERIFIED = 'true'
+$env:S4_EMAIL_PROVIDER = 'gmail_smtp'
+$env:S4_EMAIL_SENDER_CONFIRMED = 'true'
 $env:S4_PROVIDER_RECIPIENTS_CONSENTED = 'true'
 $env:S4_PROVIDER_DEVICE_CONSENTED = 'true'
 npm run staging:provider-readiness
 ```
 
 Guard chỉ chứng minh đủ tên secret và có explicit confirmation. Operator vẫn phải review thủ công
-`NOTIFICATION_PROVIDER_MODE=live`, `NOTIFICATION_DELIVERY_ENABLED=false` và `RESEND_FROM` khớp sender
-đã verify trước smoke. Không dùng email từng nhận Auth magic link như bằng chứng consent cho alert.
+`NOTIFICATION_PROVIDER_MODE=live`, `NOTIFICATION_DELIVERY_ENABLED=false`, `EMAIL_PROVIDER=gmail_smtp`,
+`GMAIL_SMTP_FROM` khớp dedicated Gmail account và Edge App Password tách khỏi Auth App Password trước
+smoke. Không dùng email từng nhận Auth magic link như bằng chứng consent cho alert.
 
 Dùng một test account riêng; không sửa policy production. Để chạy nhanh, tạo cycle cho test
 account với authoritative timestamps trong quá khứ ở isolated staging transaction, sau đó chạy
@@ -153,6 +175,10 @@ Acceptance tối thiểu:
 - SOS và drill có copy/source riêng; accidental tap không gửi.
 
 Sau smoke, tắt provider nếu chưa bắt đầu supervised testing.
+
+Gmail SMTP không có HTTP idempotency guarantee. Deterministic Message-ID hỗ trợ correlation nhưng
+không bảo đảm Gmail dedupe khi kết nối rớt sau DATA; vì vậy mọi `unknown`/retry phải được kiểm tra email
+trùng trong supervised smoke. Không dùng Gmail SMTP để đóng beta/production provider gate.
 
 ## 6. Fault drills
 
@@ -171,7 +197,8 @@ Invocations/Logs, Cron run history và provider dashboards. Ban đầu cảnh b�
 `overdueUntriggered > 0`, cron failure hoặc dead letter; queue age/latency threshold chỉ chốt sau khi
 có số đo staging.
 
-- Provider outage: đặt `NOTIFICATION_DELIVERY_ENABLED=false`, giữ queue, xác định unknown outcomes
+- Provider outage hoặc Google account bị khóa: đặt `NOTIFICATION_DELIVERY_ENABLED=false`, giữ queue,
+  xác định unknown outcomes
   trước khi bật lại.
 - Scheduler/Cron outage: giữ provider state, chạy reconciliation, so deadline/alert/audit theo
   correlation ID.

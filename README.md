@@ -30,12 +30,14 @@ tắt. Contact web staging đã deploy tại `https://im-okay-contact-staging.ve
 exact CORS và non-mutating preflight đều xanh. Hosted JWT/actor-binding/IDOR/RLS/token/rate-limit
 negative matrix đã xanh; observability snapshot 30 mẫu có error `0/30`, p50 `161 ms`, p95 `258 ms`
 và Cron/queue/outbox/dead-letter đều khỏe. EAS Android signed APK đã cài/chạy trên TECNO KJ7.
-Resend/test recipients, provider flow, authenticated mobile session, full accessibility, fault drill,
+Gmail SMTP personal-pilot secrets/test recipients, provider flow, full accessibility, fault drill,
 SLO dài hạn và restore acceptance còn mở.
 Invariant cycle, policy 24/36/48 và recovery được ghi tại
 [`ADR 0009`](docs/adr/0009-core-check-in-cycle-scheduling.md); contact/token/alert/provider workflow
 được ghi tại [`ADR 0010`](docs/adr/0010-contact-alert-notification-workflows.md); staging security và
 observability được ghi tại [`ADR 0011`](docs/adr/0011-staging-security-observability.md).
+Gmail SMTP tạm thời và đường chuyển sang verified-domain provider được ghi tại
+[`ADR 0012`](docs/adr/0012-temporary-gmail-smtp-personal-pilot.md).
 
 Kiến trúc MVP đã chốt Supabase-first ngày 04/08/2026: Supabase Auth + PostgreSQL/RLS,
 Edge Functions, Cron và Queues thay cho kế hoạch NestJS/Prisma/Redis/BullMQ cũ. Quyết định
@@ -72,7 +74,8 @@ Tài liệu hiện có:
 - Supabase Edge Functions cho HTTP API/provider orchestration.
 - Supabase Cron + Queues cho scheduling, retry và reconciliation.
 - Expo Push Notifications.
-- Email HTTP provider qua adapter; Resend là mặc định MVP.
+- EmailProvider qua adapter; Gmail SMTP dùng tạm cho personal pilot, Resend giữ làm đường
+  verified-domain provider khi triển khai rộng.
 
 ## Chạy mobile foundation
 
@@ -154,7 +157,7 @@ npm run supabase:stop
 
 Các Edge consumer S3 mặc định không gửi mạng. Xem biến mẫu phía server tại
 `supabase/functions/.env.example`; chỉ bật `NOTIFICATION_PROVIDER_MODE=live` trên staging cùng
-Resend/Expo secrets và test recipients/devices đã consent. Local smoke trực tiếp chạy claim → fake
+Gmail SMTP/Expo secrets và test recipients/devices đã consent. Local smoke trực tiếp chạy claim → fake
 provider → persist outcome, bao gồm retry/unknown và invalid Expo token qua unit test.
 
 Parity gap sau backend staging deploy: chưa chứng minh email deliverability, Expo receipt trên thiết bị

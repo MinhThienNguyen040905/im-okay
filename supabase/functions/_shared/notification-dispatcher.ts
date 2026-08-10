@@ -1,7 +1,9 @@
 import type { DatabaseGateway } from "./database.ts";
 import {
+  createNodemailerGmailSender,
   ExpoPushProvider,
   FakeProvider,
+  GmailSmtpEmailProvider,
   type NotificationProvider,
   type ProviderOutcome,
   ResendEmailProvider,
@@ -43,12 +45,31 @@ const configuredProviders = (): Map<string, NotificationProvider> => {
       ["push", new FakeProvider("push")],
     ]);
   }
-  const resendKey = env("RESEND_API_KEY");
-  const resendFrom = env("RESEND_FROM");
-  if (!resendKey || !resendFrom)
-    throw new TypeError("RESEND_CONFIGURATION_REQUIRED");
+  const emailProvider = env("EMAIL_PROVIDER") ?? "resend";
+  let configuredEmailProvider: NotificationProvider;
+  if (emailProvider === "gmail_smtp") {
+    const username = env("GMAIL_SMTP_USERNAME");
+    const appPassword = env("GMAIL_SMTP_APP_PASSWORD");
+    const from = env("GMAIL_SMTP_FROM");
+    if (!username || !appPassword || !from) {
+      throw new TypeError("GMAIL_SMTP_CONFIGURATION_REQUIRED");
+    }
+    configuredEmailProvider = new GmailSmtpEmailProvider(
+      from,
+      createNodemailerGmailSender(username, appPassword),
+    );
+  } else if (emailProvider === "resend") {
+    const resendKey = env("RESEND_API_KEY");
+    const resendFrom = env("RESEND_FROM");
+    if (!resendKey || !resendFrom) {
+      throw new TypeError("RESEND_CONFIGURATION_REQUIRED");
+    }
+    configuredEmailProvider = new ResendEmailProvider(resendKey, resendFrom);
+  } else {
+    throw new TypeError("EMAIL_PROVIDER_UNSUPPORTED");
+  }
   return new Map<string, NotificationProvider>([
-    ["email", new ResendEmailProvider(resendKey, resendFrom)],
+    ["email", configuredEmailProvider],
     ["push", new ExpoPushProvider()],
   ]);
 };

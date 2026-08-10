@@ -20,6 +20,128 @@ export interface NotificationProvider {
   send(message: ProviderMessage): Promise<ProviderOutcome>;
 }
 
+export type SmtpSendOptions = {
+  from: string;
+  headers: Record<string, string>;
+  html?: string;
+  messageId: string;
+  subject: string;
+  text: string;
+  to: string;
+};
+
+export type SmtpSendResult = {
+  accepted?: unknown[];
+  messageId?: unknown;
+  rejected?: unknown[];
+};
+
+export type SmtpSender = (options: SmtpSendOptions) => Promise<SmtpSendResult>;
+
+const sha256Hex = async (value: string): Promise<string> => {
+  const digest = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(value),
+  );
+  return Array.from(new Uint8Array(digest), (byte) =>
+    byte.toString(16).padStart(2, "0"),
+  ).join("");
+};
+
+const smtpFailure = (error: unknown): ProviderOutcome => {
+  const candidate =
+    error && typeof error === "object"
+      ? (error as { code?: unknown; responseCode?: unknown })
+      : {};
+  const code = typeof candidate.code === "string" ? candidate.code : null;
+  const responseCode =
+    typeof candidate.responseCode === "number" ? candidate.responseCode : null;
+
+  if (code === "EAUTH" || responseCode === 534 || responseCode === 535) {
+    return { kind: "permanent", errorCode: "SMTP_AUTH_FAILED" };
+  }
+  if (responseCode && responseCode >= 400 && responseCode < 500) {
+    return { kind: "transient", errorCode: `SMTP_${responseCode}` };
+  }
+  if (responseCode && responseCode >= 500) {
+    return { kind: "permanent", errorCode: `SMTP_${responseCode}` };
+  }
+  return { kind: "unknown", errorCode: "SMTP_OUTCOME_UNKNOWN" };
+};
+
+export const createNodemailerGmailSender = (
+  username: string,
+  appPassword: string,
+): SmtpSender => {
+  let transportPromise:
+    | Promise<{
+        sendMail(options: SmtpSendOptions): Promise<SmtpSendResult>;
+      }>
+    | undefined;
+
+  const getTransport = () => {
+    transportPromise ??= import("npm:nodemailer@9.0.5").then((module) => {
+      const createTransport =
+        module.createTransport ?? module.default?.createTransport;
+      if (!createTransport) throw new TypeError("SMTP_TRANSPORT_UNAVAILABLE");
+      return createTransport({
+        auth: { pass: appPassword, user: username },
+        connectionTimeout: 10_000,
+        greetingTimeout: 10_000,
+        host: "smtp.gmail.com",
+        port: 465,
+        secure: true,
+        socketTimeout: 10_000,
+        tls: { minVersion: "TLSv1.2" },
+      });
+    });
+    return transportPromise;
+  };
+
+  return async (options) => (await getTransport()).sendMail(options);
+};
+
+export class GmailSmtpEmailProvider implements NotificationProvider {
+  readonly channel = "email" as const;
+  readonly name = "gmail_smtp";
+  private readonly from: string;
+  private readonly sender: SmtpSender;
+
+  constructor(from: string, sender: SmtpSender) {
+    this.from = from;
+    this.sender = sender;
+  }
+
+  async send(message: ProviderMessage): Promise<ProviderOutcome> {
+    const deliveryHash = await sha256Hex(message.idempotencyKey);
+    const messageId = `<imokay-${deliveryHash}@imokay.invalid>`;
+    try {
+      const result = await this.sender({
+        from: this.from,
+        headers: { "X-Im-Okay-Delivery-Hash": deliveryHash },
+        html: message.html,
+        messageId,
+        subject: message.subject,
+        text: message.body,
+        to: message.recipient,
+      });
+      if ((result.rejected?.length ?? 0) > 0) {
+        return { kind: "permanent", errorCode: "SMTP_RECIPIENT_REJECTED" };
+      }
+      if ((result.accepted?.length ?? 0) === 0) {
+        return { kind: "unknown", errorCode: "SMTP_ACCEPTANCE_UNKNOWN" };
+      }
+      return {
+        kind: "sent",
+        providerMessageId:
+          typeof result.messageId === "string" ? result.messageId : messageId,
+      };
+    } catch (error) {
+      return smtpFailure(error);
+    }
+  }
+}
+
 export class FakeProvider implements NotificationProvider {
   readonly channel: "email" | "push";
   readonly outcome: ProviderOutcome;

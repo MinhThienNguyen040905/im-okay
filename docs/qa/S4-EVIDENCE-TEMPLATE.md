@@ -33,17 +33,18 @@ có bearer token.
 - Guarded hosted security smoke: pass; hai synthetic `.test` users đã cleanup `2/2`, không gửi email.
 - Observability snapshot 09/08/2026 11:22 UTC: pass; 30 health samples và aggregate ops projection.
 - Hosted workers: bốn Cron active, recent runs succeeded, failure/queue/outbox/dead-letter đều `0`.
-- Android test device: đã có; Resend/consented recipients/backup target: chưa cấu hình;
+- Android test device: đã có; Gmail SMTP/consented recipients/backup target: chưa cấu hình;
   notification delivery vẫn tắt.
 
 ## Environment
 
-- Date/time: 10/08/2026 16:46 ICT (preflight 09/08; provider readiness audit 10/08)
+- Date/time: 10/08/2026 17:28 ICT (preflight 09/08; Gmail SMTP deploy/readiness audit 10/08)
 - Commit SHA: base `13af8a468b89a0a101521f7a7daed281058ba52f`; callback-fix build dùng dirty
   snapshot nên không thay thế exact-commit RC gate.
 - Supabase project ref/region/plan: `xnaanctveihyksgcveup` / Singapore / Free
 - Migration versions: 8 version từ `20260804000100` đến `20260809000800`
-- Edge function versions: `api`, `public-api`, `notification-consumer`, `provider-receipts`, `ops` v1
+- Edge function versions: `api` v4, `notification-consumer` v4; `public-api`, `provider-receipts`,
+  `ops` v3
 - Contact web build/domain: Vercel `dpl_7su9H5GAA8Zbw7b8ytYCCNVho1xN` / staging alias ở trên
 - Mobile EAS project/build: `3ea9c673-0f86-4d5e-a802-53899da19dcb` /
   latest snapshot `ecb41bd6-1c40-4c54-84ab-ed0f015b80ea`; version `0.1.0` (`1`), signed internal APK;
@@ -61,7 +62,7 @@ có bearer token.
 | Auth/redirect/session restore                       | Pass    | Magic link mở app; session còn sau force-stop/mở lại trên TECNO KJ7             |                |
 | Mobile scheduled-alert semantics                    | Pass    | 128 test; scheduled không hiện warning card/button; relaunch/logcat sạch        |                |
 | Invitation → alert → response → correction          |         |                                                                                 |                |
-| Expo ticket/receipt và Resend delivery              | Blocked | Guard fail-closed: thiếu Resend secrets + sender/recipient/device confirmations | Owner/operator |
+| Expo ticket/receipt và Gmail SMTP delivery          | Blocked | v4 active; delivery off; thiếu 3 SMTP secrets + 3 confirmations                 | Owner/operator |
 | Duplicate/concurrent/offline/timeout                |         |                                                                                 |                |
 | Function/queue/provider/reconciliation drills       |         |                                                                                 |                |
 | RLS/IDOR/JWT/token/rate limit                       | Pass    | anon + 2 synthetic users; actor/IDOR/JWT/token/origin/rate negative matrix pass |                |
@@ -85,6 +86,6 @@ có bearer token.
 ## Decision
 
 - Known limitations: chưa có provider/restore/full accessibility hoặc baseline dài hạn
-- Release blockers: Resend/provider flow, full mobile E2E, drills và restore còn thiếu
+- Release blockers: Gmail SMTP/provider flow, full mobile E2E, drills và restore còn thiếu
 - Go / hold / rollback: Hold S4; delivery giữ `false`
 - Follow-up owner/date:
