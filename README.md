@@ -12,8 +12,9 @@ M01–M12; reduced-motion/focus/dynamic-font hardening, incoming-link allowlist,
 EAS profiles, Maestro fixture smoke, device matrix và release/rollback runbook đã có. Check-in,
 trusted contacts, alert và settings vẫn tuân thủ projection/idempotency authoritative; app không tự
 tính production deadline hay nhận public contact token. External acceptance MA2–MA7 còn phụ
-thuộc Supabase backend/scheduler/contact web, staging, EAS/Sentry/store credential, test recipient đã
-consent và thiết bị thật. Chưa có build/submit/deploy lên TestFlight hoặc Google Play.
+thuộc staging/provider/thiết bị thật. Gate hiện tại là Android personal pilot có giám sát; Sentry,
+iOS, full accessibility matrix và store rollout chuyển sang post-MVP hardening. Chưa có
+build/submit/deploy lên TestFlight hoặc Google Play.
 
 S1–S3 đã hoàn tất trong local/integration ngày 04/08/2026. `apps/contact-web`, contract v1,
 Supabase migrations/RLS/seed và authenticated/public Edge routers đã có; profile/timezone IANA,
@@ -30,10 +31,11 @@ tắt. Contact web staging đã deploy tại `https://im-okay-contact-staging.ve
 exact CORS và non-mutating preflight đều xanh. Hosted JWT/actor-binding/IDOR/RLS/token/rate-limit
 negative matrix đã xanh; observability snapshot 30 mẫu có error `0/30`, p50 `161 ms`, p95 `258 ms`
 và Cron/queue/outbox/dead-letter đều khỏe. EAS Android signed APK mới nhất đã cài/chạy trên
-TECNO KJ7, nhưng Expo token vẫn bằng `0` vì chưa nạp FCM V1 credential và
-`google-services.json`. Source đã sẵn sàng nhận file qua dynamic `android.googleServicesFile`.
-Gmail SMTP invitation smoke đã `sent` một attempt;
-contact acceptance, full provider flow, accessibility, fault drill, SLO dài hạn và restore acceptance còn mở.
+TECNO KJ7. Firebase Android app chỉ làm FCM transport, EAS secret file và FCM V1 credential đã
+được cấu hình; exact-commit build `61b9016f-3a3f-4087-aae3-b2be119d65f6` đang chạy, nên
+artifact/install/Expo token/ticket/receipt vẫn còn mở. Gmail SMTP invitation smoke đã `sent` một
+attempt; contact acceptance và đúng một accelerated alert/response/correction cycle là hai bước pilot
+còn lại. Accessibility đầy đủ, fault drill, SLO dài hạn, restore, iOS và store thuộc hardening sau MVP.
 Invariant cycle, policy 24/36/48 và recovery được ghi tại
 [`ADR 0009`](docs/adr/0009-core-check-in-cycle-scheduling.md); contact/token/alert/provider workflow
 được ghi tại [`ADR 0010`](docs/adr/0010-contact-alert-notification-workflows.md); staging security và
@@ -167,9 +169,9 @@ Gmail SMTP/Expo secrets và test recipients/devices đã consent. Local smoke tr
 provider → persist outcome, bao gồm retry/unknown và invalid Expo token qua unit test.
 
 Parity gap sau backend staging deploy: Gmail invitation đã có một attempt `sent`, nhưng chưa chứng
-minh inbox receipt/contact acceptance; Android Expo receipt còn bị chặn bởi FCM config. Backup/PITR
-restore và measured monitoring/SLO dài hạn cũng chưa có. Hosted Cron/ops snapshot và security
-negative matrix đã xanh nhưng chưa thay thế provider/fault/restore drill.
+minh contact acceptance; Android FCM/EAS config đã có nhưng exact-commit artifact và Expo receipt
+chưa được nghiệm thu. Hosted Cron/ops snapshot và security negative matrix đã xanh.
 Browser nền đã kiểm tra 390/768/1440, keyboard focus và `lang=vi`; zoom 200%, screen reader và device
-matrix vẫn mở. Các phần này thuộc S4/release gate; chưa có notification thật vì staging kill switch
-vẫn tắt.
+matrix vẫn mở. Fast path personal pilot chỉ còn cài build + push receipt, contact acceptance và một
+provider E2E có kiểm soát; staging kill switch vẫn tắt. Backup/PITR restore, measured SLO, fault drill
+và full accessibility chuyển sang post-MVP release gate.

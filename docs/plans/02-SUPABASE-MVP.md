@@ -9,7 +9,7 @@ Plan này là kế hoạch implementation đang hoạt động cho toàn bộ MV
 - Responsive contact web W01–W05.
 - Cron, Queues/outbox, retry và reconciliation.
 - Expo Push, configurable email provider và alert escalation/correction.
-- Local development, CI và staging acceptance.
+- Local development, CI và personal-pilot staging acceptance; hardening rộng hơn theo release gate.
 
 Mobile M01–M12 đã hoàn tất client; plan này chỉ nối remote contract và không làm
 lại UI. Release/store/production gate thuộc [`03-RELEASE.md`](03-RELEASE.md).
@@ -252,9 +252,11 @@ Evidence 04/08/2026:
 - Mobile contract MA4–MA6 giữ projection/idempotency và toàn bộ 109 test/34 suite xanh. Local/CI chỉ
   dùng fake provider; chưa gửi email/push thật, chưa deploy và không ghi nhận staging/device evidence.
 
-### S4 — Staging acceptance
+### S4 — Personal-pilot staging acceptance
 
-Mục tiêu: chứng minh reliability và security trên môi trường gần production.
+Mục tiêu: đưa owner và test contact đã consent vào một pilot có giám sát sớm nhất mà không nới
+lỏng authoritative scheduling, authorization, idempotency hoặc notification safety. Các drill/SLO/
+restore và device matrix rộng hơn được giữ lại nhưng không chặn personal pilot.
 
 #### S4A — Repository readiness
 
@@ -267,7 +269,7 @@ Mục tiêu: chứng minh reliability và security trên môi trường gần pr
 - [x] Build Android/iOS/web và kiểm tra contact web nền ở 390/768/1440 px + keyboard focus.
 - [x] Thêm provider selection, Gmail SMTP personal-pilot adapter và giữ Resend upgrade path.
 
-#### S4B — Hosted staging acceptance
+#### S4B — Hosted baseline
 
 - [x] Tạo Supabase project `im-okay-staging` tại Singapore và xác minh CLI login/project healthy.
 - [x] Link repository đúng staging project và review dry-run: 8 migration pending, không seed.
@@ -279,13 +281,32 @@ Mục tiêu: chứng minh reliability và security trên môi trường gần pr
       xác nhận đủ tên Edge secret, không đọc giá trị.
 - [x] Ghi explicit consent cho test alert recipient/device trước khi bật delivery.
 - [x] Tạo EAS project/environment, cấp publishable key và chạy mobile staging build trên thiết bị.
-- [ ] Chạy accelerated full alert flow với Expo Push và email thật.
 - [x] Đo snapshot Edge Function error/latency, cron run, queue age/depth/retry/dead-letter.
+- [x] Xác minh hosted RLS/IDOR/rate-limit/public-token negative cases và PII scrub.
+
+#### S4C — Personal-pilot acceptance — gate hiện tại
+
+- [x] Cấu hình Firebase Android app chỉ làm FCM transport, EAS secret file
+      `GOOGLE_SERVICES_JSON` và FCM V1 credential; không thêm Firebase Auth/data/functions.
+- [x] Submit Android build exact commit `659973f6b097053aa29b9f8f606b651f589bc30c`; build
+      `61b9016f-3a3f-4087-aae3-b2be119d65f6` đã vào `IN_PROGRESS` tại lần kiểm tra 10/08/2026.
+- [ ] Cài artifact trên TECNO KJ7 và xác minh Expo token → ticket → receipt.
+- [ ] Cho test contact đã consent chấp nhận invitation đã gửi.
+- [ ] Chạy đúng một accelerated alert → email/push → contact response → correction/check-in;
+      xác minh không missing/duplicate và tắt delivery ngay sau smoke.
+
+Không submit thêm build hoặc mở rộng feature trong lúc artifact hiện tại đang chạy. Chỉ sửa/build lại
+khi smoke trên artifact này phát hiện blocker thật. Fallback nhanh nhất là email-only supervised pilot
+sau khi contact acceptance + alert email/correction E2E xanh và owner ghi nhận push limitation; fallback
+này không đóng Expo Push gate.
+
+#### S4D — Post-MVP release hardening — không chặn personal pilot
+
 - [ ] Tích lũy scheduler lag p50/p95/max và chốt alert threshold từ chuỗi đo staging.
 - [ ] Chạy function termination, queue loss/lease expiry, provider outage và reconciliation drill.
-- [x] Xác minh hosted RLS/IDOR/rate-limit/public-token negative cases và PII scrub.
 - [ ] Cấu hình backup/PITR theo plan và thực hiện restore sang isolated environment.
-- [ ] Chạy mobile remote gates và contact-web token routes, keyboard/screen-reader/zoom 200%.
+- [ ] Chạy Google/fresh-user, phần còn lại của mobile remote gates và contact-web token routes,
+      keyboard/screen-reader/zoom 200%.
 - [ ] Ghi measured SLO baseline, known limitations và runbook cho outage/backlog/unknown delivery.
 
 Repository readiness evidence 09/08/2026 (chưa thay thế staging evidence):
@@ -366,7 +387,7 @@ Hosted backend deployment evidence 09/08/2026:
 - Audit config xác nhận APK trên chưa có `google-services.json` và chưa có FCM V1 credential
   evidence cho EAS. Source đã thêm dynamic Expo config đọc `android.googleServicesFile` từ EAS
   file variable `GOOGLE_SERVICES_JSON`, giữ file/key ngoài Git. Credential/file variable thật vẫn là
-  blocker cho Android Expo token; không bật delivery trước khi hoàn tất config và token smoke.
+  blocker tại thời điểm audit APK đó; không bật delivery trước khi hoàn tất config và token smoke.
 - Source đã sửa việc push-registration error bị ẩn, thêm assertive error card và regression test.
   Root format/lint/typecheck/test/build gate xanh; mobile có 131 test/37 suite. Fix feedback/config này chưa
   nằm trong APK vừa cài và cần build lại sau khi cấu hình FCM.
@@ -376,48 +397,69 @@ Hosted backend deployment evidence 09/08/2026:
   fresh-migration semantics và chạy được bằng lệnh chuẩn trong repository.
 - Contact acceptance, push receipt/provider flow, Google/fresh-user onboarding, full accessibility,
   fault/reconciliation drill, SLO dài hạn và backup restore vẫn là gate mở; delivery tiếp tục tắt.
+- Sau audit trên, Firebase project/Android app chỉ dành cho FCM transport đã được cấu hình; EAS Preview
+  có secret file `GOOGLE_SERVICES_JSON` và FCM V1 credential đã gán cho `com.imokay.app`. Android build
+  `61b9016f-3a3f-4087-aae3-b2be119d65f6` từ exact commit
+  `659973f6b097053aa29b9f8f606b651f589bc30c` đã chuyển sang `IN_PROGRESS` ngày 10/08/2026.
+  Chưa có artifact/install/token/ticket/receipt evidence; kill switch vẫn tắt.
 
-Exit:
+Personal-pilot exit:
 
 - Không còn check-in false success, duplicate/missing alert hoặc authorization/token blocker.
-- Full alert/correction/recovery flow có test evidence trên staging.
-- Backup đã restore thật; operator phát hiện được overdue work và provider failure.
+- Authoritative Cron/queue/check-in vẫn khỏe trên hosted staging.
+- Một alert/contact-response/correction cycle thật có evidence với test contact đã consent.
+- Delivery được tắt lại sau smoke; known limitation được ghi rõ trước khi owner bắt đầu pilot.
 
-## 7. Kiểm thử bắt buộc
+Post-MVP hardening exit trước internal alpha/beta:
+
+- Full alert/correction/recovery và fault/reconciliation drill có evidence trên staging.
+- Backup đã restore thật; operator phát hiện được overdue work và provider failure.
+- Accessibility/device matrix và measured SLO/runbook gate trong Plan 03 đã xanh.
+
+## 7. Kiểm thử bắt buộc theo gate
+
+Personal-pilot gate yêu cầu:
 
 - Database: migration từ empty DB, constraints, RLS auth/anon/internal matrix, transaction rollback.
 - Domain: 24/36/48, timezone/DST, state transition, snooze expiry, SOS/drill/correction.
 - Integration: Edge API→DB/outbox→queue→consumer→fake provider.
 - Concurrency: check-in, invitation response, alert response, scheduler/consumer claim.
-- Recovery: function termination, queue loss/lease expiry, provider timeout/unknown, restore.
-- Client/E2E: onboarding, check-in offline/timeout, invitation, escalation, SOS guard, history/settings.
-- Accessibility/security: screen reader, keyboard/zoom, CSP/referrer/cache, token/PII scrub.
+- Provider E2E: một invitation/alert/contact-response/correction cycle thật với consent và kill switch.
+- Security: hosted JWT/RLS/IDOR/public-token/rate-limit matrix và token/PII scrub.
+
+Post-MVP hardening trước internal alpha/beta yêu cầu thêm:
+
+- Recovery: function termination, queue loss/lease expiry, provider timeout/unknown và restore.
+- Client/E2E: toàn bộ onboarding, check-in, invitation, escalation, SOS/drill, history/settings journeys.
+- Accessibility: screen reader, keyboard/zoom, reduced motion và device/browser matrix đầy đủ.
 
 Dùng fake clock và fake providers mặc định. Provider smoke thật chỉ chạy trên staging
 với explicit flag và test recipient đã consent.
 
 ## 8. Definition of Done
 
-Supabase MVP hoàn thành khi:
+Supabase personal-pilot MVP hoàn thành khi:
 
-- S1–S4 exit criteria đều có automated test hoặc external evidence phù hợp.
+- S1–S3, S4A, S4B và personal-pilot exit của S4C có automated test hoặc external evidence phù hợp.
 - App đóng vẫn có server-side scheduling; PostgreSQL dựng lại được missing queue work.
 - Mutation nhạy cảm có auth/RLS, transaction, idempotency, audit và outbox.
 - Provider side effect có timeout, retry classification, stable delivery key và reconciliation.
 - Public token/PII/secret không lọt qua client, log, Sentry, referrer, cache hoặc artifact.
-- Mobile/contact web nói trung thực giới hạn hệ thống và đạt accessibility gate.
-- Staging monitoring, recovery runbook và restore evidence đã có.
+- Owner/test contact đã consent, hiểu đây không phải dịch vụ cứu hộ và biết known limitations.
+- Android artifact đã qua push+email E2E, hoặc owner chủ động chọn email-only supervised fallback.
+
+S4D, full accessibility/device matrix, restore, measured SLO và internal/store rollout tiếp tục là
+release-hardening DoD trong [`03-RELEASE.md`](03-RELEASE.md), không phải blocker của personal pilot.
 
 ## 9. Bước tiếp theo
 
-S1–S3, S4A, backend/contact-web deploy, Auth URL/CORS, non-mutating preflight, hosted security
-negative matrix, observability snapshot, Android staging device smoke, Gmail SMTP readiness và một
-invitation delivery thật của S4B đã hoàn tất. Bước tiếp theo là cấu hình FCM V1 credential,
-`google-services.json`/`android.googleServicesFile`, build lại snapshot có push-error feedback, rồi xác minh
-Expo token/ticket/receipt. Khi token gate xanh, để test contact chấp nhận invitation và chạy
-accelerated alert/correction flow với delivery được bật có kiểm soát; sau smoke phải tắt lại
-nếu chưa bắt đầu supervised testing.
-Song song, hoàn tất Google/fresh-user onboarding, fault/reconciliation drill,
-backup restore, accessibility matrix và baseline SLO dài hạn. Không đánh dấu provider/restore/SLO gate hoàn tất
-bằng fake-provider hoặc config-only evidence.
-Mỗi stage chỉ đóng khi exit criteria xanh và có bằng chứng trong repository/staging.
+S1–S3, S4A, hosted baseline, Gmail invitation thật và Android FCM/EAS configuration đã hoàn tất.
+Không bắt đầu thêm nhánh hardening song song. Fast path chỉ còn ba bước tuần tự:
+
+1. Chờ build exact commit hiện tại hoàn tất; cài artifact và xác minh token/ticket/receipt.
+2. Cho test contact đã consent chấp nhận invitation.
+3. Chạy một accelerated alert/contact-response/correction cycle, ghi evidence và tắt delivery.
+
+Sau đó có thể bắt đầu personal pilot có giám sát. Google/fresh-user, fault/reconciliation drill,
+backup restore, full accessibility matrix, measured SLO, iOS và store chuyển sang S4D/Plan 03.
+Không đánh dấu gate bằng config-only hoặc fake-provider evidence.

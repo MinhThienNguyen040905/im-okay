@@ -4,7 +4,8 @@
 
 Plan này chỉ theo dõi mobile Expo cho người được bảo vệ. Toàn bộ client M01–M12
 đã được triển khai; MA2–MA3 đã nối Supabase local/integration trong S2 và MA4–MA6 đã nối contract
-S3 local/integration. Công việc còn lại là kiểm thử trên staging/thiết bị và phát hành internal build.
+S3 local/integration. Công việc còn lại được tách thành hai gate: Android personal pilot tối thiểu
+để dùng có giám sát, sau đó mới đến hardening/internal release đa thiết bị.
 
 Chi tiết quyết định và bằng chứng đã hoàn thành nằm trong ADR 0001–0007. Bản
 plan cũ có 57 checkbox hoàn thành được rút gọn tại đây; việc rút gọn không
@@ -47,21 +48,31 @@ Zod schema, test và ADR trong cùng thay đổi.
 
 ## 4. Gate còn mở
 
-### Remote integration
+### Personal-pilot MVP — gate hiện tại
 
 - [x] Xác minh email magic-link, redirect và session restore với Supabase staging trên Android.
-- [ ] Xác minh Google auth với Supabase staging trên thiết bị thật.
 - [x] Xác minh profile/device/safety-plan onboarding qua Edge Functions trên local/integration.
 - [x] Chạy check-in duplicate/concurrent/offline/timeout với PostgreSQL và scheduler local thật.
 - [x] Chạy invitation accept/decline/revoke/concurrent-submit qua contact web local/integration.
-- [ ] Chạy accelerated warning/alert/escalation/correction/SOS/drill E2E.
 - [x] Xác minh history/settings/disable/export/delete projection và recent-auth ở local/integration.
-- [ ] Xác minh Expo push token lifecycle và receipt trên thiết bị thật.
+- [x] Tạo Android signed build, cài/chạy trên TECNO KJ7 và hoàn tất remote check-in/history smoke.
+- [x] Nạp `GOOGLE_SERVICES_JSON` bằng EAS secret file, FCM V1 credential và khởi chạy build exact
+      commit `659973f6b097053aa29b9f8f606b651f589bc30c`.
+- [ ] Chờ build `61b9016f-3a3f-4087-aae3-b2be119d65f6` hoàn tất, cài đúng artifact và xác minh
+      Expo token → ticket → receipt trên thiết bị thật.
+- [ ] Cho test contact đã consent chấp nhận invitation; chạy đúng một accelerated
+      alert → contact response → correction/check-in với push + Gmail, rồi tắt delivery.
 
-### Device and release acceptance
+Không tạo thêm build hoặc mở rộng feature trước khi hai mục còn lại ở trên được thử; chỉ sửa/build
+lại nếu artifact hiện tại lộ blocker thật. Nếu cần pilot sớm hơn vì EAS chậm, owner có thể chọn
+email-only supervised pilot sau khi alert email E2E xanh và ghi rõ push là known limitation; lựa chọn
+này không đóng Expo Push gate.
 
+### Post-MVP hardening và internal release — không chặn personal pilot
+
+- [ ] Xác minh Google auth/fresh-user onboarding với Supabase staging trên thiết bị thật.
+- [ ] Chạy phần còn lại của warning/escalation/SOS/drill remote journey ngoài một pilot cycle.
 - [ ] Chạy VoiceOver/TalkBack, external-keyboard focus và font 200% theo device matrix.
-- [x] Tạo Android internal build đã ký và ghi build ID/thiết bị/kết quả.
 - [ ] Tạo iOS internal build đã ký và ghi build ID/thiết bị/kết quả.
 - [ ] Xác minh Sentry source-map upload/symbolication và PII scrub trên staging build.
 - [ ] Chạy Maestro smoke trên internal binary; fixture smoke không thay remote E2E.
@@ -114,15 +125,26 @@ Tại lần kiểm tra S3 ngày 04/08/2026:
   `android.googleServicesFile` từ EAS file variable `GOOGLE_SERVICES_JSON`, không commit file/key.
   Root quality gate xanh với 131 mobile test/37 suite. Các fix này chưa nằm trong APK trên và
   cần build lại sau khi nạp FCM config/credential.
+- Ngày 10/08/2026, Firebase Android transport và FCM V1 credential đã được cấu hình riêng cho Expo
+  Push; Supabase vẫn là backend duy nhất. EAS build `61b9016f-3a3f-4087-aae3-b2be119d65f6`
+  từ exact commit `659973f6b097053aa29b9f8f606b651f589bc30c` đã chuyển sang `IN_PROGRESS`.
+  Artifact/install/token/ticket/receipt vẫn chưa có evidence nên chưa đánh dấu hoàn tất.
 
 Phải chạy lại các check thực tế sau mỗi thay đổi. Baseline cũ không chứng minh
 build hiện tại hoặc remote backend đang hoạt động.
 
 ## 6. Definition of Done
 
-Mobile sẵn sàng internal release khi:
+Mobile đủ cho Android personal pilot có giám sát khi:
 
-- Tất cả remote-integration gate ở trên xanh trên staging gần production.
+- Exact-commit build hiện tại cài được và không có crash/blocker ở login, check-in hoặc Settings.
+- Expo token/ticket/receipt xanh, hoặc owner chủ động chấp nhận email-only limitation tạm thời.
+- Một accelerated alert/correction cycle với test contact đã consent chạy thật và delivery được tắt lại.
+- Không có check-in false success, duplicate/missing contact alert, token/secret/PII leak.
+
+Mobile sẵn sàng internal release rộng hơn khi:
+
+- Personal-pilot gate vẫn xanh và toàn bộ post-MVP hardening gate ở mục 4 có evidence staging.
 - Loading/empty/error/offline/disabled state không hiển thị thành công giả.
 - Touch target, screen reader, focus, reduced motion và font scaling đạt device matrix.
 - Sentry/log không chứa token, authorization header hoặc PII không cần thiết.
@@ -133,7 +155,12 @@ Mobile sẵn sàng internal release khi:
 
 Không làm lại M01–M12. S1–S3 trong [`02-SUPABASE-MVP.md`](02-SUPABASE-MVP.md), EAS project,
 Android signed build, email callback/session restore và check-in/history staging smoke đã hoàn tất.
-Tiếp theo cấu hình Android FCM transport cho Expo Push, build lại staging và xác minh
-token/ticket/receipt. Sau đó chạy Google/fresh-user onboarding, provider E2E, accessibility matrix,
-Sentry symbolication và iOS/store gates.
-Chỉ đóng gate bằng evidence thật.
+Fast path hiện tại chỉ còn:
+
+1. Chờ build exact commit đang chạy, cài artifact và xác minh token/ticket/receipt.
+2. Cho test contact đã consent chấp nhận invitation.
+3. Chạy một accelerated alert/correction cycle, ghi evidence và tắt delivery.
+
+Google/fresh-user onboarding, full accessibility matrix, Sentry, iOS và store testing chuyển sang
+post-MVP hardening trong [`03-RELEASE.md`](03-RELEASE.md); không chạy song song trước khi pilot gate
+đóng. Chỉ đóng gate bằng evidence thật.

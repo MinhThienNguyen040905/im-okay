@@ -3,6 +3,10 @@
 Không điền trước kết quả. Không ghi secret, raw token, email/số điện thoại cá nhân hoặc URL public
 có bearer token.
 
+S4C personal pilot chỉ dùng các hàng artifact/push, contact acceptance và provider E2E cùng security/
+hosted baseline đã pass. Fault/restore/full accessibility/SLO là S4D post-MVP hardening; không xóa hoặc
+điền trước các hàng đó.
+
 ## Local repository readiness — 09/08/2026
 
 Đây chỉ là bằng chứng trước staging, không đóng các hàng external bên dưới.
@@ -42,23 +46,30 @@ có bearer token.
   contact còn `pending` nên chưa chạy alert flow. Evidence chỉ giữ delivery hash đã scrub.
 - Push readiness: Android permission bật nhưng hosted `user_devices` là `0`. EAS snapshot
   `2a6cb1be-85c0-48d1-bc75-f0f97ff10842` đã `FINISHED` và cài trên TECNO KJ7; retry không tạo
-  device. Audit phát hiện thiếu FCM V1 credential và `google-services.json`. Source đã hiển thị
+  device. Audit APK này phát hiện thiếu FCM V1 credential và `google-services.json`. Source đã hiển thị
   push error bằng live region và đọc `android.googleServicesFile` từ EAS file variable
   `GOOGLE_SERVICES_JSON`; root gate xanh với 131 mobile test/37 suite, nhưng fix này chưa nằm
   trong APK đã cài.
+- FCM follow-up 10/08/2026: Firebase Android app chỉ làm FCM transport đã được tạo; EAS Preview có
+  secret file `GOOGLE_SERVICES_JSON` và FCM V1 credential đã gán cho `com.imokay.app`. Build
+  `61b9016f-3a3f-4087-aae3-b2be119d65f6` từ exact commit
+  `659973f6b097053aa29b9f8f606b651f589bc30c` ở trạng thái `IN_PROGRESS` tại lần kiểm tra
+  23:40 ICT. Chưa có artifact/install/token/ticket/receipt evidence; delivery vẫn tắt.
 
 ## Environment
 
-- Date/time: 10/08/2026 21:45 ICT (preflight 09/08; Gmail SMTP/push readiness audit 10/08)
-- Commit SHA: base `13af8a468b89a0a101521f7a7daed281058ba52f`; callback-fix build dùng dirty
-  snapshot nên không thay thế exact-commit RC gate.
+- Date/time: 10/08/2026 23:40 ICT (preflight 09/08; Gmail SMTP/push readiness audit 10/08)
+- Commit SHA: current exact-commit build
+  `659973f6b097053aa29b9f8f606b651f589bc30c`; các callback-fix build cũ dùng snapshot nên không
+  thay thế build này.
 - Supabase project ref/region/plan: `xnaanctveihyksgcveup` / Singapore / Free
 - Migration versions: 8 version từ `20260804000100` đến `20260809000800`
 - Edge function versions at latest read-only audit: `api` v9, `notification-consumer` v9;
   `public-api`, `provider-receipts`, `ops` v8
 - Contact web build/domain: Vercel `dpl_7su9H5GAA8Zbw7b8ytYCCNVho1xN` / staging alias ở trên
 - Mobile EAS project/build: `3ea9c673-0f86-4d5e-a802-53899da19dcb` /
-  latest installed snapshot `2a6cb1be-85c0-48d1-bc75-f0f97ff10842`; version `0.1.0` (`1`),
+  current exact-commit build `61b9016f-3a3f-4087-aae3-b2be119d65f6` (`IN_PROGRESS` tại lần kiểm
+  tra); latest installed snapshot `2a6cb1be-85c0-48d1-bc75-f0f97ff10842`; version `0.1.0` (`1`),
   signed internal APK; SHA-256
   `E52AA620AFE2AB239EF81ED3442B3E368101D4752BEE416C78235554173F731C`
 - Mobile device/OS: TECNO KJ7 / Android 14, API 34, arm64-v8a; ADB install/launch pass
@@ -74,7 +85,7 @@ có bearer token.
 | Auth/redirect/session restore                       | Pass    | Magic link mở app; session còn sau force-stop/mở lại trên TECNO KJ7             |                |
 | Mobile scheduled-alert semantics                    | Pass    | 131 test; scheduled không hiện warning card/button; relaunch/logcat sạch        |                |
 | Invitation → alert → response → correction          |         |                                                                                 |                |
-| Expo ticket/receipt và Gmail SMTP delivery          | Partial | Gmail invitation sent 1 attempt; Android FCM config/token/receipt pending       | Owner/operator |
+| Expo ticket/receipt và Gmail SMTP delivery          | Partial | Gmail invitation sent; FCM config done, artifact/token/receipt pending          | Owner/operator |
 | Duplicate/concurrent/offline/timeout                |         |                                                                                 |                |
 | Function/queue/provider/reconciliation drills       |         |                                                                                 |                |
 | RLS/IDOR/JWT/token/rate limit                       | Pass    | anon + 2 synthetic users; actor/IDOR/JWT/token/origin/rate negative matrix pass |                |
@@ -97,10 +108,9 @@ có bearer token.
 
 ## Decision
 
-- Known limitations: mới có Gmail invitation `sent`; Android còn thiếu FCM config, chưa có
-  push receipt/full alert flow, restore,
-  full accessibility hoặc baseline dài hạn
-- Release blockers: Android FCM credential/config, contact acceptance, push token/receipt, full provider
-  E2E, drills và restore còn thiếu
-- Go / hold / rollback: Hold S4; delivery giữ `false`
+- Known limitations: mới có Gmail invitation `sent`; exact-commit Android artifact chưa hoàn tất nên
+  chưa có push receipt/full alert flow; restore, full accessibility và baseline dài hạn chưa có.
+- Personal-pilot blockers: artifact/install/token/receipt, contact acceptance và một provider E2E.
+- Post-MVP hardening còn mở: fault/reconciliation drills, restore, full accessibility và measured SLO.
+- Go / hold / rollback: Hold personal pilot; delivery giữ `false` cho tới supervised provider smoke.
 - Follow-up owner/date:

@@ -5,7 +5,8 @@
 Plan này là checklist phát hành, không phải một chuỗi milestone song song với roadmap.
 Quality/security được thực hiện trong từng stage S1–S4 của
 [`02-SUPABASE-MVP.md`](02-SUPABASE-MVP.md); file này chỉ quyết định khi nào được mở
-internal testing, beta và production.
+personal pilot, internal testing, beta và production. Personal pilot là Android-first, owner-supervised
+với test contact đã consent; nó không đồng nghĩa release candidate hoặc store rollout.
 
 Runbook thao tác mobile chi tiết:
 [`MOBILE-RELEASE-RUNBOOK.md`](../release/MOBILE-RELEASE-RUNBOOK.md). Device/accessibility
@@ -26,9 +27,27 @@ Mỗi feature/migration/function thay đổi phải có:
 Không merge known check-in false success, duplicate/missing alert, data-loss hoặc
 authorization/token bypass.
 
-## 3. Staging release candidate gate
+## 3. Personal-pilot MVP gate — ưu tiên hiện tại
 
-Chỉ đóng gate này sau S4:
+- [x] S1–S3, S4A/S4B hosted baseline, Cron/queue và security negative matrix xanh.
+- [x] Android signed build/device auth/check-in/history smoke đã có.
+- [x] Gmail SMTP invitation gửi đúng một attempt; delivery kill switch đã tắt lại.
+- [x] Android FCM transport, EAS secret file và FCM V1 credential đã cấu hình; exact-commit build
+      `61b9016f-3a3f-4087-aae3-b2be119d65f6` đang chạy.
+- [ ] Cài artifact hiện tại và xác minh Expo token → ticket → receipt trên TECNO KJ7.
+- [ ] Test contact đã consent chấp nhận invitation.
+- [ ] Chạy đúng một accelerated alert → contact response → correction/check-in bằng provider thật;
+      xác minh không missing/duplicate và tắt delivery sau smoke.
+- [ ] Ghi known limitations, thời gian pilot và owner chịu trách nhiệm go/hold/stop.
+
+Khi các mục trên xanh, owner có thể bắt đầu personal pilot có giám sát. Không cần chờ iOS,
+store submission, full device/accessibility matrix, restore drill hoặc SLO dài hạn. Nếu EAS artifact
+bị chậm do hạ tầng, owner có thể chọn email-only pilot sau khi invitation acceptance và alert email/
+correction E2E xanh; phải ghi rõ không có Android push và không được coi Expo Push gate là hoàn tất.
+
+## 4. Staging release candidate gate — post-MVP hardening
+
+Gate này mở sau personal pilot và chỉ đóng sau S4D:
 
 - [ ] Full mobile/contact-web critical journeys xanh trên staging gần production.
 - [ ] Accelerated 36-hour-equivalent alert flow chạy với test recipients đã consent.
@@ -45,7 +64,7 @@ Chỉ đóng gate này sau S4:
       reconciliation và provider failure.
 - [ ] Runbook, known limitations, privacy/terms/support và incident contact đã sẵn sàng.
 
-## 4. Internal alpha gate
+## 5. Internal alpha gate
 
 - [ ] Tạo Android/iOS internal build đã ký từ exact commit SHA.
 - [ ] Ghi EAS build ID, app version/build number, Supabase migration/function version.
@@ -55,7 +74,7 @@ Chỉ đóng gate này sau S4:
 - [ ] Theo dõi crash, check-in failure, scheduler/queue/delivery và false-alert/copy confusion.
 - [ ] Có người quyết định go/hold/rollback và support/incident channel hoạt động.
 
-## 5. Closed beta gate
+## 6. Closed beta gate
 
 - [ ] Nhóm beta nhỏ có consent và hiểu I’m Okay không phải dịch vụ cứu hộ.
 - [ ] Reliability threshold được chốt từ staging/alpha data, không bịa trước.
@@ -63,7 +82,7 @@ Chỉ đóng gate này sau S4:
 - [ ] Incident drill, provider kill switch, queue backlog và support workflow được xác minh.
 - [ ] Không có sự cố mất alert, duplicate alert hoặc authorization leak do lỗi đã biết.
 
-## 6. Production gate
+## 7. Production gate
 
 - [ ] Production Supabase project, domain, sender, secret và store credential tách staging.
 - [ ] Pre-launch secret rotation, migration rehearsal và backup checkpoint hoàn tất.
@@ -73,7 +92,20 @@ Chỉ đóng gate này sau S4:
 - [ ] Deploy order tương thích: expand migration → functions → contact web/mobile → cleanup sau.
 - [ ] Daily review giai đoạn đầu và incident communication process đã có owner.
 
-## 7. Release blockers
+## 8. Blockers
+
+### Personal-pilot blockers
+
+- Check-in hiển thị thành công giả hoặc authoritative Cron/deadline không hoạt động.
+- Invitation/alert email tới test contact không chạy thật hoặc tạo missing/duplicate alert.
+- IDOR, JWT/RLS/public-token bypass, service-role/secret/PII leak.
+- Không thể tắt delivery hoặc không có owner giám sát/go-hold-stop.
+- Test contact chưa consent hoặc copy khiến họ hiểu đây là dịch vụ cứu hộ/y tế.
+
+Android push token/receipt là blocker mặc định. Owner chỉ có thể tạm waive cho email-only supervised
+pilot theo known limitation ở gate 3; không được waive alert email tới contact.
+
+### Internal alpha/beta/production blockers
 
 - Sai/mất/duplicate alert hoặc check-in false success.
 - IDOR, JWT/RLS/public-token bypass, service-role/secret/PII leak.
@@ -84,7 +116,7 @@ Chỉ đóng gate này sau S4:
 - Backup chưa từng restore thành công.
 - Copy hứa hẹn cứu hộ/y tế vượt quá khả năng hệ thống.
 
-## 8. Definition of Done
+## 9. Definition of Done
 
 Một release stage chỉ hoàn thành khi checklist tương ứng có evidence, known limitations
 được ghi rõ và không còn blocker. Cấu hình/build artifact không tự động là bằng
