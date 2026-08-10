@@ -102,6 +102,11 @@ Tại lần kiểm tra S3 ngày 04/08/2026:
 - Home không còn trình bày alert nội bộ `scheduled` như cảnh báo cần chú ý; copy check-in trước khi có
   notification cũng không còn ngụ ý cảnh báo đã phát. Regression test, 128 mobile test, relaunch/session
   restore và UI dump trên TECNO KJ7 đều pass; snapshot trên vẫn chưa phải RC exact-commit.
+- Provider smoke trên TECNO KJ7 phát hiện Android đã cấp quyền notification nhưng app không có đường
+  retry đăng ký Expo token sau onboarding; database vẫn có `0` device. Settings đã gọi lại
+  `requestPush` và chỉ báo sẵn sàng sau server projection `registered`; lint/typecheck và 128 mobile test
+  pass. EAS staging snapshot `2a6cb1be-85c0-48d1-bc75-f0f97ff10842` đang build, nên push receipt gate
+  vẫn mở cho tới khi cài đè và xác minh trên thiết bị.
 
 Phải chạy lại các check thực tế sau mỗi thay đổi. Baseline cũ không chứng minh
 build hiện tại hoặc remote backend đang hoạt động.

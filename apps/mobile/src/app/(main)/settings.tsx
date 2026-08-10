@@ -127,7 +127,7 @@ const formatDeadline = (projection: SettingsProjection) =>
 const SettingsContent = ({ session }: { session: AuthSession }) => {
   const router = useRouter();
   const auth = useAuth();
-  const { draft, syncAuthoritativeSettings } = useOnboarding();
+  const { draft, requestPush, syncAuthoritativeSettings } = useOnboarding();
   const queryClient = useQueryClient();
   const api = useMemo(() => createSettingsApi(session), [session]);
   const [displayNameEdit, setDisplayName] = useState<string | null>(null);
@@ -266,6 +266,34 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
         "Yêu cầu xóa tài khoản đã được máy chủ tiếp nhận theo chính sách lưu giữ.",
       );
     },
+  });
+  const pushMutation = useMutation({
+    mutationFn: requestPush,
+    onMutate: () => {
+      setFormError(null);
+      setResultMessage(null);
+    },
+    onSuccess: async (result) => {
+      setPushPermission(result.decision);
+      const refreshed = await refetchSettings();
+      if (refreshed.data?.push.registration === "registered") {
+        setResultMessage("Thiết bị đã đăng ký nhận thông báo đẩy.");
+        return;
+      }
+      if (result.decision === "denied") {
+        setFormError(
+          "Thông báo đang bị tắt. Hãy mở cài đặt hệ thống để cấp quyền rồi thử lại.",
+        );
+        return;
+      }
+      setFormError(
+        "Đã có quyền thông báo nhưng máy chủ chưa xác nhận thiết bị. Hãy kiểm tra kết nối rồi thử lại.",
+      );
+    },
+    onError: () =>
+      setFormError(
+        "Không thể đăng ký thông báo đẩy lúc này. Hãy kiểm tra kết nối rồi thử lại.",
+      ),
   });
   const signOutMutation = useMutation({
     mutationFn: auth.signOut,
@@ -479,8 +507,22 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
         <SettingsRow
           icon={pushReady ? "notifications-active" : "notifications-off"}
           label="Thông báo đẩy"
-          onPress={() => void Linking.openSettings()}
-          value={pushReady ? "Đã bật và đăng ký" : "Chưa sẵn sàng · Mở cài đặt"}
+          onPress={() => {
+            if (pushPermission === "denied") {
+              void Linking.openSettings();
+              return;
+            }
+            pushMutation.mutate();
+          }}
+          value={
+            pushReady
+              ? "Đã bật và đăng ký"
+              : pushMutation.isPending
+                ? "Đang đăng ký thiết bị…"
+                : pushPermission === "denied"
+                  ? "Đang tắt · Mở cài đặt"
+                  : "Chưa sẵn sàng · Thử đăng ký"
+          }
         />
         <View style={styles.divider} />
         <SettingsRow
