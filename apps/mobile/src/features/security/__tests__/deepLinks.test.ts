@@ -10,6 +10,7 @@ describe("native incoming-link boundary", () => {
     "/",
     "imokay://auth/callback?code=pkce-code",
     "imokay:///auth/callback#access_token=access&refresh_token=refresh&type=magiclink",
+    "imokay://auth/callback#error=access_denied&error_code=otp_expired&error_description=Email+link+expired&sb=provider-state",
     "exp://127.0.0.1:8081/--/auth/callback?code=pkce-code",
   ])("allows only root and known Supabase auth callback shapes: %s", (url) => {
     expect(isAllowedIncomingLink(url)).toBe(true);

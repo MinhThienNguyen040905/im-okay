@@ -15,6 +15,7 @@ import {
 import { useAccessibilityFocus } from "@/features/accessibility/focus";
 import { colors, radii, spacing, typography } from "@/theme";
 
+import { formatCheckInOutcomeMessage } from "./presentation";
 import type { CheckInAlertOutcome } from "./types";
 
 type CheckInSuccessSheetProps = {
@@ -66,13 +67,10 @@ export const CheckInSuccessSheet = ({
               Máy chủ đã ghi nhận
             </Text>
             <Text accessibilityLiveRegion="polite" style={styles.message}>
-              {alertOutcome?.result === "cancelled_before_notification"
-                ? "Bạn đã xác nhận trước khi thông báo ra ngoài. Cảnh báo đã được máy chủ hủy."
-                : alertOutcome?.result === "correction_queued"
-                  ? "Bạn đã xác nhận an toàn. Máy chủ đang xếp hàng gửi đính chính tới những liên hệ đã được báo."
-                  : alertOutcome?.result === "correction_sent"
-                    ? "Bạn đã xác nhận an toàn và máy chủ đã gửi đính chính tới các liên hệ."
-                    : `Lần xác nhận của bạn đã thành công. Thời hạn tiếp theo: ${nextDeadline}.`}
+              {formatCheckInOutcomeMessage(
+                alertOutcome,
+                `Lần xác nhận của bạn đã thành công. Thời hạn tiếp theo: ${nextDeadline}.`,
+              )}
             </Text>
             <Button
               accessibilityLabel="Đóng thông báo xác nhận thành công"

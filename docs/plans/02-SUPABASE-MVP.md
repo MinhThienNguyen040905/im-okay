@@ -321,11 +321,25 @@ Hosted backend deployment evidence 09/08/2026:
 - Contact-web hosted invalid-token route hiển thị trạng thái an toàn, không render token.
 - EAS project `@minh004/im-okay` đã liên kết với project ID
   `3ea9c673-0f86-4d5e-a802-53899da19dcb`; Preview environment chỉ có các biến public staging.
-  Android internal APK build `be78049b-0f7e-4bee-a7f4-c18637d00b65` đã ký và hoàn tất.
+  Android internal APK build nền `be78049b-0f7e-4bee-a7f4-c18637d00b65` đã ký và hoàn tất.
 - APK staging đã cài trên TECNO KJ7, Android 14/API 34; onboarding → login smoke pass và
   logcat không có FATAL/React Native error. Sentry source-map upload được tắt riêng cho
   local/staging khi chưa có Sentry auth; production không bị tắt.
-- Resend/test recipients, provider flow, authenticated mobile session, full accessibility,
+- Login font `200%` và external-keyboard focus order đã pass trên thiết bị, font được restore `1.0`.
+  Magic-link mới tới test account đã consent mở đúng app; authenticated session vẫn được khôi phục
+  sau force-stop/mở lại trên TECNO KJ7.
+- Expired magic-link callback thực tế có Supabase parameter `sb`; incoming-link guard cũ phân loại
+  nhầm thành unsupported. Guard/regression test đã sửa và EAS snapshot build
+  `34309c7e-92f1-4842-9001-5e37d020eb99` đã cài đè thành công; callback link mới/session restore pass.
+- Auth quota mặc định đã reset và lần gửi kế tiếp thành công. Client-side friendly error mapping đã
+  thêm test và đã có trong EAS staging snapshot `ecb41bd6-1c40-4c54-84ab-ed0f015b80ea`; custom SMTP
+  vẫn cần cho test ổn định.
+- Authenticated remote smoke đã cập nhật profile timezone sang `Asia/Ho_Chi_Minh`, xác minh deadline
+  local-time, thực hiện check-in thật và đọc lại bản ghi History.
+- Client đã tách alert `scheduled` khỏi nhóm cần chú ý và làm rõ copy check-in trước notification mà
+  không đổi backend/state machine. 128 mobile test pass; EAS snapshot trên đã cài đè, giữ session và
+  UI dump trên TECNO KJ7 xác nhận không còn card/nút cảnh báo cho chu kỳ `scheduled`; logcat sạch.
+- Resend/test recipients, provider flow, Google/fresh-user onboarding, full accessibility,
   fault/reconciliation drill, SLO dài hạn và backup restore vẫn là gate mở; delivery tiếp tục tắt.
 
 Exit:
@@ -365,7 +379,7 @@ S1–S3, S4A, backend/contact-web deploy, Auth URL/CORS, non-mutating preflight,
 negative matrix, observability snapshot và Android staging device smoke của S4B đã hoàn tất.
 Bước tiếp theo là chuẩn bị Resend sender cùng
 test recipients đã consent, sau đó chạy accelerated alert/correction flow với delivery được
-bật có kiểm soát. Song song, hoàn tất authenticated mobile session, fault/reconciliation drill,
+bật có kiểm soát. Song song, hoàn tất Google/fresh-user onboarding, fault/reconciliation drill,
 backup restore, accessibility matrix và baseline SLO dài hạn. Không đánh dấu provider/restore/SLO gate hoàn tất
 bằng fake-provider hoặc config-only evidence.
 Mỗi stage chỉ đóng khi exit criteria xanh và có bằng chứng trong repository/staging.

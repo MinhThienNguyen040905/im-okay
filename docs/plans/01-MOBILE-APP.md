@@ -49,7 +49,8 @@ Zod schema, test và ADR trong cùng thay đổi.
 
 ### Remote integration
 
-- [ ] Xác minh email/Google auth, redirect và session restore với Supabase staging.
+- [x] Xác minh email magic-link, redirect và session restore với Supabase staging trên Android.
+- [ ] Xác minh Google auth với Supabase staging trên thiết bị thật.
 - [x] Xác minh profile/device/safety-plan onboarding qua Edge Functions trên local/integration.
 - [x] Chạy check-in duplicate/concurrent/offline/timeout với PostgreSQL và scheduler local thật.
 - [x] Chạy invitation accept/decline/revoke/concurrent-submit qua contact web local/integration.
@@ -83,6 +84,24 @@ Tại lần kiểm tra S3 ngày 04/08/2026:
   `3ea9c673-0f86-4d5e-a802-53899da19dcb`. Signed Android internal APK build
   `be78049b-0f7e-4bee-a7f4-c18637d00b65` đã cài/chạy trên TECNO KJ7, Android 14/API 34;
   onboarding → login smoke xanh và không có FATAL. iOS/internal-store gate vẫn mở.
+- Trên cùng thiết bị, màn hình login ở font scale `2.0` vẫn cuộn được, giữ đủ email/button;
+  external-keyboard focus đi Google → phân cách → email → submit và không có FATAL. Font hệ thống
+  đã restore `1.0`; TalkBack/full-journey matrix vẫn mở.
+- Supabase email magic-link mới tới test account đã consent mở lại đúng app; callback tạo authenticated
+  session và session vẫn được khôi phục sau force-stop/mở lại trên TECNO KJ7.
+- Device test phát hiện callback của magic link hết hạn có tham số Supabase `sb` và bị incoming-link
+  guard phân loại nhầm. Guard đã cho phép đúng callback parameter này, regression test pass; EAS
+  snapshot build `34309c7e-92f1-4842-9001-5e37d020eb99` đã cài đè trên thiết bị; callback bằng link
+  mới và session restore đã pass. Đây chưa phải RC exact-commit.
+- Quota Auth mặc định đã reset và lần gửi kế tiếp thành công. Client đã map rate-limit, expired-link,
+  network và unknown auth error sang copy tiếng Việt không lộ chi tiết provider; source fix copy này
+  đã có trong EAS staging snapshot `ecb41bd6-1c40-4c54-84ab-ed0f015b80ea` cài trên thiết bị.
+- Authenticated staging smoke đã cập nhật profile timezone từ `UTC` sang `Asia/Ho_Chi_Minh`, hiển thị
+  deadline đúng local time, check-in thật thành công và History có bản ghi mới. Google auth, fresh-user
+  onboarding, push receipt và full remote journey vẫn mở.
+- Home không còn trình bày alert nội bộ `scheduled` như cảnh báo cần chú ý; copy check-in trước khi có
+  notification cũng không còn ngụ ý cảnh báo đã phát. Regression test, 128 mobile test, relaunch/session
+  restore và UI dump trên TECNO KJ7 đều pass; snapshot trên vẫn chưa phải RC exact-commit.
 
 Phải chạy lại các check thực tế sau mỗi thay đổi. Baseline cũ không chứng minh
 build hiện tại hoặc remote backend đang hoạt động.
@@ -101,6 +120,7 @@ Mobile sẵn sàng internal release khi:
 ## 7. Bước tiếp theo
 
 Không làm lại M01–M12. S1–S3 trong [`02-SUPABASE-MVP.md`](02-SUPABASE-MVP.md), EAS project,
-Android signed build và device smoke cơ bản đã hoàn tất. Tiếp theo chạy authenticated auth/session
-restore, provider E2E, push receipt, accessibility matrix, Sentry symbolication và iOS/store gates.
+Android signed build, email callback/session restore và check-in/history staging smoke đã hoàn tất.
+Tiếp theo chạy Google/fresh-user onboarding, provider E2E, push receipt, accessibility matrix,
+Sentry symbolication và iOS/store gates.
 Chỉ đóng gate bằng evidence thật.

@@ -22,6 +22,7 @@ import {
   useSafetyStatusRefresh,
   useServerCountdown,
 } from "@/features/check-in/hooks";
+import { isAlertAttentionState } from "@/features/check-in/presentation";
 import { safetyStatusQueryKey } from "@/features/check-in/query";
 import {
   CheckInApiError,
@@ -148,6 +149,9 @@ const HomeContent = ({ session }: { session: AuthSession }) => {
   const { status } = snapshot;
   const timezone = draft.timezone ?? "UTC";
   const approaching = isDeadlineApproaching(remainingMs);
+  const currentAlertNeedsAttention = isAlertAttentionState(
+    status.currentAlert?.state,
+  );
   const pushReady =
     pushPermission === "granted" && draft.deviceRegistration === "registered";
   const badge = planBadge[status.plan.state];
@@ -198,12 +202,12 @@ const HomeContent = ({ session }: { session: AuthSession }) => {
         <Text style={styles.deadline}>Hạn tiếp theo: {nextDeadline}</Text>
       </View>
 
-      {approaching || status.currentAlert ? (
+      {approaching || currentAlertNeedsAttention ? (
         <Card style={styles.warningCard}>
           <View style={styles.inlineRow}>
             <AppIcon color={colors.warning} name="warning-amber" />
             <Text style={styles.warningTitle}>
-              {status.currentAlert
+              {currentAlertNeedsAttention
                 ? "Trạng thái cần bạn chú ý"
                 : "Thời hạn đang đến gần"}
             </Text>

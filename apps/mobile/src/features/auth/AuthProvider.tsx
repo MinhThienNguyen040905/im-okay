@@ -14,6 +14,7 @@ import { env } from "@/config/env";
 import { captureException } from "@/lib/observability/sentry";
 
 import { fixtureAuthAdapter } from "./fixtureAuth";
+import { toFriendlyAuthError } from "./authErrors";
 import { createSupabaseAuthAdapter } from "./supabaseAuth";
 import type { AuthAdapter, AuthSession, SignInResult } from "./types";
 
@@ -32,11 +33,6 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 const getAdapter = (): AuthAdapter => {
   if (env.dataMode === "fixture") return fixtureAuthAdapter;
   return createSupabaseAuthAdapter();
-};
-
-const friendlyError = (error: unknown) => {
-  if (error instanceof Error) return error.message;
-  return "Không thể hoàn tất đăng nhập. Vui lòng thử lại.";
 };
 
 export const AuthProvider = ({ children }: PropsWithChildren) => {
@@ -82,7 +78,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
       .handleCallbackUrl(url)
       .catch((cause) => {
         captureException(cause);
-        setError(friendlyError(cause));
+        setError(toFriendlyAuthError(cause));
       })
       .finally(() => undefined);
   }, [adapter, url]);
@@ -94,7 +90,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
       return await action();
     } catch (cause) {
       captureException(cause);
-      setError(friendlyError(cause));
+      setError(toFriendlyAuthError(cause));
       throw cause;
     } finally {
       setLoading(false);

@@ -10,6 +10,7 @@ const allowedAuthParameters = new Set([
   "expires_at",
   "expires_in",
   "refresh_token",
+  "sb",
   "token_type",
   "type",
 ]);

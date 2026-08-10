@@ -39,6 +39,7 @@ import {
 import { useAuth } from "@/features/auth/AuthProvider";
 import type { AuthSession } from "@/features/auth/types";
 import { useAuthoritativeCheckIn } from "@/features/check-in/hooks";
+import { formatCheckInOutcomeMessage } from "@/features/check-in/presentation";
 import { safetyStatusQueryKey } from "@/features/check-in/query";
 import {
   CheckInApiError,
@@ -76,13 +77,10 @@ const WarningResult = ({
       </Text>
       <Card muted>
         <Text accessibilityLiveRegion="polite" style={styles.resultBody}>
-          {outcome?.result === "correction_queued"
-            ? "Cảnh báo đã bắt đầu gửi. Máy chủ đang xếp hàng thông báo đính chính tới các liên hệ."
-            : outcome?.result === "correction_sent"
-              ? "Máy chủ đã gửi thông báo đính chính tới các liên hệ từng nhận cảnh báo."
-              : outcome?.result === "cancelled_before_notification"
-                ? "Cảnh báo đã được hủy trước khi thông báo ra ngoài."
-                : "Không có cảnh báo cần đính chính."}
+          {formatCheckInOutcomeMessage(
+            outcome,
+            "Không có cảnh báo cần đính chính.",
+          )}
         </Text>
       </Card>
       <Text style={styles.centerCopy}>
