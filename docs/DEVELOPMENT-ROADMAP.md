@@ -26,7 +26,7 @@ Mốc tham chiếu: 2026-08-11.
 | Contact web W01–W05                   | Đã deploy Vercel; invitation acceptance và alert response E2E xanh                        |
 | Supabase backend                      | 8 migration + 5 Edge Functions, hosted Cron/security/ops baseline đã xanh                 |
 | Workspace/CI                          | Mobile/contact/contracts/functions/database đã có root scripts và GitHub Actions workflow |
-| Staging/store                         | Personal-pilot gate đạt; fault/restore/SLO/iOS/store chuyển sang hardening                |
+| Staging/store                         | Personal-pilot đạt; Plan 03 staging RC gate đang thực hiện                                |
 
 Việc rút sáu plan cũ thành ba plan không reset mobile. Chi tiết 57 checkbox client đã
 hoàn thành được tóm tắt trong Plan 01 và giữ bằng chứng tại ADR 0001–0007.
@@ -128,7 +128,7 @@ không còn chặn P2 personal pilot; chúng thuộc S4D và P3 internal release
 
 ### P3 — Internal release
 
-Trạng thái: **Chưa bắt đầu.**
+Trạng thái: **Đang thực hiện staging RC gate; internal alpha chưa mở.**
 
 Phạm vi: staging RC gate và internal alpha trong Plan 03.
 
@@ -171,7 +171,8 @@ nhận, và một accelerated reminder → alert → response → check-in/corre
 duplicate. Delivery kill switch đã trả về tắt. Firebase vẫn chỉ là FCM transport;
 Supabase là backend duy nhất. Native token-rotation bug đã sửa và test trong source, hàng token
 không hợp lệ đã disable; candidate Android `3768ba65-ac54-47ad-b8d2-d23928d0cf15` từ exact commit
-`f1236d5cb78979ce49e9cfb55c888ee54ca4fca2` chứa fix đã submit và đang chờ artifact/device smoke.
+`f1236d5cb78979ce49e9cfb55c888ee54ca4fca2` chứa fix đã `FINISHED`, cài và device smoke pass trên
+TECNO KJ7 ngày 11/08/2026; session/check-in/History/push registration xanh và không tạo native token mới.
 
 S4D đã có hosted security/observability recheck, local fault/reconciliation drill và local isolated
 restore rehearsal. Google/fresh-user, hosted fault drill, hosted backup/PITR restore, measured SLO,

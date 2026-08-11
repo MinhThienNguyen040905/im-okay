@@ -8,9 +8,15 @@ Quality/security được thực hiện trong từng stage S1–S4 của
 personal pilot, internal testing, beta và production. Personal pilot là Android-first, owner-supervised
 với test contact đã consent; nó không đồng nghĩa release candidate hoặc store rollout.
 
+Plan 01 và Plan 02 đã hoàn tất baseline MVP. Từ ngày 11/08/2026, mọi công việc release đang mở
+được quản lý tại Plan 03; các nhãn S4D trong tài liệu cũ chỉ còn là tham chiếu evidence.
+
 Runbook thao tác mobile chi tiết:
 [`MOBILE-RELEASE-RUNBOOK.md`](../release/MOBILE-RELEASE-RUNBOOK.md). Device/accessibility
 matrix: [`MOBILE-MA7-MATRIX.md`](../qa/MOBILE-MA7-MATRIX.md).
+Privacy/terms readiness và support/incident runbook:
+[`PRIVACY-TERMS-READINESS.md`](../release/PRIVACY-TERMS-READINESS.md),
+[`SUPPORT-INCIDENT-RUNBOOK.md`](../release/SUPPORT-INCIDENT-RUNBOOK.md).
 
 ## 2. Continuous quality gate
 
@@ -43,38 +49,68 @@ authorization/token bypass.
 
 Owner có thể bắt đầu personal pilot có giám sát; không cần chờ iOS, store submission,
 full device/accessibility matrix, restore drill hoặc SLO dài hạn. Delivery mặc định vẫn tắt
-ngoài cửa sổ do owner chủ động mở theo runbook. Binary hiện tại có known limitation với
-native token rotation; invalid token đã disable, Expo token hợp lệ vẫn enabled và source fix phải
-có trong build kế tiếp trước khi mở rộng nhóm pilot. Candidate chứa fix đã submit từ commit
-`f1236d5cb78979ce49e9cfb55c888ee54ca4fca2`, nhưng chưa thay artifact hiện tại cho đến khi build
-hoàn tất và device smoke pass.
+ngoài cửa sổ do owner chủ động mở theo runbook. Binary personal-pilot ban đầu có known limitation
+với native token rotation; invalid token đã disable và Expo token hợp lệ vẫn enabled. Candidate
+thay thế `3768ba65-ac54-47ad-b8d2-d23928d0cf15` từ commit
+`f1236d5cb78979ce49e9cfb55c888ee54ca4fca2` đã `FINISHED`, cài đè và device smoke pass ngày
+11/08/2026. Candidate không tạo native token mới; một Expo token vẫn enabled và native token cũ
+vẫn disabled.
 
-## 4. Staging release candidate gate — post-MVP hardening
+## 4. Staging release candidate gate — đang thực hiện
 
-Gate này mở sau personal pilot và chỉ đóng sau S4D:
+Đây là gate active của Plan 03. Chỉ đóng khi toàn bộ checkbox bên dưới có evidence phù hợp:
 
+- [x] Android candidate chứa token-rotation fix đã `FINISHED`, cài trên TECNO KJ7 và pass
+      session restore, authoritative check-in, History, Settings push registration cùng crash-log smoke.
+- [x] Release preflight hiện tại xanh: format, lint, typecheck, contracts 3/3, contact web 4/4,
+      mobile 133/133, Edge/script 33/33, database 150/150, S2/S3 smoke, client builds và
+      `expo-doctor` 20/20.
 - [ ] Full mobile/contact-web critical journeys xanh trên staging gần production.
 - [x] Accelerated 36-hour-equivalent alert flow chạy với test recipients đã consent.
 - [x] Check-in concurrent/idempotent/offline/timeout và correction sau notification được test.
 - [ ] Function termination, queue loss/lease expiry, provider timeout/unknown và reconciliation
       được diễn tập.
+  - [x] Local pgTAP/Edge fake-provider drill bao phủ termination/lease reclaim, queue loss/rebuild,
+        transient/permanent/unknown và idempotency.
+  - [ ] Hosted drill bằng harness test-scoped trên synthetic data, sau khi operator chứng minh
+        delivery đang tắt; không fault-inject qua work thật.
 - [x] RLS/IDOR/JWT/public-token/rate-limit negative tests xanh.
 - [x] Public web đạt CSP/CORS/no-referrer/no-store/noindex và không rò token qua URL/log/cache.
 - [ ] Mobile đạt VoiceOver/TalkBack, font 200%, focus và reduced-motion device matrix.
+  - [x] TECNO KJ7/Android 14 candidate pass font 200%, Home TalkBack semantics và no-crash smoke.
+  - [ ] TalkBack spoken order/full M01–M12, Android matrix còn lại và VoiceOver/iOS.
 - [ ] Contact web đạt 390/768/1440 px, keyboard-only, screen reader và zoom 200%.
+  - [x] Live 390/768/1440 px, root Tab focus và invalid-token privacy state.
+  - [ ] Screen reader thật và browser zoom 200%.
 - [ ] Sentry source maps/symbolication hoạt động và event không chứa PII/token.
 - [ ] Database backup đã restore sang isolated environment và kiểm tra integrity.
 - [ ] Dashboard/alert theo dõi function error, cron/scheduler lag, queue age, overdue action,
       reconciliation và provider failure.
 - [ ] Runbook, known limitations, privacy/terms/support và incident contact đã sẵn sàng.
+  - [x] Mobile/staging operations và support/incident runbook đã có stop/rollback criteria.
+  - [x] Privacy/terms readiness đã khóa safety notice, data/provider inventory và publish gate.
+  - [ ] Owner/legal identity, support/privacy/incident contacts, retention/export/deletion SLA và
+        test ticket đã được điền/xác minh.
 
-Tiến độ 11/08/2026: quality gate xanh với 133 mobile, 33 Edge/script, 150 pgTAP, 4 contact-web và
-3 contracts test; `expo-doctor` 20/20. Android staging candidate
-`3768ba65-ac54-47ad-b8d2-d23928d0cf15` từ exact commit
-`f1236d5cb78979ce49e9cfb55c888ee54ca4fca2` đã submit và đang chờ artifact/device smoke. Hosted
-security smoke và 30-sample observability snapshot xanh; local fault/reconciliation và isolated
-restore rehearsal xanh. Không nâng local rehearsal thành release pass: hosted fault drill còn thiếu,
-staging Free hiện không có physical backup/PITR, và accessibility/Sentry/SLO dài hạn vẫn mở.
+Tiến độ 11/08/2026: candidate SHA-256
+`7556B2BAC99A626A6C997F57D8EB49E781C89431AEF277E9AC12AEB0B7BE77F2` đã cài lúc 14:33 ICT,
+giữ session và không có FATAL. Check-in tạo projection mới, History hiển thị bản ghi; Settings cập nhật
+`last_seen_at` và aggregate scrubbed giữ đúng một Expo token enabled, không có native token enabled.
+Hosted security smoke mới pass và cleanup synthetic users `2/2`. Snapshot 30 mẫu lúc 07:44 UTC có
+error `0/30`, p50/p95 `156/389 ms`, heartbeat age `12 s`, Cron/queue/dead-letter/overdue bằng `0`;
+outbox pending `6` sau check-in khi delivery không được bật trong lần kiểm tra. Contact web live không
+overflow ở 390/768/1440 px, Tab focus đúng và hai invalid-token route không render token; zoom 200%
+và screen reader thật vẫn mở. Candidate trên TECNO KJ7 giữ CTA check-in cùng ba tab điều hướng ở
+font hệ thống 200%, không crash và font scale đã restore `1.0`. TalkBack service đã bind vào candidate,
+Home expose heading/CTA/navigation/help semantics và không crash; setting đã restore, nhưng tutorial/TTS
+không cho xác minh spoken order/full journey nên gate vẫn mở. Không
+nâng local rehearsal thành release pass: hosted fault drill còn thiếu, staging Free không có physical
+backup/PITR, Sentry staging vẫn tắt upload, và full accessibility/SLO dài hạn vẫn mở.
+
+Bộ privacy/terms readiness và support/incident runbook đã có, bao gồm safety limitation, data/provider
+inventory, severity/stop/rollback và intake không thu secret/token. Gate artifact vẫn `Partial` cho đến
+khi owner điền legal identity, support/privacy/incident contacts, retention/export/deletion SLA và
+xác minh kênh public/private thật.
 
 ## 5. Internal alpha gate
 

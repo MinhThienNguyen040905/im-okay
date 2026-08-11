@@ -102,6 +102,8 @@ Maestro fixture smoke. EAS project đã liên kết; signed Android internal APK
 trên TECNO KJ7/Android 14 với Supabase staging. Authenticated session restore và provider acceptance
 push/email với sender/recipient/device đã consent đã pass; delivery được tắt lại sau smoke. Candidate
 Android `3768ba65-ac54-47ad-b8d2-d23928d0cf15` từ exact commit
-`f1236d5cb78979ce49e9cfb55c888ee54ca4fca2` chứa token-rotation fix đang chờ EAS hoàn tất, cài và
-device smoke. Full device/accessibility matrix, Sentry source-map upload, iOS build, Maestro trên
+`f1236d5cb78979ce49e9cfb55c888ee54ca4fca2` chứa token-rotation fix đã `FINISHED`, cài trên
+TECNO KJ7 và pass session restore, check-in, History, Settings registration cùng crash-log smoke.
+Aggregate staging giữ một Expo token enabled, không có native token enabled; native row cũ vẫn
+disabled. Full device/accessibility matrix, Sentry source-map upload, iOS build, Maestro trên
 candidate binary, TestFlight/Play upload và rollout vẫn chưa hoàn tất.

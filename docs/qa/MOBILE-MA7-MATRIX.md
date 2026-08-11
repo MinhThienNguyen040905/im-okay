@@ -18,14 +18,14 @@ Ngày tạo matrix: 02/08/2026.
 
 Không điền “Đạt” nếu chưa có tên thiết bị/OS/build ID và người kiểm tra.
 
-| Nhóm                                      | Thiết bị/OS                | Chế độ                                       | Ca kiểm tra                           | Kết quả     |
-| ----------------------------------------- | -------------------------- | -------------------------------------------- | ------------------------------------- | ----------- |
-| Android thấp nhất được Expo SDK 57 hỗ trợ | Chốt từ prebuild/EAS image | Font 100%/200%, system dark                  | M01→M12, keyboard, small viewport     | Chờ         |
-| Android phổ biến/tầm trung vật lý         | Ghi model + OS             | TalkBack, Reduce Motion, push denied/granted | Check-in, warning, SOS guard, restart | Chờ         |
-| Android hiện hành emulator                | Ghi API/device             | Airplane mode + font 200%                    | Offline/timeout/retry và deep link    | Chờ staging |
-| iPhone màn hình nhỏ                       | Ghi model + iOS            | VoiceOver, font 200%, Reduce Motion          | M01→M12, modal/focus/keyboard         | Chờ         |
-| iPhone hiện hành vật lý                   | Ghi model + iOS            | VoiceOver, push denied/granted               | Auth callback, check-in, SOS, restart | Chờ         |
-| iOS Simulator                             | Ghi runtime                | Light app khi system dark                    | Layout/navigation/deep link smoke     | Chờ         |
+| Nhóm                                      | Thiết bị/OS                | Chế độ                                                        | Ca kiểm tra                               | Kết quả       |
+| ----------------------------------------- | -------------------------- | ------------------------------------------------------------- | ----------------------------------------- | ------------- |
+| Android thấp nhất được Expo SDK 57 hỗ trợ | Chốt từ prebuild/EAS image | Font 100%/200%, system dark                                   | M01→M12, keyboard, small viewport         | Chờ           |
+| Android phổ biến/tầm trung vật lý         | TECNO KJ7 / Android 14     | Font 200%; TalkBack Home semantics pass; spoken/full flow chờ | Home/check-in/restart pass; full flow chờ | Partial 11/08 |
+| Android hiện hành emulator                | Ghi API/device             | Airplane mode + font 200%                                     | Offline/timeout/retry và deep link        | Chờ staging   |
+| iPhone màn hình nhỏ                       | Ghi model + iOS            | VoiceOver, font 200%, Reduce Motion                           | M01→M12, modal/focus/keyboard             | Chờ           |
+| iPhone hiện hành vật lý                   | Ghi model + iOS            | VoiceOver, push denied/granted                                | Auth callback, check-in, SOS, restart     | Chờ           |
+| iOS Simulator                             | Ghi runtime                | Light app khi system dark                                     | Layout/navigation/deep link smoke         | Chờ           |
 
 ## 3. Pass criteria
 

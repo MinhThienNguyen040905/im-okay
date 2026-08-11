@@ -36,10 +36,11 @@ Contact đã chấp nhận và một accelerated cycle tạo đúng một push r
 một acknowledgement và một Gmail correction, không missing/duplicate; kill switch đã tắt lại.
 Firebase Android app chỉ làm FCM transport; Supabase vẫn là backend duy nhất. Source đã sửa
 native token-rotation bug và 133 mobile test/38 suite xanh; candidate Android
-`3768ba65-ac54-47ad-b8d2-d23928d0cf15` từ commit `f1236d5cb789` chứa fix đã submit và đang chờ
-artifact/device smoke trước khi mở rộng pilot. Local fault/reconciliation và isolated restore
-rehearsal đã pass, nhưng hosted backup/PITR chưa có. Accessibility đầy đủ, hosted fault drill,
-SLO dài hạn, Sentry, iOS và store thuộc hardening sau MVP.
+`3768ba65-ac54-47ad-b8d2-d23928d0cf15` từ commit `f1236d5cb789` chứa fix đã `FINISHED`, cài và
+device smoke pass trên TECNO KJ7: session/check-in/History/push registration xanh, không có native
+token mới hoặc crash. Plan 03 staging RC gate đang thực hiện. Local fault/reconciliation và isolated
+restore rehearsal đã pass, nhưng hosted backup/PITR chưa có. Accessibility đầy đủ, hosted fault
+drill, SLO dài hạn, Sentry, iOS và store vẫn là release blockers trước internal alpha/beta.
 Invariant cycle, policy 24/36/48 và recovery được ghi tại
 [`ADR 0009`](docs/adr/0009-core-check-in-cycle-scheduling.md); contact/token/alert/provider workflow
 được ghi tại [`ADR 0010`](docs/adr/0010-contact-alert-notification-workflows.md); staging security và
@@ -66,6 +67,10 @@ Tài liệu hiện có:
 - Ba plan đang dùng: [Mobile status/gates](docs/plans/01-MOBILE-APP.md),
   [Supabase MVP](docs/plans/02-SUPABASE-MVP.md) và
   [Quality/security/release](docs/plans/03-RELEASE.md).
+- Release artifacts: [mobile runbook](docs/release/MOBILE-RELEASE-RUNBOOK.md),
+  [staging operations](docs/release/STAGING-OPERATIONS-RUNBOOK.md),
+  [privacy/terms readiness](docs/release/PRIVACY-TERMS-READINESS.md) và
+  [support/incident runbook](docs/release/SUPPORT-INCIDENT-RUNBOOK.md).
 
 ## Bắt đầu thiết kế
 

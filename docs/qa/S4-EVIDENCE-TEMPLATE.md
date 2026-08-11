@@ -68,16 +68,34 @@ hosted baseline đã pass. Fault/restore/full accessibility/SLO là S4D post-MVP
   `getExpoPushTokenAsync`; lint/typecheck và 133 test/38 suite pass. Fix chưa nằm trong APK này.
 - Token-rotation candidate 11/08/2026: EAS Android staging build
   `3768ba65-ac54-47ad-b8d2-d23928d0cf15` từ exact commit
-  `f1236d5cb78979ce49e9cfb55c888ee54ca4fca2` đã submit; trạng thái gần nhất `IN_PROGRESS`.
-  Candidate chưa thay artifact đã cài cho đến khi `FINISHED`, cài đè và device smoke pass.
+  `f1236d5cb78979ce49e9cfb55c888ee54ca4fca2` đã `FINISHED`, tải qua EAS cache và cài đè lúc
+  14:33 ICT. APK SHA-256
+  `7556B2BAC99A626A6C997F57D8EB49E781C89431AEF277E9AC12AEB0B7BE77F2`; session restore,
+  authoritative check-in, History, Settings push registration và crash-log smoke đều pass.
+  Sau refresh, aggregate scrubbed có `1` Expo token enabled, `0` native token enabled và `1`
+  native row cũ disabled; `last_seen_at` cập nhật lúc `2026-08-11T07:36:25.134481Z`.
+- Candidate font 200% recheck trên TECNO KJ7: Home vẫn hiển thị CTA `Tôi vẫn ổn`, ba tab điều hướng,
+  deadline và last-check-in copy; không có FATAL. Font scale hệ thống đã restore từ `2.0` về `1.0`.
+  TalkBack và full M01–M12 journey chưa được xác minh nên mobile accessibility vẫn `Partial`.
+- Candidate TalkBack Home semantics smoke 11/08/2026: TalkBack service thực sự enabled/bound, cửa sổ
+  accessibility focus là `I'm Okay`; UI tree có heading `Trang chủ`, CTA `Tôi vẫn ổn`, ba tab và
+  `Mở trợ giúp khẩn cấp`, không có FATAL. Setting được restore về services `null`, accessibility/touch
+  exploration `0/0`. Tutorial/TTS trên device ngăn xác minh spoken order và full journey, nên không
+  nâng hàng accessibility thành Pass.
 - S4D security recheck 11/08/2026 04:11 UTC: malformed JWT/actor binding/RLS cross-read và
   cross-update/restricted RPC-table đều pass; synthetic auth users cleanup `2/2`.
 - S4D observability recheck 11/08/2026 04:11 UTC: 30 health samples, error `0/30`,
   average/p50/p95/max `179/169/296/300 ms`; scheduler heartbeat age `9 s`, Cron failures,
   queue, dead-letter và overdue đều `0`; outbox pending `5` khi delivery tắt.
+- Plan 03 RC recheck 11/08/2026 07:44 UTC: hosted security smoke tiếp tục pass malformed JWT,
+  actor binding, RLS/IDOR và restricted RPC/table; synthetic users cleanup `2/2`. Observability
+  30 mẫu có error `0/30`, average/p50/p95/max `187/156/389/647 ms`; heartbeat age `12 s`, Cron
+  failure/queue/dead-letter/overdue đều `0`; outbox pending `6` sau candidate check-in. Provider
+  readiness đủ secret names và consent confirmations nhưng không bật delivery hoặc gọi provider.
 - Hosted contact-web browser recheck 11/08/2026: 390/768/1440 px không overflow ngang, một H1,
   `lang=vi`, root link nhận Tab focus; invitation và alert token giả trả cùng generic invalid-link
-  state. Browser zoom 200% và screen reader thật chưa được xác minh.
+  state, không render token và không có console warning/error. Browser zoom 200% và screen reader
+  thật chưa được xác minh.
 - S4D local recovery drill: 150 pgTAP test pass, bao gồm function termination/lease reclaim,
   deliberately deleted queue message/reconciliation rebuild và provider transient/permanent/unknown.
 - Local isolated restore rehearsal: pass integrity 16 public table và 8 migration record; dump loại
@@ -86,22 +104,19 @@ hosted baseline đã pass. Fault/restore/full accessibility/SLO là S4D post-MVP
 
 ## Environment
 
-- Date/time: 11/08/2026 09:40 ICT (preflight 09/08; provider E2E 11/08)
-- Commit SHA: current exact-commit build
-  `659973f6b097053aa29b9f8f606b651f589bc30c`; các callback-fix build cũ dùng snapshot nên không
-  thay thế build này.
+- Date/time: 11/08/2026 14:44 ICT (preflight/provider E2E trước đó; Plan 03 RC recheck 11/08)
+- Commit SHA: current candidate exact commit
+  `f1236d5cb78979ce49e9cfb55c888ee54ca4fca2`; repository HEAD có thêm release evidence/scripts
+  nhưng `apps/mobile` khớp candidate.
 - Supabase project ref/region/plan: `xnaanctveihyksgcveup` / Singapore / Free
 - Migration versions: 8 version từ `20260804000100` đến `20260809000800`
 - Edge function versions at latest read-only audit: `api` v9, `notification-consumer` v9;
   `public-api`, `provider-receipts`, `ops` v8
 - Contact web build/domain: Vercel `dpl_7su9H5GAA8Zbw7b8ytYCCNVho1xN` / staging alias ở trên
-- Mobile EAS project/build: `3ea9c673-0f86-4d5e-a802-53899da19dcb` /
-  exact-commit build `61b9016f-3a3f-4087-aae3-b2be119d65f6` (`FINISHED`); version `0.1.0`
-  (`1`), signed internal APK; SHA-256
-  `B98427AD9829F4756D4C82C3BDC57354F4866F2C4204AA0EE764472C5A41FF62`
-- Pending replacement candidate: build `3768ba65-ac54-47ad-b8d2-d23928d0cf15`, commit
+- Mobile EAS project/build: `3ea9c673-0f86-4d5e-a802-53899da19dcb` / candidate
+  `3768ba65-ac54-47ad-b8d2-d23928d0cf15` (`FINISHED`), commit
   `f1236d5cb78979ce49e9cfb55c888ee54ca4fca2`, Android staging/internal, app `0.1.0` build `1`;
-  chờ EAS completion/artifact hash/device smoke.
+  SHA-256 `7556B2BAC99A626A6C997F57D8EB49E781C89431AEF277E9AC12AEB0B7BE77F2`.
 - Mobile device/OS: TECNO KJ7 / Android 14, API 34, arm64-v8a; ADB install/launch pass
 - Test users/contacts consent reference: operator confirmation 10/08/2026; không ghi PII
 - Operator và go/hold owner: project owner/operator; supervised personal-pilot window từ
@@ -115,6 +130,7 @@ hosted baseline đã pass. Fault/restore/full accessibility/SLO là S4D post-MVP
 | Full preflight sau contact-web deploy               | Pass    | HTTPS/headers/CORS/auth/ops; 10 samples                                         |               |
 | Auth/redirect/session restore                       | Pass    | Magic link mở app; session còn sau force-stop/mở lại trên TECNO KJ7             |               |
 | Mobile scheduled-alert semantics                    | Pass    | 131 test; scheduled không hiện warning card/button; relaunch/logcat sạch        |               |
+| Candidate token rotation/device smoke               | Pass    | Candidate cài; 1 Expo enabled, 0 native enabled; check-in/History; no FATAL     |               |
 | Invitation → alert → response → correction          | Pass    | Accepted → acknowledged → check-in/cancelled → correction sent; no duplicate    |               |
 | Expo ticket/receipt và Gmail SMTP delivery          | Pass    | Expo receipt ok; push delivered; alert/correction sent, one attempt each        |               |
 | Duplicate/concurrent/offline/timeout                | Pass    | DB/Edge/mobile regression + single delivery per template                        |               |
@@ -122,18 +138,19 @@ hosted baseline đã pass. Fault/restore/full accessibility/SLO là S4D post-MVP
 | RLS/IDOR/JWT/token/rate limit                       | Pass    | anon + 2 synthetic users; actor/IDOR/JWT/token/origin/rate negative matrix pass |               |
 | Contact web 390/768/1440 + keyboard/SR/zoom         | Partial | Live widths/Tab/two invalid-token routes pass; zoom 200% và SR pending          | Device/SR     |
 | Mobile TalkBack/VoiceOver/font/focus/reduced motion | Partial | Android login font 200% + focus pass; TalkBack/full journey pending             | Device/SR     |
-| Sentry symbolication/PII scrub                      |         |                                                                                 |               |
+| Sentry symbolication/PII scrub                      | Partial | Unit scrub pass; staging upload/config vẫn tắt                                  | Sentry setup  |
 | Backup restore/integrity                            | Partial | Local isolated restore 16 tables/8 migrations pass; hosted backup/PITR absent   | Owner/plan    |
 | Monitoring/dashboard/alerts                         | Partial | Current 30-sample health + Cron/ops healthy; alert/SLO series pending           | Operator      |
+| Runbook/privacy/terms/support/incident              | Partial | Runbook + readiness docs có; owner/legal/contact/retention/SLA còn thiếu        | Product/owner |
 
 ## Measured baseline
 
-- Edge health/API average/p50/p95/max/error rate: `179/169/296/300 ms`; 30 health samples;
-  error rate `0/30` at 11/08/2026 04:11 UTC
+- Edge health/API average/p50/p95/max/error rate: `187/156/389/647 ms`; 30 health samples;
+  error rate `0/30` at 11/08/2026 07:44 UTC
 - Cron interval/run failures: scheduler/consumer 1 phút, receipt 5 phút; failures last hour `0`
-- Scheduler lag p50/p95/max: chưa đủ chuỗi đo; heartbeat age tại snapshot mới nhất `9 s`
+- Scheduler lag p50/p95/max: chưa đủ chuỗi đo; heartbeat age tại snapshot mới nhất `12 s`
 - Queue depth/oldest age: `0/0 s`
-- Delivery retry/dead-letter/unknown: `0/0/0`; outbox pending `5` khi delivery tắt
+- Delivery retry/dead-letter/unknown: `0/0/0`; outbox pending `6` sau candidate check-in
 - Email accepted/received latency: correction backend `sent` sau khoảng 63 giây từ check-in;
   inbox receipt đã xác nhận.
 - Expo ticket/receipt latency: direct transport receipt `ok` sau khoảng 8,9 giây; scheduled
@@ -143,15 +160,16 @@ hosted baseline đã pass. Fault/restore/full accessibility/SLO là S4D post-MVP
 
 ## Decision
 
-- Known limitations: token-rotation fix đã có trong candidate build đang chạy nhưng chưa qua
-  artifact/device smoke; native-token row đã disable và Expo row vẫn enabled. Hosted backup/PITR,
-  hosted fault drill, full accessibility, Sentry symbolication và baseline dài hạn chưa có.
+- Known limitations: token-rotation candidate đã qua artifact/device smoke; native-token row cũ
+  vẫn disabled và Expo row vẫn enabled. Hosted backup/PITR, hosted fault drill, full accessibility,
+  Sentry symbolication và baseline dài hạn chưa có.
 - Personal-pilot blockers: không còn theo gate S4C; phải giám sát token/delivery theo runbook.
 - Post-MVP hardening còn mở: hosted fault/reconciliation drill, hosted restore/PITR, full
   accessibility, Sentry symbolication và measured SLO.
 - Go / hold / rollback: Go có điều kiện cho personal pilot một thiết bị/contact đã consent;
   delivery hiện `false` và chỉ owner được mở cửa sổ pilot. Hold/stop nếu Expo token bị
   disable, có missing/duplicate delivery hoặc không tắt được kill switch.
-- Follow-up owner/date: project owner; chờ candidate
-  `3768ba65-ac54-47ad-b8d2-d23928d0cf15`, cài/device smoke token rotation, sau đó cấu hình hosted
-  backup/PITR và chạy hosted recovery drill trước khi mở internal alpha.
+- Follow-up owner/date: project owner; cấu hình hosted backup/PITR, chạy hosted recovery drill,
+  hoàn tất full accessibility/Sentry và measured monitoring trước khi mở internal alpha.
+- Privacy/support follow-up: owner điền legal identity, support/privacy/incident contacts, retention
+  và export/deletion SLA trong release readiness docs; gửi test ticket trước internal alpha.
