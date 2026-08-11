@@ -40,3 +40,22 @@ test("responsive shell is mobile-first with a bounded desktop container", () => 
   assert.match(shell, /paddingHorizontal: 16/);
   assert.match(shell, /width: "100%"/);
 });
+
+test("help links do not loop and the help page states the safety boundary", () => {
+  const home = read("../src/app/index.tsx");
+  const shell = read("../src/components/Shell.tsx");
+  const help = read("../src/app/help.tsx");
+  assert.match(home, /href="\/help"/);
+  assert.doesNotMatch(home, /href="\/" style=\{styles\.link\}/);
+  assert.match(home, /minHeight: 48/);
+  assert.match(shell, /accessibilityLabel="Mở trang trợ giúp"/);
+  assert.match(shell, /href="\/help"/);
+  assert.match(help, /showHelpLink=\{false\}/);
+  assert.match(help, /không phải dịch vụ cứu hộ/);
+  assert.match(help, /không tự gọi dịch vụ khẩn cấp/);
+  assert.match(help, /không chia sẻ vị trí/);
+  assert.match(help, /accessibilityRole="header"/);
+  assert.equal((help.match(/aria-level=\{1\}/g) ?? []).length, 1);
+  assert.equal((help.match(/aria-level=\{2\}/g) ?? []).length, 3);
+  assert.match(help, /minHeight: 48/);
+});

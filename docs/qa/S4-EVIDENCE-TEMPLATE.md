@@ -13,7 +13,7 @@ hosted baseline đã pass. Fault/restore/full accessibility/SLO là S4D post-MVP
 
 - Database reset từ trống và 150/150 pgTAP test: pass.
 - S2 + S3 Edge/local smoke: pass; không gửi provider thật.
-- Release recheck 11/08/2026: mobile 133/133 (38 suite), contact web 4/4, contracts 3/3,
+- Release recheck 11/08/2026: mobile 133/133 (38 suite), contact web 5/5, contracts 3/3,
   Edge/script 33/33 và database 150/150: pass.
 - Lint/typecheck và mobile Android/iOS/web + contact web production export: pass.
 - Browser root shell: 390/768/1440 không tràn ngang; Tab focus, một H1 và `lang=vi`: pass.
@@ -96,6 +96,11 @@ hosted baseline đã pass. Fault/restore/full accessibility/SLO là S4D post-MVP
   `lang=vi`, root link nhận Tab focus; invitation và alert token giả trả cùng generic invalid-link
   state, không render token và không có console warning/error. Browser zoom 200% và screen reader
   thật chưa được xác minh.
+- Contact-web help source QA 11/08/2026: sửa root self-link thành `/help`; trang mới có safety
+  limitation, private-link guidance và không yêu cầu credential/payment. Local browser accessibility
+  tree có đúng một H1 + ba H2, keyboard focus rõ, link 48–50 px, không overflow ở 390/768/1440 và
+  không có console warning/error; lint/typecheck/build + 5/5 test pass. Chưa deploy route mới nên
+  staging direct-route/privacy-header recheck và screen reader/zoom thật vẫn pending.
 - S4D local recovery drill: 150 pgTAP test pass, bao gồm function termination/lease reclaim,
   deliberately deleted queue message/reconciliation rebuild và provider transient/permanent/unknown.
 - Local isolated restore rehearsal: pass integrity 16 public table và 8 migration record; dump loại
@@ -136,7 +141,7 @@ hosted baseline đã pass. Fault/restore/full accessibility/SLO là S4D post-MVP
 | Duplicate/concurrent/offline/timeout                | Pass    | DB/Edge/mobile regression + single delivery per template                        |               |
 | Function/queue/provider/reconciliation drills       | Partial | Local 150 pgTAP + Edge fake-provider recovery cases pass; hosted drill pending  | Operator      |
 | RLS/IDOR/JWT/token/rate limit                       | Pass    | anon + 2 synthetic users; actor/IDOR/JWT/token/origin/rate negative matrix pass |               |
-| Contact web 390/768/1440 + keyboard/SR/zoom         | Partial | Live widths/Tab/two invalid-token routes pass; zoom 200% và SR pending          | Device/SR     |
+| Contact web 390/768/1440 + keyboard/SR/zoom         | Partial | Live token routes pass; local `/help` semantics pass; deploy/zoom/SR pending    | Device/SR     |
 | Mobile TalkBack/VoiceOver/font/focus/reduced motion | Partial | Android login font 200% + focus pass; TalkBack/full journey pending             | Device/SR     |
 | Sentry symbolication/PII scrub                      | Partial | Unit scrub pass; staging upload/config vẫn tắt                                  | Sentry setup  |
 | Backup restore/integrity                            | Partial | Local isolated restore 16 tables/8 migrations pass; hosted backup/PITR absent   | Owner/plan    |

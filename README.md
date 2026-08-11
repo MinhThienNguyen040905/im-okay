@@ -179,6 +179,7 @@ provider → persist outcome, bao gồm retry/unknown và invalid Expo token qua
 
 Parity gap cho personal pilot đã đóng: artifact, Expo receipt, contact acceptance và provider E2E
 đều có evidence thật; staging kill switch đã trả về `false`. Browser nền đã kiểm tra
-390/768/1440, keyboard focus và `lang=vi`. Known limitation là token-rotation candidate chưa qua
-device smoke. Hosted backup/PITR restore, measured SLO, hosted fault drill, zoom/screen reader/full
-device matrix chuyển sang post-MVP release gate.
+390/768/1440, keyboard focus và `lang=vi`; source contact web có thêm route `/help` với safety
+limitation và accessibility hierarchy đã qua local QA, còn chờ staging deploy. Token-rotation
+candidate đã qua device smoke. Hosted backup/PITR restore, measured SLO, hosted fault drill,
+zoom/screen reader/full device matrix chuyển sang post-MVP release gate.

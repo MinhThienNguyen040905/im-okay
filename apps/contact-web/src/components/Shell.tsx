@@ -1,3 +1,4 @@
+import { Link } from "expo-router";
 import type { PropsWithChildren } from "react";
 import {
   ScrollView,
@@ -8,13 +9,26 @@ import {
   type ViewStyle,
 } from "react-native";
 
-export function Shell({ children }: PropsWithChildren) {
+type ShellProps = PropsWithChildren<{ showHelpLink?: boolean }>;
+
+export function Shell({ children, showHelpLink = true }: ShellProps) {
   return (
     <ScrollView contentContainerStyle={styles.page}>
       <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.brand}>I’m Okay</Text>
-          <Text style={styles.help}>Trợ giúp</Text>
+          {showHelpLink ? (
+            <Link
+              accessibilityLabel="Mở trang trợ giúp"
+              accessibilityRole="link"
+              href="/help"
+              style={styles.helpLink}
+            >
+              Trợ giúp
+            </Link>
+          ) : (
+            <Text style={styles.helpLabel}>Trợ giúp</Text>
+          )}
         </View>
         <View style={styles.card}>{children}</View>
         <View style={styles.footer}>
@@ -97,7 +111,15 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 4,
   },
-  help: { color: "#475569", fontSize: 15 },
+  helpLabel: { color: "#475569", fontSize: 15 },
+  helpLink: {
+    color: "#0f766e",
+    fontSize: 15,
+    fontWeight: "600",
+    minHeight: 48,
+    paddingHorizontal: 8,
+    paddingVertical: 14,
+  },
   page: {
     alignItems: "center",
     backgroundColor: "#f1f5f9",

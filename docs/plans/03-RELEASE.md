@@ -62,7 +62,7 @@ vẫn disabled.
 
 - [x] Android candidate chứa token-rotation fix đã `FINISHED`, cài trên TECNO KJ7 và pass
       session restore, authoritative check-in, History, Settings push registration cùng crash-log smoke.
-- [x] Release preflight hiện tại xanh: format, lint, typecheck, contracts 3/3, contact web 4/4,
+- [x] Release preflight hiện tại xanh: format, lint, typecheck, contracts 3/3, contact web 5/5,
       mobile 133/133, Edge/script 33/33, database 150/150, S2/S3 smoke, client builds và
       `expo-doctor` 20/20.
 - [ ] Full mobile/contact-web critical journeys xanh trên staging gần production.
@@ -81,6 +81,9 @@ vẫn disabled.
   - [ ] TalkBack spoken order/full M01–M12, Android matrix còn lại và VoiceOver/iOS.
 - [ ] Contact web đạt 390/768/1440 px, keyboard-only, screen reader và zoom 200%.
   - [x] Live 390/768/1440 px, root Tab focus và invalid-token privacy state.
+  - [x] Source candidate có route `/help` không self-loop, safety limitation, touch target 48 px,
+        đúng một H1 + ba H2; local browser QA 390/768/1440 px và console đều xanh.
+  - [ ] Deploy route `/help` lên staging và recheck privacy headers/direct-route fallback.
   - [ ] Screen reader thật và browser zoom 200%.
 - [ ] Sentry source maps/symbolication hoạt động và event không chứa PII/token.
 - [ ] Database backup đã restore sang isolated environment và kiểm tra integrity.
@@ -111,6 +114,11 @@ Bộ privacy/terms readiness và support/incident runbook đã có, bao gồm sa
 inventory, severity/stop/rollback và intake không thu secret/token. Gate artifact vẫn `Partial` cho đến
 khi owner điền legal identity, support/privacy/incident contacts, retention/export/deletion SLA và
 xác minh kênh public/private thật.
+
+Contact-web source candidate đã sửa link trợ giúp tự trỏ `/` thành route `/help`, thêm safety boundary
+không hứa cứu hộ/y tế/vị trí, và sửa heading hierarchy theo accessibility tree. Lint/typecheck/build,
+5/5 test và browser QA local ở 390/768/1440 px pass; route mới chưa deploy nên không dùng evidence local
+để đóng staging hoặc screen-reader/zoom gate.
 
 ## 5. Internal alpha gate
 

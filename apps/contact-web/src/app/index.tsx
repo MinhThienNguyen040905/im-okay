@@ -15,7 +15,7 @@ export default function ContactWebHome() {
           Hãy mở đúng liên kết trong email lời mời hoặc cảnh báo. Trang này
           không yêu cầu tài khoản.
         </Text>
-        <Link accessibilityRole="link" href="/" style={styles.link}>
+        <Link accessibilityRole="link" href="/help" style={styles.link}>
           Trợ giúp và quyền riêng tư
         </Link>
       </View>
@@ -27,6 +27,14 @@ const styles = StyleSheet.create({
   body: { color: "#334155", fontSize: 18, lineHeight: 28 },
   card: { gap: 16 },
   eyebrow: { color: "#0f766e", fontSize: 16, fontWeight: "700" },
-  link: { color: "#0f766e", fontSize: 16, fontWeight: "600", marginTop: 8 },
+  link: {
+    alignSelf: "flex-start",
+    color: "#0f766e",
+    fontSize: 16,
+    fontWeight: "600",
+    marginTop: 8,
+    minHeight: 48,
+    paddingVertical: 13,
+  },
   title: { color: "#0f172a", fontSize: 32, fontWeight: "700", lineHeight: 40 },
 });
