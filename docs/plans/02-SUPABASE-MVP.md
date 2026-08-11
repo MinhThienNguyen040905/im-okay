@@ -309,6 +309,28 @@ native token-rotation callback có thể đăng ký thêm FCM token không hợp
       keyboard/screen-reader/zoom 200%.
 - [ ] Ghi measured SLO baseline, known limitations và runbook cho outage/backlog/unknown delivery.
 
+S4D progress 11/08/2026:
+
+- Android staging candidate `3768ba65-ac54-47ad-b8d2-d23928d0cf15` đã submit từ exact commit
+  `f1236d5cb78979ce49e9cfb55c888ee54ca4fca2`; candidate chứa token-rotation fix và đang chờ
+  EAS hoàn tất/cài lại/device smoke trước khi thay artifact personal-pilot hiện tại.
+- Release gate hiện tại xanh: mobile 133 test/38 suite, Edge/script 33 test, contact web 4 test,
+  contracts 3 test, 150 pgTAP test, lint/typecheck, format, Expo Android/iOS/web export,
+  contact-web production export và `expo-doctor` 20/20.
+- Hosted security smoke pass actor binding, malformed JWT, RLS cross-read/update, restricted RPC/table;
+  hai synthetic user đã cleanup `2/2`. Public web privacy headers/exact CORS và live 390/768/1440 px,
+  Tab focus, invitation/alert invalid-token generic state được kiểm tra lại; zoom 200%/screen reader còn mở.
+- Observability snapshot 30 mẫu có error `0/30`, p50/p95/max `169/296/300 ms`; scheduler heartbeat age
+  `9 s`, Cron failure/queue/dead-letter/overdue đều `0`. Outbox còn `5` pending khi delivery đang tắt;
+  đây là signal cần tiếp tục quan sát, chưa phải measured SLO dài hạn.
+- Local recovery drill pass 150 pgTAP case, gồm function termination/lease expiry, queue-message loss,
+  reconciliation rebuild, provider transient/permanent/unknown và idempotency. Restore rehearsal local
+  sang database tạm pass integrity cho 16 public table và 8 migration; `pg_cron` phải loại khỏi dump và
+  restore dùng `supabase_admin`, database/dump tạm đã cleanup.
+- Hosted project hiện không có physical backup và `pitr_enabled=false`; local rehearsal không đóng
+  backup/PITR gate. Fault drill hosted, full accessibility/fresh-user, Sentry symbolication và chuỗi đo
+  SLO dài hạn vẫn mở.
+
 Repository readiness evidence 09/08/2026 (chưa thay thế staging evidence):
 
 - Migration S4 thêm fixed-window rate limit chỉ lưu SHA-256 subject, aggregate operational snapshot,
@@ -465,6 +487,8 @@ release-hardening DoD trong [`03-RELEASE.md`](03-RELEASE.md), không phải bloc
 ## 9. Bước tiếp theo
 
 S1–S3 và S4A–S4C đã hoàn tất; personal-pilot MVP có thể vận hành có giám sát.
-Giữ kill switch tắt ngoài cửa sổ pilot do owner kiểm soát, theo dõi token enabled và đưa
-token-rotation fix vào build kế tiếp. Google/fresh-user, fault/reconciliation drill, backup restore,
-full accessibility matrix, measured SLO, iOS và store chuyển sang S4D/Plan 03.
+Giữ kill switch tắt ngoài cửa sổ pilot do owner kiểm soát. Chờ EAS candidate
+`3768ba65-ac54-47ad-b8d2-d23928d0cf15` hoàn tất, cài lên thiết bị và xác minh token rotation trước
+khi mở rộng pilot. Sau đó ưu tiên hosted fault/reconciliation drill và cấu hình backup/PITR; Google/
+fresh-user, full accessibility matrix, measured SLO, Sentry symbolication, iOS và store tiếp tục theo
+S4D/Plan 03.

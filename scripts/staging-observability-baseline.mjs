@@ -20,7 +20,17 @@ assert.equal(supabaseUrl.hostname, `${expectedProjectRef}.supabase.co`);
 
 const baseUrl = supabaseUrl.toString().replace(/\/$/, "");
 const publishableKey = required("STAGING_SUPABASE_PUBLISHABLE_KEY");
-const secretKey = required("STAGING_SUPABASE_SECRET_KEY");
+const serviceRoleKey =
+  process.env.STAGING_SUPABASE_SERVICE_ROLE_KEY?.trim() ||
+  process.env.STAGING_SUPABASE_SECRET_KEY?.trim();
+if (!serviceRoleKey) {
+  throw new Error("Thiếu biến STAGING_SUPABASE_SERVICE_ROLE_KEY.");
+}
+assert.match(
+  serviceRoleKey,
+  /^[^.]+\.[^.]+\.[^.]+$/,
+  "Observability snapshot cần legacy service_role JWT; không dùng sb_secret key.",
+);
 const requestedSamples = Number(process.env.S4_OBSERVABILITY_SAMPLES ?? "30");
 assert.ok(Number.isInteger(requestedSamples));
 assert.ok(requestedSamples >= 10 && requestedSamples <= 100);
@@ -51,8 +61,8 @@ const opsResponse = await fetch(
   {
     body: "{}",
     headers: {
-      apikey: secretKey,
-      authorization: `Bearer ${secretKey}`,
+      apikey: serviceRoleKey,
+      authorization: `Bearer ${serviceRoleKey}`,
       "content-type": "application/json",
     },
     method: "POST",

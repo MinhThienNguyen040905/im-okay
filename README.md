@@ -29,15 +29,17 @@ CLI login/link đã xác minh; 8 migration và 5 Edge Functions đã deploy, Vau
 cấu hình, public/ops health đều trả `200`, còn API không JWT trả `401`. Notification delivery vẫn
 tắt. Contact web staging đã deploy tại `https://im-okay-contact-staging.vercel.app`; Auth URL/redirect,
 exact CORS và non-mutating preflight đều xanh. Hosted JWT/actor-binding/IDOR/RLS/token/rate-limit
-negative matrix đã xanh; observability snapshot 30 mẫu có error `0/30`, p50 `161 ms`, p95 `258 ms`
-và Cron/queue/outbox/dead-letter đều khỏe. Exact-commit EAS build
+negative matrix đã xanh; observability recheck 30 mẫu có error `0/30`, p50 `169 ms`, p95 `296 ms`
+và Cron/queue/dead-letter/overdue đều khỏe. Exact-commit EAS build
 `61b9016f-3a3f-4087-aae3-b2be119d65f6` đã cài trên TECNO KJ7; Expo ticket/receipt xanh.
 Contact đã chấp nhận và một accelerated cycle tạo đúng một push reminder, một Gmail alert,
 một acknowledgement và một Gmail correction, không missing/duplicate; kill switch đã tắt lại.
 Firebase Android app chỉ làm FCM transport; Supabase vẫn là backend duy nhất. Source đã sửa
-native token-rotation bug và 133 mobile test/38 suite xanh; fix này phải vào build kế tiếp trước
-khi mở rộng pilot. Accessibility đầy đủ, fault drill, SLO dài hạn, restore, iOS và store
-thuộc hardening sau MVP.
+native token-rotation bug và 133 mobile test/38 suite xanh; candidate Android
+`3768ba65-ac54-47ad-b8d2-d23928d0cf15` từ commit `f1236d5cb789` chứa fix đã submit và đang chờ
+artifact/device smoke trước khi mở rộng pilot. Local fault/reconciliation và isolated restore
+rehearsal đã pass, nhưng hosted backup/PITR chưa có. Accessibility đầy đủ, hosted fault drill,
+SLO dài hạn, Sentry, iOS và store thuộc hardening sau MVP.
 Invariant cycle, policy 24/36/48 và recovery được ghi tại
 [`ADR 0009`](docs/adr/0009-core-check-in-cycle-scheduling.md); contact/token/alert/provider workflow
 được ghi tại [`ADR 0010`](docs/adr/0010-contact-alert-notification-workflows.md); staging security và
@@ -172,6 +174,6 @@ provider → persist outcome, bao gồm retry/unknown và invalid Expo token qua
 
 Parity gap cho personal pilot đã đóng: artifact, Expo receipt, contact acceptance và provider E2E
 đều có evidence thật; staging kill switch đã trả về `false`. Browser nền đã kiểm tra
-390/768/1440, keyboard focus và `lang=vi`. Known limitation là token-rotation fix chưa nằm trong
-exact APK đã cài. Backup/PITR restore, measured SLO, fault drill, zoom/screen reader/full device
-matrix chuyển sang post-MVP release gate.
+390/768/1440, keyboard focus và `lang=vi`. Known limitation là token-rotation candidate chưa qua
+device smoke. Hosted backup/PITR restore, measured SLO, hosted fault drill, zoom/screen reader/full
+device matrix chuyển sang post-MVP release gate.

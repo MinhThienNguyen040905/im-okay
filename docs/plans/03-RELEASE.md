@@ -45,19 +45,21 @@ Owner có thể bắt đầu personal pilot có giám sát; không cần chờ i
 full device/accessibility matrix, restore drill hoặc SLO dài hạn. Delivery mặc định vẫn tắt
 ngoài cửa sổ do owner chủ động mở theo runbook. Binary hiện tại có known limitation với
 native token rotation; invalid token đã disable, Expo token hợp lệ vẫn enabled và source fix phải
-có trong build kế tiếp trước khi mở rộng nhóm pilot.
+có trong build kế tiếp trước khi mở rộng nhóm pilot. Candidate chứa fix đã submit từ commit
+`f1236d5cb78979ce49e9cfb55c888ee54ca4fca2`, nhưng chưa thay artifact hiện tại cho đến khi build
+hoàn tất và device smoke pass.
 
 ## 4. Staging release candidate gate — post-MVP hardening
 
 Gate này mở sau personal pilot và chỉ đóng sau S4D:
 
 - [ ] Full mobile/contact-web critical journeys xanh trên staging gần production.
-- [ ] Accelerated 36-hour-equivalent alert flow chạy với test recipients đã consent.
-- [ ] Check-in concurrent/idempotent/offline/timeout và correction sau notification được test.
+- [x] Accelerated 36-hour-equivalent alert flow chạy với test recipients đã consent.
+- [x] Check-in concurrent/idempotent/offline/timeout và correction sau notification được test.
 - [ ] Function termination, queue loss/lease expiry, provider timeout/unknown và reconciliation
       được diễn tập.
-- [ ] RLS/IDOR/JWT/public-token/rate-limit negative tests xanh.
-- [ ] Public web đạt CSP/CORS/no-referrer/no-store/noindex và không rò token qua URL/log/cache.
+- [x] RLS/IDOR/JWT/public-token/rate-limit negative tests xanh.
+- [x] Public web đạt CSP/CORS/no-referrer/no-store/noindex và không rò token qua URL/log/cache.
 - [ ] Mobile đạt VoiceOver/TalkBack, font 200%, focus và reduced-motion device matrix.
 - [ ] Contact web đạt 390/768/1440 px, keyboard-only, screen reader và zoom 200%.
 - [ ] Sentry source maps/symbolication hoạt động và event không chứa PII/token.
@@ -65,6 +67,14 @@ Gate này mở sau personal pilot và chỉ đóng sau S4D:
 - [ ] Dashboard/alert theo dõi function error, cron/scheduler lag, queue age, overdue action,
       reconciliation và provider failure.
 - [ ] Runbook, known limitations, privacy/terms/support và incident contact đã sẵn sàng.
+
+Tiến độ 11/08/2026: quality gate xanh với 133 mobile, 33 Edge/script, 150 pgTAP, 4 contact-web và
+3 contracts test; `expo-doctor` 20/20. Android staging candidate
+`3768ba65-ac54-47ad-b8d2-d23928d0cf15` từ exact commit
+`f1236d5cb78979ce49e9cfb55c888ee54ca4fca2` đã submit và đang chờ artifact/device smoke. Hosted
+security smoke và 30-sample observability snapshot xanh; local fault/reconciliation và isolated
+restore rehearsal xanh. Không nâng local rehearsal thành release pass: hosted fault drill còn thiếu,
+staging Free hiện không có physical backup/PITR, và accessibility/Sentry/SLO dài hạn vẫn mở.
 
 ## 5. Internal alpha gate
 

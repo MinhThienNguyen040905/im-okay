@@ -170,11 +170,13 @@ S4C đã đóng bằng artifact/provider thật: exact-commit build
 nhận, và một accelerated reminder → alert → response → check-in/correction không missing/
 duplicate. Delivery kill switch đã trả về tắt. Firebase vẫn chỉ là FCM transport;
 Supabase là backend duy nhất. Native token-rotation bug đã sửa và test trong source, hàng token
-không hợp lệ đã disable; fix phải vào build kế tiếp trước khi mở rộng pilot.
+không hợp lệ đã disable; candidate Android `3768ba65-ac54-47ad-b8d2-d23928d0cf15` từ exact commit
+`f1236d5cb78979ce49e9cfb55c888ee54ca4fca2` chứa fix đã submit và đang chờ artifact/device smoke.
 
-Sau P2, S4D mới xử lý Google/fresh-user, fault/reconciliation drill, restore, measured SLO, full
-accessibility, Sentry, iOS và store. Không dùng fake-provider/config-only evidence để đóng gate cần
-provider hoặc thiết bị thật.
+S4D đã có hosted security/observability recheck, local fault/reconciliation drill và local isolated
+restore rehearsal. Google/fresh-user, hosted fault drill, hosted backup/PITR restore, measured SLO,
+full accessibility, Sentry, iOS và store vẫn mở. Không dùng local rehearsal, fake-provider hoặc
+config-only evidence để đóng gate cần hosted provider/backup hay thiết bị thật.
 
 ## 7. Quy tắc cập nhật
 

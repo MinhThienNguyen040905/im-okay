@@ -26,7 +26,17 @@ assert.equal(
 
 const baseUrl = supabaseUrl.toString().replace(/\/$/, "");
 const publishableKey = required("STAGING_SUPABASE_PUBLISHABLE_KEY");
-const secretKey = required("STAGING_SUPABASE_SECRET_KEY");
+const serviceRoleKey =
+  process.env.STAGING_SUPABASE_SERVICE_ROLE_KEY?.trim() ||
+  process.env.STAGING_SUPABASE_SECRET_KEY?.trim();
+if (!serviceRoleKey) {
+  throw new Error("Thiếu biến STAGING_SUPABASE_SERVICE_ROLE_KEY.");
+}
+assert.match(
+  serviceRoleKey,
+  /^[^.]+\.[^.]+\.[^.]+$/,
+  "Security smoke cần legacy service_role JWT; không dùng sb_secret key.",
+);
 const runId = crypto.randomUUID();
 const createdUserIds = [];
 
@@ -54,8 +64,8 @@ const requireStatus = async (response, expected) => {
 };
 
 const adminHeaders = {
-  apikey: secretKey,
-  authorization: `Bearer ${secretKey}`,
+  apikey: serviceRoleKey,
+  authorization: `Bearer ${serviceRoleKey}`,
   "content-type": "application/json",
 };
 

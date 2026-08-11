@@ -99,6 +99,9 @@ Sau upload, chưa chuyển production ngay:
 
 Repository đã có EAS profiles, light/reduced-motion/deep-link/Sentry hardening, automated tests và
 Maestro fixture smoke. EAS project đã liên kết; signed Android internal APK đã build, cài và smoke
-trên TECNO KJ7/Android 14 với Supabase staging. Authenticated session restore, full device/accessibility
-matrix, Sentry source-map upload, iOS build, Maestro trên internal binary, TestFlight/Play upload và
-rollout vẫn chưa hoàn tất; provider acceptance còn chờ sender/recipient/device đã consent.
+trên TECNO KJ7/Android 14 với Supabase staging. Authenticated session restore và provider acceptance
+push/email với sender/recipient/device đã consent đã pass; delivery được tắt lại sau smoke. Candidate
+Android `3768ba65-ac54-47ad-b8d2-d23928d0cf15` từ exact commit
+`f1236d5cb78979ce49e9cfb55c888ee54ca4fca2` chứa token-rotation fix đang chờ EAS hoàn tất, cài và
+device smoke. Full device/accessibility matrix, Sentry source-map upload, iOS build, Maestro trên
+candidate binary, TestFlight/Play upload và rollout vẫn chưa hoàn tất.

@@ -107,17 +107,18 @@ privacy headers, ops projection và 10 latency samples. Nó không mutate domain
 ### Hosted security smoke
 
 Smoke này tạo hai auth user tổng hợp có domain `.test`, không gửi email, chạy JWT/actor-binding/IDOR/RLS
-negative cases rồi xóa cả hai user trong `finally`. Chỉ lấy secret key từ CLI hoặc secret manager vào
-biến môi trường tạm; không ghi key vào script, terminal history hoặc evidence.
+negative cases rồi xóa cả hai user trong `finally`. Script hiện cần legacy `service_role` JWT để gọi
+Auth Admin/REST với Bearer token; không truyền `sb_secret_...` vào biến này. Chỉ lấy key từ CLI hoặc
+secret manager vào biến môi trường tạm; không ghi key vào script, terminal history hoặc evidence.
 
 ```powershell
 $env:S4_SECURITY_SMOKE_CONFIRMATION = 'staging'
 $env:STAGING_EXPECTED_PROJECT_REF = '<project-ref>'
 $env:STAGING_SUPABASE_URL = 'https://<project-ref>.supabase.co'
 $env:STAGING_SUPABASE_PUBLISHABLE_KEY = '<publishable key>'
-$env:STAGING_SUPABASE_SECRET_KEY = '<secret key>'
+$env:STAGING_SUPABASE_SERVICE_ROLE_KEY = '<legacy service_role JWT>'
 npm run staging:security-smoke
-Remove-Item Env:STAGING_SUPABASE_SECRET_KEY
+Remove-Item Env:STAGING_SUPABASE_SERVICE_ROLE_KEY
 ```
 
 Xác minh dòng cleanup pass, sau đó xóa các biến secret khỏi process hiện tại.
@@ -133,9 +134,9 @@ $env:S4_OBSERVABILITY_SAMPLES = '30'
 $env:STAGING_EXPECTED_PROJECT_REF = '<project-ref>'
 $env:STAGING_SUPABASE_URL = 'https://<project-ref>.supabase.co'
 $env:STAGING_SUPABASE_PUBLISHABLE_KEY = '<publishable key>'
-$env:STAGING_SUPABASE_SECRET_KEY = '<secret key>'
+$env:STAGING_SUPABASE_SERVICE_ROLE_KEY = '<legacy service_role JWT>'
 npm run staging:observability
-Remove-Item Env:STAGING_SUPABASE_SECRET_KEY
+Remove-Item Env:STAGING_SUPABASE_SERVICE_ROLE_KEY
 ```
 
 Một snapshot xanh chỉ đóng bước đo tức thời; chưa đủ để tự chốt SLO hoặc alert threshold dài hạn.
@@ -189,6 +190,12 @@ trùng trong supervised smoke. Không dùng Gmail SMTP để đóng beta/product
 - Receipt failure: dùng token test hết hạn và xác minh `DeviceNotRegistered` disable token.
 - Public security: RLS/IDOR/JWT/origin/token/rate-limit negative matrix; response không phân biệt token
   không tồn tại với token sai theo cách hỗ trợ enumeration.
+
+Local restore rehearsal chỉ là kiểm tra runbook, không thay hosted backup/PITR gate. Với Supabase local,
+dump phải loại riêng extension `pg_cron` vì nó chỉ được tạo trong database cấu hình `postgres`; restore
+dùng role `supabase_admin`, so sánh số row của các bảng ứng dụng cùng
+`supabase_migrations.schema_migrations`, rồi xóa database và dump tạm. Production/staging release chỉ
+pass khi backup của hosted project được restore sang environment biệt lập và kiểm tra integrity thật.
 
 ## 7. Monitoring và incident actions
 
