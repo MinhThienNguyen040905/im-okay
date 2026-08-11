@@ -284,23 +284,23 @@ restore và device matrix rộng hơn được giữ lại nhưng không chặn 
 - [x] Đo snapshot Edge Function error/latency, cron run, queue age/depth/retry/dead-letter.
 - [x] Xác minh hosted RLS/IDOR/rate-limit/public-token negative cases và PII scrub.
 
-#### S4C — Personal-pilot acceptance — gate hiện tại
+#### S4C — Personal-pilot acceptance — hoàn tất 11/08/2026
 
 - [x] Cấu hình Firebase Android app chỉ làm FCM transport, EAS secret file
       `GOOGLE_SERVICES_JSON` và FCM V1 credential; không thêm Firebase Auth/data/functions.
 - [x] Submit Android build exact commit `659973f6b097053aa29b9f8f606b651f589bc30c`; build
-      `61b9016f-3a3f-4087-aae3-b2be119d65f6` đã vào `IN_PROGRESS` tại lần kiểm tra 10/08/2026.
-- [ ] Cài artifact trên TECNO KJ7 và xác minh Expo token → ticket → receipt.
-- [ ] Cho test contact đã consent chấp nhận invitation đã gửi.
-- [ ] Chạy đúng một accelerated alert → email/push → contact response → correction/check-in;
+      `61b9016f-3a3f-4087-aae3-b2be119d65f6` đã `FINISHED` và cài ngày 11/08/2026.
+- [x] Cài artifact trên TECNO KJ7 và xác minh Expo token → ticket → receipt.
+- [x] Test contact đã consent đã chấp nhận invitation đã gửi.
+- [x] Chạy đúng một accelerated alert → email/push → contact response → correction/check-in;
       xác minh không missing/duplicate và tắt delivery ngay sau smoke.
 
-Không submit thêm build hoặc mở rộng feature trong lúc artifact hiện tại đang chạy. Chỉ sửa/build lại
-khi smoke trên artifact này phát hiện blocker thật. Fallback nhanh nhất là email-only supervised pilot
-sau khi contact acceptance + alert email/correction E2E xanh và owner ghi nhận push limitation; fallback
-này không đóng Expo Push gate.
+Exact artifact đã qua provider E2E nên không dùng email-only fallback. Known limitation của binary:
+native token-rotation callback có thể đăng ký thêm FCM token không hợp lệ với Expo. Hàng đó
+đã bị disable, Expo token hợp lệ vẫn enabled; source fix và regression test đã có nhưng phải
+đi vào build kế tiếp trước khi mở rộng ngoài personal pilot.
 
-#### S4D — Post-MVP release hardening — không chặn personal pilot
+#### S4D — Post-MVP release hardening — gate tiếp theo, không chặn personal pilot
 
 - [ ] Tích lũy scheduler lag p50/p95/max và chốt alert threshold từ chuỗi đo staging.
 - [ ] Chạy function termination, queue loss/lease expiry, provider outage và reconciliation drill.
@@ -395,13 +395,24 @@ Hosted backend deployment evidence 09/08/2026:
   xanh. Do `supabase db reset --local` gặp `uv_spawn` trên Windows với path workspace này,
   `supabase:reset`/`test:integration` nay recreate stack bằng `stop --no-backup` → `start`, giữ đúng
   fresh-migration semantics và chạy được bằng lệnh chuẩn trong repository.
-- Contact acceptance, push receipt/provider flow, Google/fresh-user onboarding, full accessibility,
-  fault/reconciliation drill, SLO dài hạn và backup restore vẫn là gate mở; delivery tiếp tục tắt.
+- Tại lần audit này contact acceptance và push/provider flow còn mở; chúng đã được đóng
+  bằng evidence 11/08/2026 bên dưới. Google/fresh-user, full accessibility, fault/reconciliation
+  drill, SLO dài hạn và backup restore vẫn thuộc S4D.
 - Sau audit trên, Firebase project/Android app chỉ dành cho FCM transport đã được cấu hình; EAS Preview
   có secret file `GOOGLE_SERVICES_JSON` và FCM V1 credential đã gán cho `com.imokay.app`. Android build
   `61b9016f-3a3f-4087-aae3-b2be119d65f6` từ exact commit
-  `659973f6b097053aa29b9f8f606b651f589bc30c` đã chuyển sang `IN_PROGRESS` ngày 10/08/2026.
-  Chưa có artifact/install/token/ticket/receipt evidence; kill switch vẫn tắt.
+  `659973f6b097053aa29b9f8f606b651f589bc30c` đã `FINISHED`, cài trên TECNO KJ7 với
+  SHA-256 `B98427AD9829F4756D4C82C3BDC57354F4866F2C4204AA0EE764472C5A41FF62`.
+- Provider smoke 11/08/2026: Settings đăng ký được Expo token; direct Expo ticket và receipt
+  đều `ok`. Accelerated cycle tạo chính xác một `user-reminder` Expo `delivered`, một
+  `trusted-contact-alert` Gmail SMTP `sent` và một `alert-correction` Gmail SMTP `sent`;
+  mỗi delivery một attempt, không error. Contact invitation/acknowledgement đã được Supabase
+  ghi nhận; check-in chuyển alert cũ sang `cancelled`, correction sang `sent` và tạo chu kỳ
+  `scheduled` mới. Correction email có trong inbox; kill switch đã trả về `false`.
+- Smoke phát hiện binary đăng ký cả native FCM token khi listener chạy. Hàng native đã
+  disable, Expo token vẫn enabled. Source đã chuyển `DevicePushToken` qua
+  `getExpoPushTokenAsync`; lint/typecheck và 133 mobile test/38 suite xanh. Fix chưa nằm trong
+  exact artifact và được ghi là giới hạn của personal pilot hiện tại.
 
 Personal-pilot exit:
 
@@ -453,13 +464,7 @@ release-hardening DoD trong [`03-RELEASE.md`](03-RELEASE.md), không phải bloc
 
 ## 9. Bước tiếp theo
 
-S1–S3, S4A, hosted baseline, Gmail invitation thật và Android FCM/EAS configuration đã hoàn tất.
-Không bắt đầu thêm nhánh hardening song song. Fast path chỉ còn ba bước tuần tự:
-
-1. Chờ build exact commit hiện tại hoàn tất; cài artifact và xác minh token/ticket/receipt.
-2. Cho test contact đã consent chấp nhận invitation.
-3. Chạy một accelerated alert/contact-response/correction cycle, ghi evidence và tắt delivery.
-
-Sau đó có thể bắt đầu personal pilot có giám sát. Google/fresh-user, fault/reconciliation drill,
-backup restore, full accessibility matrix, measured SLO, iOS và store chuyển sang S4D/Plan 03.
-Không đánh dấu gate bằng config-only hoặc fake-provider evidence.
+S1–S3 và S4A–S4C đã hoàn tất; personal-pilot MVP có thể vận hành có giám sát.
+Giữ kill switch tắt ngoài cửa sổ pilot do owner kiểm soát, theo dõi token enabled và đưa
+token-rotation fix vào build kế tiếp. Google/fresh-user, fault/reconciliation drill, backup restore,
+full accessibility matrix, measured SLO, iOS và store chuyển sang S4D/Plan 03.

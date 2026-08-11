@@ -16,17 +16,17 @@ migration và automated test là bằng chứng hành vi hiện tại.
 
 ## 2. Trạng thái hiện tại
 
-Mốc tham chiếu: 2026-08-10.
+Mốc tham chiếu: 2026-08-11.
 
-| Hạng mục                              | Trạng thái                                                                                 |
-| ------------------------------------- | ------------------------------------------------------------------------------------------ |
-| Product brief, UX flow, design system | Đã có bản nền                                                                              |
-| Mobile M01–M12                        | Client MA0–MA6 và MA7 repository hardening hoàn tất                                        |
-| Mobile remote/device acceptance       | Android auth/check-in smoke xanh; exact-commit FCM build đang chạy; full matrix để sau MVP |
-| Contact web W01–W05                   | Đã deploy Vercel; invitation đã gửi, contact acceptance/pilot alert còn mở                 |
-| Supabase backend                      | 8 migration + 5 Edge Functions, hosted Cron/security/ops baseline đã xanh                  |
-| Workspace/CI                          | Mobile/contact/contracts/functions/database đã có root scripts và GitHub Actions workflow  |
-| Staging/store                         | Personal-pilot gate hiện tại; fault/restore/SLO/iOS/store chuyển sang hardening            |
+| Hạng mục                              | Trạng thái                                                                                |
+| ------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Product brief, UX flow, design system | Đã có bản nền                                                                             |
+| Mobile M01–M12                        | Client MA0–MA6 và MA7 repository hardening hoàn tất                                       |
+| Mobile remote/device acceptance       | Exact-commit APK và Expo ticket/receipt xanh; full matrix để sau MVP                      |
+| Contact web W01–W05                   | Đã deploy Vercel; invitation acceptance và alert response E2E xanh                        |
+| Supabase backend                      | 8 migration + 5 Edge Functions, hosted Cron/security/ops baseline đã xanh                 |
+| Workspace/CI                          | Mobile/contact/contracts/functions/database đã có root scripts và GitHub Actions workflow |
+| Staging/store                         | Personal-pilot gate đạt; fault/restore/SLO/iOS/store chuyển sang hardening                |
 
 Việc rút sáu plan cũ thành ba plan không reset mobile. Chi tiết 57 checkbox client đã
 hoàn thành được tóm tắt trong Plan 01 và giữ bằng chứng tại ADR 0001–0007.
@@ -106,7 +106,7 @@ Gate:
 
 ### P2 — Personal-pilot MVP on staging
 
-Trạng thái: **Hosted baseline hoàn tất; personal-pilot acceptance đang thực hiện.**
+Trạng thái: **Hoàn tất ngày 11/08/2026; sẵn sàng personal pilot có giám sát.**
 
 Phạm vi: S3 Contacts/alerts/contact web + S4A/S4B baseline + S4C personal-pilot acceptance trong
 Plan 02.
@@ -156,22 +156,21 @@ S3 Contacts + alerts + contact web complete locally
    v
 S4A/S4B hosted baseline complete
    v
-S4C Personal-pilot acceptance (current)
+S4C Personal-pilot acceptance complete
    v
-P2 Android personal pilot
+P2 Android personal pilot ready
    v
 S4D Post-MVP hardening
    v
 P3 Internal release gate
 ```
 
-S4A/S4B đã hoàn tất hosted baseline: 8 migration, 5 Edge Functions, Vault workers, Vercel contact
-web, Auth URL/CORS, hosted security matrix, ops snapshot, Gmail SMTP invitation và Android device
-smoke. Delivery kill switch đang tắt. Firebase chỉ được cấu hình làm FCM transport cho Expo Push;
-EAS secret file/FCM V1 credential đã có và build exact commit
-`61b9016f-3a3f-4087-aae3-b2be119d65f6` đang chạy. Fast path S4C chỉ còn: cài artifact +
-token/ticket/receipt, contact acceptance, rồi một accelerated alert/response/correction cycle và tắt
-delivery. Không tạo thêm build hoặc mở các nhánh hardening trước khi smoke hiện tại lộ blocker thật.
+S4C đã đóng bằng artifact/provider thật: exact-commit build
+`61b9016f-3a3f-4087-aae3-b2be119d65f6` đã cài, Expo ticket/receipt xanh, contact đã chấp
+nhận, và một accelerated reminder → alert → response → check-in/correction không missing/
+duplicate. Delivery kill switch đã trả về tắt. Firebase vẫn chỉ là FCM transport;
+Supabase là backend duy nhất. Native token-rotation bug đã sửa và test trong source, hàng token
+không hợp lệ đã disable; fix phải vào build kế tiếp trước khi mở rộng pilot.
 
 Sau P2, S4D mới xử lý Google/fresh-user, fault/reconciliation drill, restore, measured SLO, full
 accessibility, Sentry, iOS và store. Không dùng fake-provider/config-only evidence để đóng gate cần

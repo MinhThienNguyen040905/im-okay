@@ -17,16 +17,16 @@ escalation, public contact response và account-data processing. Các phần nà
 
 ## 2. Trạng thái M01–M12
 
-| Hạng mục                             | Trạng thái client | Nghiệm thu còn lại                                | Bằng chứng                                                  |
-| ------------------------------------ | ----------------- | ------------------------------------------------- | ----------------------------------------------------------- |
-| MA0 design/navigation                | Hoàn tất          | Không                                             | `design/stitch/06-MA0-DESIGN-READINESS.md`                  |
-| MA1 foundation                       | Hoàn tất          | Không                                             | `docs/adr/0001-mobile-foundation.md`                        |
-| MA2 auth/onboarding M01–M05          | Hoàn tất          | Google/redirect và push token trên staging/device | `docs/adr/0002-mobile-auth-onboarding.md`                   |
-| MA3 check-in M06                     | Hoàn tất          | Remote device/staging acceptance                  | `docs/adr/0003-mobile-authoritative-check-in.md`            |
-| MA4 trusted contacts M07/M08         | Hoàn tất          | Email thật và invitation flow trên staging        | `docs/adr/0004-mobile-authoritative-trusted-contacts.md`    |
-| MA5 warning/SOS/snooze/drill M09/M10 | Hoàn tất          | Alert/provider E2E trên staging                   | `docs/adr/0005-mobile-authoritative-alert-actions.md`       |
-| MA6 history/settings M11/M12         | Hoàn tất          | Retention/re-auth acceptance trên staging         | `docs/adr/0006-mobile-history-settings-safe-projections.md` |
-| MA7 repository hardening             | Hoàn tất          | Device/accessibility/build/store gate             | `docs/adr/0007-mobile-release-hardening.md`                 |
+| Hạng mục                             | Trạng thái client | Nghiệm thu còn lại                        | Bằng chứng                                                  |
+| ------------------------------------ | ----------------- | ----------------------------------------- | ----------------------------------------------------------- |
+| MA0 design/navigation                | Hoàn tất          | Không                                     | `design/stitch/06-MA0-DESIGN-READINESS.md`                  |
+| MA1 foundation                       | Hoàn tất          | Không                                     | `docs/adr/0001-mobile-foundation.md`                        |
+| MA2 auth/onboarding M01–M05          | Hoàn tất          | Google/fresh-user sau MVP                 | `docs/adr/0002-mobile-auth-onboarding.md`                   |
+| MA3 check-in M06                     | Hoàn tất          | Không trong personal-pilot gate           | `docs/adr/0003-mobile-authoritative-check-in.md`            |
+| MA4 trusted contacts M07/M08         | Hoàn tất          | Không trong personal-pilot gate           | `docs/adr/0004-mobile-authoritative-trusted-contacts.md`    |
+| MA5 warning/SOS/snooze/drill M09/M10 | Hoàn tất          | SOS/drill matrix sau MVP                  | `docs/adr/0005-mobile-authoritative-alert-actions.md`       |
+| MA6 history/settings M11/M12         | Hoàn tất          | Retention/re-auth acceptance trên staging | `docs/adr/0006-mobile-history-settings-safe-projections.md` |
+| MA7 repository hardening             | Hoàn tất          | Device/accessibility/build/store gate     | `docs/adr/0007-mobile-release-hardening.md`                 |
 
 ## 3. Contract client phải giữ
 
@@ -48,7 +48,7 @@ Zod schema, test và ADR trong cùng thay đổi.
 
 ## 4. Gate còn mở
 
-### Personal-pilot MVP — gate hiện tại
+### Personal-pilot MVP — hoàn tất 11/08/2026
 
 - [x] Xác minh email magic-link, redirect và session restore với Supabase staging trên Android.
 - [x] Xác minh profile/device/safety-plan onboarding qua Edge Functions trên local/integration.
@@ -58,15 +58,15 @@ Zod schema, test và ADR trong cùng thay đổi.
 - [x] Tạo Android signed build, cài/chạy trên TECNO KJ7 và hoàn tất remote check-in/history smoke.
 - [x] Nạp `GOOGLE_SERVICES_JSON` bằng EAS secret file, FCM V1 credential và khởi chạy build exact
       commit `659973f6b097053aa29b9f8f606b651f589bc30c`.
-- [ ] Chờ build `61b9016f-3a3f-4087-aae3-b2be119d65f6` hoàn tất, cài đúng artifact và xác minh
+- [x] Build `61b9016f-3a3f-4087-aae3-b2be119d65f6` hoàn tất, cài đúng artifact và xác minh
       Expo token → ticket → receipt trên thiết bị thật.
-- [ ] Cho test contact đã consent chấp nhận invitation; chạy đúng một accelerated
+- [x] Test contact đã consent chấp nhận invitation; chạy đúng một accelerated
       alert → contact response → correction/check-in với push + Gmail, rồi tắt delivery.
 
-Không tạo thêm build hoặc mở rộng feature trước khi hai mục còn lại ở trên được thử; chỉ sửa/build
-lại nếu artifact hiện tại lộ blocker thật. Nếu cần pilot sớm hơn vì EAS chậm, owner có thể chọn
-email-only supervised pilot sau khi alert email E2E xanh và ghi rõ push là known limitation; lựa chọn
-này không đóng Expo Push gate.
+Exact artifact đã qua push + Gmail E2E nên không dùng email-only fallback. Smoke phát hiện
+listener token rotation của binary cũ có thể gửi native FCM token lên API; hàng native đã bị
+disable, Expo token hợp lệ vẫn enabled và source đã chuyển token native qua Expo với regression test.
+Fix source này phải nằm trong build kế tiếp trước khi mở rộng ngoài personal pilot.
 
 ### Post-MVP hardening và internal release — không chặn personal pilot
 
@@ -108,8 +108,9 @@ Tại lần kiểm tra S3 ngày 04/08/2026:
   network và unknown auth error sang copy tiếng Việt không lộ chi tiết provider; source fix copy này
   đã có trong EAS staging snapshot `ecb41bd6-1c40-4c54-84ab-ed0f015b80ea` cài trên thiết bị.
 - Authenticated staging smoke đã cập nhật profile timezone từ `UTC` sang `Asia/Ho_Chi_Minh`, hiển thị
-  deadline đúng local time, check-in thật thành công và History có bản ghi mới. Google auth, fresh-user
-  onboarding, push receipt và full remote journey vẫn mở.
+  deadline đúng local time, check-in thật thành công và History có bản ghi mới. Tại thời điểm
+  đó Google auth, fresh-user onboarding, push receipt và full remote journey vẫn mở; push receipt
+  đã được đóng bằng provider smoke 11/08/2026 bên dưới.
 - Home không còn trình bày alert nội bộ `scheduled` như cảnh báo cần chú ý; copy check-in trước khi có
   notification cũng không còn ngụ ý cảnh báo đã phát. Regression test, 128 mobile test, relaunch/session
   restore và UI dump trên TECNO KJ7 đều pass; snapshot trên vẫn chưa phải RC exact-commit.
@@ -127,8 +128,16 @@ Tại lần kiểm tra S3 ngày 04/08/2026:
   cần build lại sau khi nạp FCM config/credential.
 - Ngày 10/08/2026, Firebase Android transport và FCM V1 credential đã được cấu hình riêng cho Expo
   Push; Supabase vẫn là backend duy nhất. EAS build `61b9016f-3a3f-4087-aae3-b2be119d65f6`
-  từ exact commit `659973f6b097053aa29b9f8f606b651f589bc30c` đã chuyển sang `IN_PROGRESS`.
-  Artifact/install/token/ticket/receipt vẫn chưa có evidence nên chưa đánh dấu hoàn tất.
+  từ exact commit `659973f6b097053aa29b9f8f606b651f589bc30c` đã `FINISHED` và cài trên TECNO KJ7.
+  APK SHA-256 `B98427AD9829F4756D4C82C3BDC57354F4866F2C4204AA0EE764472C5A41FF62`;
+  session được giữ, Settings báo đăng ký thành công và Expo ticket/receipt đều `ok`.
+- Ngày 11/08/2026, contact đã chấp nhận invitation. Một accelerated deadline tạo đúng
+  một Expo reminder `delivered`, một Gmail alert `sent`, một contact acknowledgement và sau
+  check-in là một Gmail correction `sent`; mỗi delivery có một attempt, không lỗi/duplicate.
+  Alert cũ `cancelled`, correction `sent`, chu kỳ mới `scheduled`; kill switch đã trả về `false`.
+- Smoke cũng phát hiện token-rotation listener đã đăng ký thêm native FCM token. Hàng này
+  đã disable, Expo token vẫn enabled. Source fix dùng `getExpoPushTokenAsync` trước khi đăng ký;
+  lint/typecheck và 133 mobile test/38 suite xanh, nhưng fix chưa nằm trong exact artifact trên.
 
 Phải chạy lại các check thực tế sau mỗi thay đổi. Baseline cũ không chứng minh
 build hiện tại hoặc remote backend đang hoạt động.
@@ -153,14 +162,8 @@ Mobile sẵn sàng internal release rộng hơn khi:
 
 ## 7. Bước tiếp theo
 
-Không làm lại M01–M12. S1–S3 trong [`02-SUPABASE-MVP.md`](02-SUPABASE-MVP.md), EAS project,
-Android signed build, email callback/session restore và check-in/history staging smoke đã hoàn tất.
-Fast path hiện tại chỉ còn:
-
-1. Chờ build exact commit đang chạy, cài artifact và xác minh token/ticket/receipt.
-2. Cho test contact đã consent chấp nhận invitation.
-3. Chạy một accelerated alert/correction cycle, ghi evidence và tắt delivery.
-
-Google/fresh-user onboarding, full accessibility matrix, Sentry, iOS và store testing chuyển sang
-post-MVP hardening trong [`03-RELEASE.md`](03-RELEASE.md); không chạy song song trước khi pilot gate
-đóng. Chỉ đóng gate bằng evidence thật.
+Không làm lại M01–M12 hay S4C. Personal-pilot gate đã đóng bằng evidence thiết bị/provider
+thật. Bước nhanh nhất bây giờ là vận hành personal pilot có giám sát theo runbook,
+giữ delivery mặc định tắt ngoài cửa sổ do owner kiểm soát, và đưa token-rotation fix vào
+build kế tiếp. Google/fresh-user, full accessibility matrix, Sentry, iOS và store testing thuộc
+post-MVP hardening trong [`03-RELEASE.md`](03-RELEASE.md).

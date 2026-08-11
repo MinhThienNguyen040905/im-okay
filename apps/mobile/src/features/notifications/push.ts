@@ -59,4 +59,15 @@ export const requestPushSetup = async (): Promise<PushSetupResult> => {
 
 export const subscribeToPushTokenChanges = (
   listener: (token: string) => void,
-) => Notifications.addPushTokenListener(({ data }) => listener(data));
+) =>
+  Notifications.addPushTokenListener((devicePushToken) => {
+    const projectId = getProjectId();
+    if (!projectId) return;
+
+    void Notifications.getExpoPushTokenAsync({
+      projectId,
+      devicePushToken,
+    })
+      .then(({ data }) => listener(data))
+      .catch(() => undefined);
+  });

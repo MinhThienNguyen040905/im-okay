@@ -27,23 +27,25 @@ Mỗi feature/migration/function thay đổi phải có:
 Không merge known check-in false success, duplicate/missing alert, data-loss hoặc
 authorization/token bypass.
 
-## 3. Personal-pilot MVP gate — ưu tiên hiện tại
+## 3. Personal-pilot MVP gate — đạt 11/08/2026
 
 - [x] S1–S3, S4A/S4B hosted baseline, Cron/queue và security negative matrix xanh.
 - [x] Android signed build/device auth/check-in/history smoke đã có.
 - [x] Gmail SMTP invitation gửi đúng một attempt; delivery kill switch đã tắt lại.
 - [x] Android FCM transport, EAS secret file và FCM V1 credential đã cấu hình; exact-commit build
-      `61b9016f-3a3f-4087-aae3-b2be119d65f6` đang chạy.
-- [ ] Cài artifact hiện tại và xác minh Expo token → ticket → receipt trên TECNO KJ7.
-- [ ] Test contact đã consent chấp nhận invitation.
-- [ ] Chạy đúng một accelerated alert → contact response → correction/check-in bằng provider thật;
+      `61b9016f-3a3f-4087-aae3-b2be119d65f6` đã `FINISHED` và cài trên TECNO KJ7.
+- [x] Cài artifact hiện tại và xác minh Expo token → ticket → receipt trên TECNO KJ7.
+- [x] Test contact đã consent chấp nhận invitation.
+- [x] Chạy đúng một accelerated alert → contact response → correction/check-in bằng provider thật;
       xác minh không missing/duplicate và tắt delivery sau smoke.
-- [ ] Ghi known limitations, thời gian pilot và owner chịu trách nhiệm go/hold/stop.
+- [x] Ghi known limitations và owner/operator chịu trách nhiệm go/hold/stop cho cửa sổ
+      personal pilot có giám sát từ 11/08/2026.
 
-Khi các mục trên xanh, owner có thể bắt đầu personal pilot có giám sát. Không cần chờ iOS,
-store submission, full device/accessibility matrix, restore drill hoặc SLO dài hạn. Nếu EAS artifact
-bị chậm do hạ tầng, owner có thể chọn email-only pilot sau khi invitation acceptance và alert email/
-correction E2E xanh; phải ghi rõ không có Android push và không được coi Expo Push gate là hoàn tất.
+Owner có thể bắt đầu personal pilot có giám sát; không cần chờ iOS, store submission,
+full device/accessibility matrix, restore drill hoặc SLO dài hạn. Delivery mặc định vẫn tắt
+ngoài cửa sổ do owner chủ động mở theo runbook. Binary hiện tại có known limitation với
+native token rotation; invalid token đã disable, Expo token hợp lệ vẫn enabled và source fix phải
+có trong build kế tiếp trước khi mở rộng nhóm pilot.
 
 ## 4. Staging release candidate gate — post-MVP hardening
 
