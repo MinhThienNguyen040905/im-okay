@@ -26,8 +26,9 @@ W01–W05 đã có production web build. Ngày 09/08/2026, S4 repository readine
 provider kill switch/timeout, aggregate ops snapshot, Vault-backed hosted Cron, guarded deploy/preflight,
 runbook và browser QA nền 390/768/1440 px. Project `im-okay-staging` tại Singapore đã được tạo,
 CLI login/link đã xác minh; 8 migration và 5 Edge Functions đã deploy, Vault cho hosted workers đã
-cấu hình, public/ops health đều trả `200`, còn API không JWT trả `401`. Notification delivery vẫn
-tắt. Contact web staging đã deploy tại `https://im-okay-contact-staging.vercel.app`; Auth URL/redirect,
+cấu hình, public/ops health đều trả `200`, còn API không JWT trả `401`. Notification delivery đã
+được owner bật cho Android personal pilot ngày 12/08/2026. Contact web staging đã deploy tại
+`https://im-okay-contact-staging.vercel.app`; Auth URL/redirect,
 exact CORS và non-mutating preflight đều xanh. Hosted JWT/actor-binding/IDOR/RLS/token/rate-limit
 negative matrix đã xanh; observability recheck 30 mẫu có error `0/30`, p50 `169 ms`, p95 `296 ms`
 và Cron/queue/dead-letter/overdue đều khỏe. Exact-commit EAS build

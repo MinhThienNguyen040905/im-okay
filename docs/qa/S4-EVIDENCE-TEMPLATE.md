@@ -92,6 +92,11 @@ hosted baseline đã pass. Fault/restore/full accessibility/SLO là S4D post-MVP
   30 mẫu có error `0/30`, average/p50/p95/max `187/156/389/647 ms`; heartbeat age `12 s`, Cron
   failure/queue/dead-letter/overdue đều `0`; outbox pending `6` sau candidate check-in. Provider
   readiness đủ secret names và consent confirmations nhưng không bật delivery hoặc gọi provider.
+- Owner enable 12/08/2026 16:25 ICT: provider readiness pass với sender/recipient/device đã
+  consent; `NOTIFICATION_PROVIDER_MODE=live`, `EMAIL_PROVIDER=gmail_smtp` và
+  `NOTIFICATION_DELIVERY_ENABLED=true` đã áp dụng cho `im-okay-staging`. Chu kỳ deadline hiện
+  tại có năm delivery đang chờ; Cron kế tiếp gửi ba Expo push và hai Gmail email,
+  mỗi delivery một attempt, không error/unknown/dead-letter; actionable queue trở về `0`.
 - Hosted contact-web browser recheck 11/08/2026: 390/768/1440 px không overflow ngang, một H1,
   `lang=vi`, root link nhận Tab focus; invitation và alert token giả trả cùng generic invalid-link
   state, không render token và không có console warning/error. Browser zoom 200% và screen reader
@@ -172,8 +177,8 @@ hosted baseline đã pass. Fault/restore/full accessibility/SLO là S4D post-MVP
 - Post-MVP hardening còn mở: hosted fault/reconciliation drill, hosted restore/PITR, full
   accessibility, Sentry symbolication và measured SLO.
 - Go / hold / rollback: Go có điều kiện cho personal pilot một thiết bị/contact đã consent;
-  delivery hiện `false` và chỉ owner được mở cửa sổ pilot. Hold/stop nếu Expo token bị
-  disable, có missing/duplicate delivery hoặc không tắt được kill switch.
+  delivery hiện `true` từ 12/08/2026 và owner chịu trách nhiệm giám sát. Hold/stop nếu
+  Expo token bị disable, có missing/duplicate delivery hoặc không tắt được kill switch.
 - Follow-up owner/date: project owner; cấu hình hosted backup/PITR, chạy hosted recovery drill,
   hoàn tất full accessibility/Sentry và measured monitoring trước khi mở internal alpha.
 - Privacy/support follow-up: owner điền legal identity, support/privacy/incident contacts, retention
