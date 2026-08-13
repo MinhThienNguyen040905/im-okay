@@ -25,6 +25,21 @@ Google Play/App Store và chưa vượt toàn bộ gate của internal release.
 | Security baseline      | Đạt mức staging                       | JWT/actor/IDOR/RLS/public-token/rate-limit negative matrix đã pass                                                             |
 | Store/internal release | Chưa hoàn thành                       | Chưa có Google Play Internal Testing hoặc TestFlight                                                                           |
 
+## Trạng thái dữ liệu staging
+
+Supabase project `xnaanctveihyksgcveup` đã được reset theo yêu cầu owner lúc **20:52 ngày
+13/08/2026 (UTC+7)**:
+
+- không chạy local seed;
+- Auth users, profile, device, safety plan, contact, invitation, check-in, alert, delivery, audit,
+  outbox, account request và queue đều bằng `0`;
+- 8/8 migrations đã được áp dụng lại;
+- 4/4 Cron jobs active, public Edge health trả `200`, private API không xác thực trả `401`;
+- `NOTIFICATION_DELIVERY_ENABLED=true` đã được bật lại sau khi xác minh database sạch;
+- không gửi notification trong quá trình reset/readiness check.
+
+Đây là snapshot tại thời điểm reset. Sau khi owner đăng ký lại, các số lượng sẽ tăng bình thường.
+
 ## Build Android hiện hành
 
 - EAS build ID: `a5f80154-9d89-48c1-a9eb-3178e49d5a94`.
@@ -61,8 +76,9 @@ Các mục sau không chặn Android personal pilot nhỏ nhưng chặn phát h�
 
 ## Trạng thái notification
 
-Code và secret staging hỗ trợ Expo Push + Gmail SMTP, và E2E thật đã từng pass. Tuy nhiên
-`NOTIFICATION_DELIVERY_ENABLED` là kill switch vận hành có thể được bật/tắt độc lập với build.
+Code và secret staging hỗ trợ Expo Push + Gmail SMTP, và E2E thật đã từng pass. Delivery đang bật lại
+sau reset ngày 13/08/2026. Tuy nhiên `NOTIFICATION_DELIVERY_ENABLED` là kill switch vận hành có thể được
+bật/tắt độc lập với build.
 
 Trước mỗi thử nghiệm gửi thật:
 

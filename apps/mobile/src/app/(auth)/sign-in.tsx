@@ -6,7 +6,15 @@ import { useRouter } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
 import { z } from "zod";
 
-import { AppIcon, Badge, Button, Card, Input, Screen } from "@/components";
+import {
+  AppIcon,
+  Badge,
+  Button,
+  Card,
+  GoogleIcon,
+  Input,
+  Screen,
+} from "@/components";
 import { env } from "@/config/env";
 import { useAuth } from "@/features/auth/AuthProvider";
 import { colors, spacing, typography } from "@/theme";
@@ -82,7 +90,7 @@ export default function SignInScreen() {
       <Button
         accessibilityLabel="Tiếp tục bằng Google"
         label="Tiếp tục bằng Google"
-        leadingIcon={<AppIcon color={colors.primary} name="account-circle" />}
+        leadingIcon={<GoogleIcon />}
         loading={googleMutation.isPending}
         onPress={() => googleMutation.mutate()}
         variant="secondary"

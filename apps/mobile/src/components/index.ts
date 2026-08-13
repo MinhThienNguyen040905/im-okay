@@ -1,4 +1,5 @@
 export { AppIcon, type AppIconName } from "./AppIcon";
+export { GoogleIcon } from "./GoogleIcon";
 export { Badge } from "./Badge";
 export { Button } from "./Button";
 export { Card } from "./Card";
