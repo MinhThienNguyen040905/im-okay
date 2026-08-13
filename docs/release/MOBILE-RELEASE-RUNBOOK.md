@@ -92,18 +92,9 @@ Sau upload, chưa chuyển production ngay:
 - Kill switch cho alert/provider phải do Supabase backend config có audit sở hữu; không dùng local flag để
   giả success. Nếu kill switch/reconciliation/monitoring chưa có, production vẫn bị block.
 - Không rollback migration phá dữ liệu. Database/functions/contact-web/mobile phải giữ
-  compatibility theo expand-contract, [`Plan 02`](../plans/02-SUPABASE-MVP.md) và
-  [`Plan 03`](../plans/03-RELEASE.md).
+  compatibility theo expand-contract và release gate trong [`PROJECT-STATUS.md`](../PROJECT-STATUS.md).
 
 ## 7. Trạng thái hiện tại
 
-Repository đã có EAS profiles, light/reduced-motion/deep-link/Sentry hardening, automated tests và
-Maestro fixture smoke. EAS project đã liên kết; signed Android internal APK đã build, cài và smoke
-trên TECNO KJ7/Android 14 với Supabase staging. Authenticated session restore và provider acceptance
-push/email với sender/recipient/device đã consent đã pass; delivery được tắt lại sau smoke. Candidate
-Android `3768ba65-ac54-47ad-b8d2-d23928d0cf15` từ exact commit
-`f1236d5cb78979ce49e9cfb55c888ee54ca4fca2` chứa token-rotation fix đã `FINISHED`, cài trên
-TECNO KJ7 và pass session restore, check-in, History, Settings registration cùng crash-log smoke.
-Aggregate staging giữ một Expo token enabled, không có native token enabled; native row cũ vẫn
-disabled. Full device/accessibility matrix, Sentry source-map upload, iOS build, Maestro trên
-candidate binary, TestFlight/Play upload và rollout vẫn chưa hoàn tất.
+Trạng thái build, device evidence và release blocker thay đổi thường xuyên. Xem nguồn duy nhất tại
+[`PROJECT-STATUS.md`](../PROJECT-STATUS.md); không ghi thêm snapshot tiến độ trong runbook này.

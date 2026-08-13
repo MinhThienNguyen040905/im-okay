@@ -264,7 +264,7 @@
       ]
     },
     "prototype": {
-      "mapping": "design/stitch/06-MA0-DESIGN-READINESS.md",
+      "mapping": "design/stitch/README.md",
       "status": "unsupported-by-stitch-covered-by-navigation-contract",
       "reason": "Verified on 2026-08-02 through connected Chrome Browser and the official Stitch Controls documentation: Stitch Web supports screen selection, movement, editing, annotation, per-screen preview, code/export and download, but not cross-screen prototype links.",
       "implementationTarget": "Expo Router navigation plus runtime E2E"

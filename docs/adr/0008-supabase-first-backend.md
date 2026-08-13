@@ -63,8 +63,8 @@ FCM transport bắt buộc cho Android Expo Push; không dùng Firebase Auth/dat
 ### 2. Giữ contract client đã hoàn thành
 
 - Giữ các milestone `MA0`–`MA7` cho lịch sử mobile. Các mã `BA*`, `WN*`, `DI*`, `WA*`
-  và `QR*` trong plan cũ chỉ còn là tham chiếu lịch sử; kế hoạch đang hoạt động được
-  gộp thành S1–S4 trong `docs/plans/02-SUPABASE-MVP.md` để tránh trùng task/status.
+  và `QR*` trong plan cũ chỉ còn là tham chiếu lịch sử. Trạng thái hiện hành được gộp vào
+  `docs/PROJECT-STATUS.md` để tránh trùng task/status.
 - Giữ route logic `/v1/...`, JSON projection, `Idempotency-Key` và error code mà mobile
   đang kiểm tra. `EXPO_PUBLIC_API_URL` trỏ tới Edge Function router; client không cần biết
   command được thực thi bằng SQL RPC.

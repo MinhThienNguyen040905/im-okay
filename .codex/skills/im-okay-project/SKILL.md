@@ -25,8 +25,8 @@ Không mô tả I’m Okay là thiết bị y tế, dịch vụ cứu hộ, hệ
 Trước khi đề xuất hoặc sửa code:
 
 1. Xác định repo root bằng `git rev-parse --show-toplevel`; không phụ thuộc working directory giả định.
-2. Đọc `README.md`, `docs/DEVELOPMENT-ROADMAP.md`, owner plan liên quan trong `docs/plans/`
-   và `git status --short`; dự án chỉ có ba plan đang hoạt động.
+2. Đọc `AGENTS.md`, `README.md`, `docs/PROJECT-STATUS.md` và `git status --short`.
+   Không tìm hoặc tạo lại `docs/plans/`; các plan cũ đã được thay bằng một nguồn trạng thái duy nhất.
 3. Kiểm tra source, migration, test và ADR hiện có trước khi dùng kiến trúc mục tiêu trong skill này.
 4. Xác định giai đoạn roadmap hiện tại và chỉ làm hạng mục được yêu cầu.
 5. Phân loại thay đổi: product/design, client, Edge API, domain/RPC, data/RLS,
@@ -42,7 +42,7 @@ Không ghi đè thay đổi chưa liên quan trong dirty worktree. Không deploy
 1. Invariant an toàn, bảo mật và phạm vi trong skill này.
 2. Code, migration và automated test đang chạy.
 3. ADR trong `docs/adr/`; ADR mới có thể thay thế quyết định kiến trúc cũ.
-4. `docs/DEVELOPMENT-ROADMAP.md` cho milestone, phụ thuộc và release gate; owner plan trong `docs/plans/` cho task, test và Definition of Done của từng hệ thống.
+4. `docs/PROJECT-STATUS.md` cho milestone, tiến độ, build, blocker và release gate hiện hành.
 5. Product/UX/design docs trong `design/stitch/`.
 6. `.stitch/metadata.json` và `.stitch/designs/` cho ID, HTML và preview tải từ Stitch; đây là generated/local artifacts, không phải production source.
 
@@ -55,70 +55,37 @@ Khi có xung đột:
 
 ### Routing tài liệu
 
-- Lập kế hoạch/tiến độ xuyên hệ thống: đọc `docs/DEVELOPMENT-ROADMAP.md`.
-- Mobile M01–M12, Expo, auth client, check-in UX và remote/device gates: đọc
-  `docs/plans/01-MOBILE-APP.md`.
-- Contact web W01–W05, Supabase schema/RLS/RPC/Edge Functions, Cron/Queues, notifications,
-  local/CI/staging và S1–S4: đọc `docs/plans/02-SUPABASE-MVP.md`.
+- Lập kế hoạch/tiến độ xuyên hệ thống: đọc `docs/PROJECT-STATUS.md`.
+- Mobile M01–M12, Expo, auth client, check-in UX và remote/device gates: đọc source/test mobile,
+  các ADR 0001–0007 và phần mobile trong `docs/PROJECT-STATUS.md`.
+- Contact web W01–W05, Supabase schema/RLS/RPC/Edge Functions, Cron/Queues và notifications:
+  đọc source/test, ADR 0008–0013 và phần backend/web trong `docs/PROJECT-STATUS.md`.
 - E2E release gate, security/privacy, accessibility, observability, alpha/beta/production: đọc
-  `docs/plans/03-RELEASE.md`.
+  `docs/PROJECT-STATUS.md`, `docs/release/` và `docs/qa/` liên quan.
 - Task chạm nhiều hệ thống: đọc master và chỉ các owner plan bị tác động; ghi rõ phụ thuộc/contract trước khi code.
-- Product scope/copy: đọc `design/stitch/03-PROJECT-BRIEF.md` và `02-ADDITIONAL-INSTRUCTIONS.md`.
-- User flow/navigation: đọc `design/stitch/04-UX-FLOWS.md`.
+- Product scope, copy và user flow/navigation: đọc `design/stitch/README.md`.
 - Visual tokens/component: đọc `design/stitch/DESIGN.md`.
-- Stitch screen/status: đọc `design/stitch/05-SCREEN-TRACKER.md` và `.stitch/metadata.json` nếu tồn tại.
+- Stitch screen/status: đọc `design/stitch/README.md` và `.stitch/metadata.json` nếu tồn tại.
 - Từ Stitch sang code: lấy đúng screen bằng metadata/MCP, đọc HTML và xem screenshot; không coi HTML sinh ra là production code.
 - Thay đổi kiến trúc: đọc toàn bộ ADR liên quan và source hiện tại.
 
 ## 4. Trạng thái dự án hiện tại
 
-Tại mốc 2026-08-04:
+Không lưu snapshot tiến độ trong skill. Luôn đọc `docs/PROJECT-STATUS.md`, là nguồn duy nhất cho build,
+deploy, evidence, blocker và việc tiếp theo.
 
-- Mobile MA0–MA6 client và phần MA7 hardening có thể chứng minh trong repository đã
-  hoàn tất; source Expo nằm ở `apps/mobile`. MA7 external acceptance vẫn mở.
-- S1 Foundation và S2 Core check-in đã hoàn tất trong local/integration: workspace có
-  `apps/contact-web`, `packages/contracts`, `supabase/`, authoritative RPC, Cron/Queues,
-  reconciliation, local scripts và full-stack CI; S3 Contacts/alerts/contact web là giai đoạn tiếp theo.
-- ADR 0008 đã chốt Supabase-first cho MVP: Auth + PostgreSQL/RLS/RPC + Edge Functions +
-  Cron/Queues. Không scaffold NestJS/Prisma/Redis/BullMQ trừ khi ADR sau có bằng chứng cần thiết.
-- Mobile dùng Expo SDK 57, React Native 0.86, Expo Router `src/app`, TypeScript strict, Jest và React Native Testing Library.
-- Typed public env, design tokens, shared components, root error boundary, Sentry/log scrub và navigation shell đã có; xem `docs/adr/0001-mobile-foundation.md`.
-- Root route đã restore session/onboarding và điều hướng M01–M06. MA2 có Supabase auth adapter, secure session persistence, M01–M05, push permission/token lifecycle, onboarding API adapter và per-user resume; xem `docs/adr/0002-mobile-auth-onboarding.md`.
-- M06 dùng authoritative status projection, server-clock offset, persisted idempotency key, non-optimistic check-in, foreground/push refresh và local-only idempotent fixture; xem `docs/adr/0003-mobile-authoritative-check-in.md`.
-- M07/M08 dùng authoritative trusted-contact projection, email-only add form, server-owned invitation status, atomic full-order reorder, resend cooldown, strong-confirm remove và focus/foreground/push refresh; xem `docs/adr/0004-mobile-authoritative-trusted-contacts.md`.
-- Mobile không có local transition sang invitation `accepted`. Mọi add/remove/reorder/resend chỉ commit full projection sau server response; fixture không gửi email thật và không giả lập W01 acceptance.
-- M09/M10 dùng authoritative alert-context, shared check-in idempotency, finite snooze exact-end response, guarded SOS, distinct drill source và server-owned correction outcome; xem `docs/adr/0005-mobile-authoritative-alert-actions.md`.
-- SOS tap ngắn không có mutation; hold đủ ba giây hoặc accessible two-step mới gọi API. SOS/drill/snooze có persisted idempotency key riêng và fixture không gửi notification thật.
-- M11/M12 dùng strict safe history/settings projection, cursor pagination/pull-to-refresh, timezone grouping, server-confirmed profile/interval/deadline, push permission + registration status, strong disable confirmation và persisted idempotency cho disable/export/delete; xem `docs/adr/0006-mobile-history-settings-safe-projections.md`.
-- History schema không nhận provider error/token/contact PII. Settings/account mutation không optimistic; success chỉ sau projection đúng intent (`inactive + deadline null`, account request state, exact interval/deadline).
-- MA7 repo hardening có runtime reduced-motion/screen-reader preferences, modal focus + dynamic-font
-  resilience, light-only behavior theo selected design, incoming-link allowlist, public-token rejection,
-  full Sentry event scrub, `eas.json`, Maestro fixture smoke, device matrix và release/rollback
-  runbook; xem `docs/adr/0007-mobile-release-hardening.md`.
-- Mobile chỉ cho phép root launch và Supabase auth callback qua custom scheme. Public invitation/
-  alert token thuộc contact web; không thêm universal/app links trước khi có domain cùng
-  AASA/assetlinks được kiểm chứng.
-- `eas.json` có `local` fixture/internal, `staging` remote/internal và `production` remote/store.
-  Không commit signing credential/Sentry auth token; không coi config là bằng chứng đã
-  build, upload source map, TestFlight/Play hay rollout.
-- Remote check-in adapter tuyệt đối không tính deadline. Công thức trong mobile chỉ được tồn tại ở `features/check-in/fixtureApi.ts`, là fake server local có cảnh báo rõ.
-- `EXPO_PUBLIC_DATA_MODE=fixture` chỉ được phép ở local và UI phải luôn nói rõ chưa có bảo vệ thật. `remote` cần API URL, Supabase URL/publishable key; không đặt secret vào public env.
-- MA2–MA3 local remote integration đã có evidence S2; MA2–MA7 staging/device acceptance còn phụ thuộc S3–S4, invitation/contact web,
-  Cron/Queues/provider scheduling/reconciliation, retention/re-auth policy, staging,
-  Supabase redirect/Google,
-  EAS/Sentry/store credential, test recipient đã consent, internal build và thiết bị thật.
-- Lint, typecheck, 109 test case trong 34 suite, `expo install --check` và Android/iOS/web export
-  đã xanh tại thời điểm hoàn tất S2; `expo-doctor` 20/20 là evidence MA7 gần nhất.
-- Supabase foundation/schema/RLS/Edge routers, authoritative check-in/deadline,
-  scheduler/reconciliation và contact-web shell đã có source; contacts/providers/full alert flow
-  của S3 chưa được implement. Xem `docs/adr/0009-core-check-in-cycle-scheduling.md` cho invariant S2.
-- Stitch project `I’m Okay Safety System`, ID `9249994988754984867`, private.
-- Design system asset `assets/cbd4d1ec489847ac84e45f592436c1f3`.
-- Đã chọn 12 mobile screens M01–M12 và 5 web screens W01–W05.
-- Mobile state variants, font scaling pass và navigation contract đã hoàn tất; Stitch Web không hỗ trợ cross-screen prototype links.
-- Responsive/accessibility QA cho contact web vẫn chưa hoàn tất.
+Baseline kiến trúc ổn định:
 
-Không giữ phần này như progress tracker vĩnh viễn. Sau mỗi milestone lớn, cập nhật README/roadmap và rút gọn mốc này nếu đã lỗi thời.
+- Mobile dùng Expo SDK 57, React Native 0.86, Expo Router, TypeScript strict và authoritative remote adapters.
+- Supabase-first theo ADR 0008: Auth, PostgreSQL/RLS/RPC, Edge Functions, Cron và Queues/outbox.
+- Mobile M01–M12 và contact web W01–W05 đã có implementation; selected design nằm trong project Stitch
+  được định tuyến bởi `.stitch/metadata.json`.
+- Android dùng Firebase/FCM chỉ như transport cho Expo Push; Supabase vẫn là application backend duy nhất.
+- `fixture` chỉ được phép ở local và không gửi notification thật; `remote` dùng server projection.
+- Gmail SMTP chỉ là provider tạm cho personal pilot; verified-domain provider là yêu cầu trước rollout rộng.
+
+Không suy ra môi trường đang healthy, delivery đang bật hoặc artifact còn hiệu lực từ baseline trên;
+phải kiểm tra evidence/runtime phù hợp với yêu cầu hiện tại.
 
 ## 5. Phạm vi MVP
 
@@ -526,7 +493,8 @@ Trước khi kết thúc một thay đổi lớn:
 
 1. Ghi rõ kết quả, file đã thay đổi và test đã chạy.
 2. Nêu test chưa chạy hoặc giới hạn còn lại.
-3. Cập nhật owner plan trong `docs/plans/` khi task/test/Definition of Done thay đổi; chỉ cập nhật `docs/DEVELOPMENT-ROADMAP.md` khi milestone/gate/dependency thay đổi.
+3. Cập nhật `docs/PROJECT-STATUS.md` khi task, evidence, build, blocker, milestone hoặc gate thay đổi;
+   không tạo thêm plan/roadmap tiến độ song song.
 4. Cập nhật `README.md` khi trạng thái dự án hoặc setup thay đổi.
 5. Cập nhật Stitch tracker/metadata khi selected design thay đổi.
 6. Tạo/cập nhật ADR khi quyết định kiến trúc thay đổi.

@@ -67,7 +67,7 @@ SLA được triển khai/test.
 
 ## 6. Publish gate
 
-Chỉ đánh dấu hàng `privacy/terms/support` trong Plan 03 là đạt khi các mục owner ở trên đã đóng, URL
+Chỉ đóng blocker `privacy/terms/support` trong [`PROJECT-STATUS.md`](../PROJECT-STATUS.md) khi các mục owner ở trên đã đóng, URL
 public HTTPS tồn tại, link trong mobile/contact web mở đúng trang, nội dung khớp store declaration và
 đã chạy kiểm tra keyboard/screen reader/no-cache/no-referrer. Cho đến lúc đó tài liệu này chỉ giúp
 khóa phạm vi và ngăn release copy hứa quá khả năng hệ thống.

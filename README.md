@@ -1,186 +1,174 @@
 # I’m Okay
 
-I’m Okay là ứng dụng safety check-in dành cho người sống một mình. Người dùng định kỳ xác nhận mình vẫn an toàn; nếu quá hạn, hệ thống sẽ nhắc người dùng và thông báo cho các liên hệ tin cậy.
+I’m Okay là ứng dụng safety check-in dành cho người sống một mình. Người dùng định kỳ xác nhận
+“Tôi vẫn ổn”; nếu quá deadline, backend nhắc người dùng và thông báo cho trusted contact.
 
-> I’m Okay là công cụ hỗ trợ kết nối, không phải dịch vụ cứu hộ hoặc thiết bị y tế.
+> I’m Okay là công cụ hỗ trợ kết nối, không phải dịch vụ cứu hộ, thiết bị y tế hoặc hệ thống bảo đảm
+> ứng cứu khẩn cấp.
 
-## Trạng thái dự án
+## Bắt đầu ở đây
 
-Dự án đã hoàn tất phần client Mobile MA0–MA6 và hardening MA7 có thể chứng minh
-trong repository. `apps/mobile` hiện có Expo SDK 57/Expo Router, Supabase auth adapter và
-M01–M12; reduced-motion/focus/dynamic-font hardening, incoming-link allowlist, Sentry PII scrub,
-EAS profiles, Maestro fixture smoke, device matrix và release/rollback runbook đã có. Check-in,
-trusted contacts, alert và settings vẫn tuân thủ projection/idempotency authoritative; app không tự
-tính production deadline hay nhận public contact token. Android personal-pilot acceptance đã
-đạt trên staging/device/provider thật ngày 11/08/2026; Sentry,
-iOS, full accessibility matrix và store rollout chuyển sang post-MVP hardening. Chưa có
-build/submit/deploy lên TestFlight hoặc Google Play.
+- Agent/session mới: đọc [`AGENTS.md`](AGENTS.md), sau đó đọc
+  [`docs/PROJECT-STATUS.md`](docs/PROJECT-STATUS.md).
+- Tiến độ, build mới nhất, blocker và việc tiếp theo: chỉ cập nhật
+  [`docs/PROJECT-STATUS.md`](docs/PROJECT-STATUS.md).
+- Thiết kế: [`design/stitch/README.md`](design/stitch/README.md) và
+  [`design/stitch/DESIGN.md`](design/stitch/DESIGN.md).
 
-S1–S3 đã hoàn tất trong local/integration ngày 04/08/2026. `apps/contact-web`, contract v1,
-Supabase migrations/RLS/seed và authenticated/public Edge routers đã có; profile/timezone IANA,
-device token, safety plan, authoritative check-in/deadline, Cron batch, outbox/PGMQ lease,
-stale-job check, reconciliation, trusted contacts, public invitation/alert response, correction,
-snooze/SOS/drill, history/settings và account request đều chạy bằng backend thật. Database reset từ
-trống, 150 pgTAP test, S2/S3 local smoke, 33 Edge/guard test và client builds đều xanh.
-W01–W05 đã có production web build. Ngày 09/08/2026, S4 repository readiness bổ sung rate limit,
-provider kill switch/timeout, aggregate ops snapshot, Vault-backed hosted Cron, guarded deploy/preflight,
-runbook và browser QA nền 390/768/1440 px. Project `im-okay-staging` tại Singapore đã được tạo,
-CLI login/link đã xác minh; 8 migration và 5 Edge Functions đã deploy, Vault cho hosted workers đã
-cấu hình, public/ops health đều trả `200`, còn API không JWT trả `401`. Notification delivery đã
-được owner bật cho Android personal pilot ngày 12/08/2026. Contact web staging đã deploy tại
-`https://im-okay-contact-staging.vercel.app`; Auth URL/redirect,
-exact CORS và non-mutating preflight đều xanh. Hosted JWT/actor-binding/IDOR/RLS/token/rate-limit
-negative matrix đã xanh; observability recheck 30 mẫu có error `0/30`, p50 `169 ms`, p95 `296 ms`
-và Cron/queue/dead-letter/overdue đều khỏe. Exact-commit EAS build
-`61b9016f-3a3f-4087-aae3-b2be119d65f6` đã cài trên TECNO KJ7; Expo ticket/receipt xanh.
-Contact đã chấp nhận và một accelerated cycle tạo đúng một push reminder, một Gmail alert,
-một acknowledgement và một Gmail correction, không missing/duplicate; kill switch đã tắt lại.
-Firebase Android app chỉ làm FCM transport; Supabase vẫn là backend duy nhất. Source đã sửa
-native token-rotation bug và 133 mobile test/38 suite xanh; candidate Android
-`3768ba65-ac54-47ad-b8d2-d23928d0cf15` từ commit `f1236d5cb789` chứa fix đã `FINISHED`, cài và
-device smoke pass trên TECNO KJ7: session/check-in/History/push registration xanh, không có native
-token mới hoặc crash. Plan 03 staging RC gate đang thực hiện. Local fault/reconciliation và isolated
-restore rehearsal đã pass, nhưng hosted backup/PITR chưa có. Accessibility đầy đủ, hosted fault
-drill, SLO dài hạn, Sentry, iOS và store vẫn là release blockers trước internal alpha/beta.
-Invariant cycle, policy 24/36/48 và recovery được ghi tại
-[`ADR 0009`](docs/adr/0009-core-check-in-cycle-scheduling.md); contact/token/alert/provider workflow
-được ghi tại [`ADR 0010`](docs/adr/0010-contact-alert-notification-workflows.md); staging security và
-observability được ghi tại [`ADR 0011`](docs/adr/0011-staging-security-observability.md).
-Gmail SMTP tạm thời và đường chuyển sang verified-domain provider được ghi tại
-[`ADR 0012`](docs/adr/0012-temporary-gmail-smtp-personal-pilot.md).
-FCM chỉ là Android transport cho Expo Push, không phải application backend song song; xem
-[`ADR 0013`](docs/adr/0013-android-fcm-transport-for-expo-push.md).
+## Trạng thái
 
-Kiến trúc MVP đã chốt Supabase-first ngày 04/08/2026: Supabase Auth + PostgreSQL/RLS,
-Edge Functions, Cron và Queues thay cho kế hoạch NestJS/Prisma/Redis/BullMQ cũ. Quyết định
-này không làm thay đổi phần mobile đã hoàn thành; xem
-[`ADR 0008`](docs/adr/0008-supabase-first-backend.md).
+Tại ngày 13/08/2026:
 
-Tài liệu hiện có:
+- Android personal pilot đã sẵn sàng trên Supabase staging.
+- Mobile M01–M12, contact web W01–W05 và backend check-in/contact/alert cốt lõi đã triển khai.
+- APK staging mới nhất được build từ commit `9ddce5e22c62`, cài và smoke pass trên TECNO KJ7.
+- Contact web staging: <https://im-okay-contact-staging.vercel.app>.
+- Chưa phát hành Google Play/TestFlight; iOS, Sentry, hosted restore, legal/support và full device matrix
+  còn là gate trước internal release hoàn chỉnh.
 
-- Project brief và UX flows.
-- Design system theo định dạng `DESIGN.md`.
-- 12 prompt màn hình mobile.
-- 5 prompt responsive web cho người thân.
-- Prompt variants, targeted edits, navigation contract và accessibility QA.
-- Project-specific Codex skill.
-- [Master roadmap từ thiết kế đến production](docs/DEVELOPMENT-ROADMAP.md).
-- Ba plan đang dùng: [Mobile status/gates](docs/plans/01-MOBILE-APP.md),
-  [Supabase MVP](docs/plans/02-SUPABASE-MVP.md) và
-  [Quality/security/release](docs/plans/03-RELEASE.md).
-- Release artifacts: [mobile runbook](docs/release/MOBILE-RELEASE-RUNBOOK.md),
-  [staging operations](docs/release/STAGING-OPERATIONS-RUNBOOK.md),
-  [privacy/terms readiness](docs/release/PRIVACY-TERMS-READINESS.md) và
-  [support/incident runbook](docs/release/SUPPORT-INCIDENT-RUNBOOK.md).
+Chi tiết và evidence hiện hành nằm trong [`docs/PROJECT-STATUS.md`](docs/PROJECT-STATUS.md). Không dùng
+README như checklist tiến độ thứ hai.
 
-## Bắt đầu thiết kế
+## Kiến trúc
 
-Đọc [`design/stitch/00-BAT-DAU-O-DAY.md`](design/stitch/00-BAT-DAU-O-DAY.md), sau đó:
+```text
+Expo mobile          Contact web
+      \                 /
+       Supabase Auth + Edge Functions
+                    |
+          PostgreSQL + RLS/RPC
+                    |
+          Cron + Queues/outbox
+                    |
+        Expo Push + EmailProvider
+```
 
-1. Tạo một project Stitch duy nhất.
-2. Mở “Start with your design” và upload `design/stitch/DESIGN.md`.
-3. Dán nội dung Additional instructions đã chuẩn bị sẵn.
-4. Thiết kế ba anchor screens.
-5. Tạo variants, chọn hướng và tiếp tục theo từng user flow.
+- Supabase là application backend duy nhất của MVP.
+- Firebase chỉ làm FCM transport cho Expo Push trên Android.
+- PostgreSQL/RPC quyết định deadline và alert state; client không tự suy đoán trạng thái authoritative.
+- Gmail SMTP là adapter tạm cho personal pilot, không phải provider mục tiêu cho beta rộng/production.
 
-## Công nghệ dự kiến
+Các quyết định và lý do nằm trong [`docs/adr/`](docs/adr/).
 
-- Expo + React Native + TypeScript.
-- Supabase Auth + PostgreSQL + RLS/RPC.
-- Supabase Edge Functions cho HTTP API/provider orchestration.
-- Supabase Cron + Queues cho scheduling, retry và reconciliation.
-- Expo Push Notifications.
-- EmailProvider qua adapter; Gmail SMTP dùng tạm cho personal pilot, Resend giữ làm đường
-  verified-domain provider khi triển khai rộng.
+## Repository
 
-## Chạy mobile foundation
+```text
+apps/mobile/          Expo + React Native mobile app
+apps/contact-web/     Responsive public contact web
+packages/contracts/   Shared API contracts
+supabase/migrations/  Schema, RLS, RPC, Cron và Queues
+supabase/functions/   API, public API, consumers, receipts và ops
+scripts/              Smoke, preflight, security và observability
+docs/adr/             Quyết định kiến trúc
+docs/release/         Runbook build/staging/privacy/incident
+docs/qa/              Device matrix và evidence template
+design/stitch/        Visual specification và Stitch metadata routing
+```
 
-Yêu cầu Node.js theo `.nvmrc` và Corepack. Từ thư mục gốc:
+## Yêu cầu phát triển
+
+- Node.js `>=24` theo `package.json`/`.nvmrc`.
+- pnpm `11.18.0` qua Corepack.
+- Docker Desktop cho Supabase local.
+- Android Platform Tools/ADB cho device test.
+- EAS account/credential chỉ cần khi tạo signed build.
+
+## Cài đặt
+
+Từ repo root:
 
 ```powershell
 corepack enable
 corepack pnpm install
-Copy-Item apps/mobile/.env.example apps/mobile/.env
+```
+
+Public env mẫu không được chứa secret. Không đưa service-role key, SMTP password hoặc FCM credential
+vào `EXPO_PUBLIC_*`, source hoặc tài liệu.
+
+## Chạy mobile
+
+```powershell
 npm run dev:mobile
 ```
 
-Mặc định `.env.example` dùng `EXPO_PUBLIC_DATA_MODE=fixture` và chỉ chạy ở local.
-Để nối hệ thống thật, đổi sang `remote` rồi cấu hình API URL trỏ tới Supabase
-Edge Function router, Supabase URL và publishable key. Ví dụ base API URL là
-`https://<project-ref>.supabase.co/functions/v1/api`; mobile tiếp tục nối các path `/v1/...`.
-Thêm redirect `imokay://**` trong Supabase Auth. Expo push token cần EAS project ID,
-development build và thiết bị thật. Riêng Android còn cần Firebase Android app,
-`google-services.json` được khai báo qua `android.googleServicesFile` và FCM V1 service-account
-credential được nạp an toàn vào EAS; không commit private key.
+Các data mode:
 
-Các lệnh kiểm tra chính:
+- `fixture`: chỉ dùng với `EXPO_PUBLIC_APP_ENV=local`; UI phải nói rõ không có bảo vệ thật.
+- `remote`: gọi Supabase API thật; staging build hiện dùng mode này.
+
+Kiểm tra riêng mobile:
 
 ```powershell
-pnpm --filter @im-okay/mobile lint
-pnpm --filter @im-okay/mobile typecheck
-pnpm --filter @im-okay/mobile test
-pnpm --filter @im-okay/mobile build
+npm --prefix apps/mobile run lint
+npm --prefix apps/mobile run typecheck
+npm --prefix apps/mobile test
+npm --prefix apps/mobile run build
 ```
 
-Mọi biến `EXPO_PUBLIC_*` đều nằm trong app bundle và không được chứa secret. Sentry chỉ gửi sự cố khi cấu hình `EXPO_PUBLIC_SENTRY_DSN`.
-
-## Chạy Supabase MVP local
-
-Yêu cầu Docker Desktop đang chạy. Từ thư mục gốc:
+## Chạy contact web
 
 ```powershell
-corepack pnpm install
-npm run supabase:start
-npm run test:integration
 npm run dev:contact-web
 ```
 
-Nếu Windows báo `EPERM` khi pnpm nhập native package từ `node_modules` cũ, dùng fallback
-`npm install --workspaces --include-workspace-root --no-package-lock`; các lệnh `npm run` ở
-trên không thay đổi.
+Contact web xử lý invitation và alert bearer link. Raw token không được log, đưa vào analytics hoặc
+hiển thị lại trong UI.
 
-Các endpoint health local:
+## Chạy Supabase local
+
+```powershell
+npm run supabase:start
+npm run test:integration
+```
+
+Endpoint local:
 
 - Public: `http://127.0.0.1:54321/functions/v1/public-api/v1/health`.
 - Authenticated: `http://127.0.0.1:54321/functions/v1/api/v1/health`.
 
-Authenticated routes gồm `/v1/me`, `/v1/me/devices`, `/v1/me/settings`, `/v1/safety-plan`,
-`/v1/safety-plan/status`, `/v1/safety-plan/disable`, `/v1/safety-plan/snooze`, `/v1/check-ins`,
-`/v1/trusted-contacts`, `/v1/alerts/current`, `/v1/alerts/sos`, `/v1/alerts/drill`, `/v1/history`
-và account export/deletion requests. Public contact web dùng `/v1/public/invitations/:token` và
-`/v1/public/alerts/:token`. Tất cả mutation domain đi qua Edge + internal RPC; client không nhận
-service-role key.
-
-Để chạy mobile remote qua điện thoại Android đang cắm USB:
-
-```powershell
-adb reverse tcp:54321 tcp:54321
-npm run supabase:status
-```
-
-Sau đó đặt `EXPO_PUBLIC_DATA_MODE=remote`, dùng `http://127.0.0.1:54321` cho Supabase URL,
-`http://127.0.0.1:54321/functions/v1/api` cho API URL và chép đúng `PUBLISHABLE_KEY` từ status
-vào `.env`. Publishable key được phép nằm trong app; tuyệt đối không chép `SECRET_KEY` hoặc
-`SERVICE_ROLE_KEY`.
-
-Seed local chỉ dùng danh tính giả `an@example.test` / `local-demo-password`. Email local được
-giữ trong SMTP inbox local; fake push/email provider không gọi mạng. Các lệnh vận hành:
+Các lệnh vận hành local:
 
 ```powershell
 npm run supabase:status
 npm run test:db
-npm run supabase:reset # Xóa local stack data và dựng lại từ migrations/seed
+npm run supabase:reset
 npm run supabase:stop
 ```
 
-Các Edge consumer S3 mặc định không gửi mạng. Xem biến mẫu phía server tại
-`supabase/functions/.env.example`; chỉ bật `NOTIFICATION_PROVIDER_MODE=live` trên staging cùng
-Gmail SMTP/Expo secrets và test recipients/devices đã consent. Local smoke trực tiếp chạy claim → fake
-provider → persist outcome, bao gồm retry/unknown và invalid Expo token qua unit test.
+`supabase:reset` xóa và dựng lại dữ liệu local; không dùng với hosted project.
 
-Parity gap cho personal pilot đã đóng: artifact, Expo receipt, contact acceptance và provider E2E
-đều có evidence thật; staging kill switch đã trả về `false`. Browser nền đã kiểm tra
-390/768/1440, keyboard focus và `lang=vi`; source contact web có thêm route `/help` với safety
-limitation và accessibility hierarchy đã qua local QA, còn chờ staging deploy. Token-rotation
-candidate đã qua device smoke. Hosted backup/PITR restore, measured SLO, hosted fault drill,
-zoom/screen reader/full device matrix chuyển sang post-MVP release gate.
+## Kiểm tra toàn repository
+
+```powershell
+pnpm format:check
+pnpm lint
+pnpm typecheck
+pnpm test
+pnpm build
+```
+
+Hoặc chạy toàn bộ chuỗi không bao gồm hosted smoke:
+
+```powershell
+pnpm check
+```
+
+Test mặc định dùng fake provider. Gửi notification thật chỉ được thực hiện trong supervised staging
+window với recipient/device đã đồng thuận và operator đã xác minh kill switch.
+
+## Tài liệu còn lại
+
+| Nhu cầu                   | Tài liệu                                                                                   |
+| ------------------------- | ------------------------------------------------------------------------------------------ |
+| Tiến độ và việc tiếp theo | [`docs/PROJECT-STATUS.md`](docs/PROJECT-STATUS.md)                                         |
+| Hướng dẫn agent           | [`AGENTS.md`](AGENTS.md)                                                                   |
+| UI/UX                     | [`design/stitch/README.md`](design/stitch/README.md)                                       |
+| Design tokens             | [`design/stitch/DESIGN.md`](design/stitch/DESIGN.md)                                       |
+| Kiến trúc                 | [`docs/adr/`](docs/adr/)                                                                   |
+| Mobile build/release      | [`docs/release/MOBILE-RELEASE-RUNBOOK.md`](docs/release/MOBILE-RELEASE-RUNBOOK.md)         |
+| Staging operations        | [`docs/release/STAGING-OPERATIONS-RUNBOOK.md`](docs/release/STAGING-OPERATIONS-RUNBOOK.md) |
+| Privacy/terms             | [`docs/release/PRIVACY-TERMS-READINESS.md`](docs/release/PRIVACY-TERMS-READINESS.md)       |
+| Incident/support          | [`docs/release/SUPPORT-INCIDENT-RUNBOOK.md`](docs/release/SUPPORT-INCIDENT-RUNBOOK.md)     |
+
+Không tạo thêm roadmap, progress plan hoặc screen prompt rời nếu nội dung có thể cập nhật trong nguồn
+tương ứng ở bảng trên.
