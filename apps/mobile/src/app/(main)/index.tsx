@@ -202,25 +202,6 @@ const HomeContent = ({ session }: { session: AuthSession }) => {
         <Text style={styles.deadline}>Hạn tiếp theo: {nextDeadline}</Text>
       </View>
 
-      {approaching || currentAlertNeedsAttention ? (
-        <Card style={styles.warningCard}>
-          <View style={styles.inlineRow}>
-            <AppIcon color={colors.warning} name="warning-amber" />
-            <Text style={styles.warningTitle}>
-              {currentAlertNeedsAttention
-                ? "Trạng thái cần bạn chú ý"
-                : "Thời hạn đang đến gần"}
-            </Text>
-          </View>
-          <Button
-            accessibilityLabel="Xem thông tin cảnh báo"
-            label="Xem cảnh báo"
-            onPress={() => router.push("/warning")}
-            variant="secondary"
-          />
-        </Card>
-      ) : null}
-
       <View style={styles.checkInArea}>
         <CheckInButton
           disabled={status.plan.state === "inactive"}
@@ -236,6 +217,36 @@ const HomeContent = ({ session }: { session: AuthSession }) => {
           </Text>
         ) : null}
       </View>
+
+      {approaching || currentAlertNeedsAttention ? (
+        <Pressable
+          accessibilityHint="Mở chi tiết và các hành động xử lý cảnh báo"
+          accessibilityLabel={
+            currentAlertNeedsAttention
+              ? "Trạng thái cần bạn chú ý, xem cảnh báo"
+              : "Thời hạn đang đến gần, xem cảnh báo"
+          }
+          accessibilityRole="button"
+          onPress={() => router.push("/warning")}
+          style={({ pressed }) => [
+            styles.warningBanner,
+            pressed && styles.pressed,
+          ]}
+        >
+          <View style={styles.warningIcon}>
+            <AppIcon color={colors.warning} name="warning-amber" />
+          </View>
+          <View style={styles.warningCopy}>
+            <Text style={styles.warningTitle}>
+              {currentAlertNeedsAttention
+                ? "Trạng thái cần bạn chú ý"
+                : "Thời hạn đang đến gần"}
+            </Text>
+            <Text style={styles.warningBody}>Chạm để xem và xử lý</Text>
+          </View>
+          <AppIcon color={colors.warning} name="chevron-right" />
+        </Pressable>
+      ) : null}
 
       {checkInMutation.error ? (
         <Card style={styles.errorCard}>
@@ -332,9 +343,12 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   header: {
     alignItems: "center",
+    borderBottomColor: colors.border,
+    borderBottomWidth: StyleSheet.hairlineWidth,
     flexDirection: "row",
     gap: spacing.md,
     justifyContent: "space-between",
+    paddingBottom: spacing.md,
   },
   headerCopy: { flex: 1, gap: spacing.xxs },
   greeting: { ...typography.headingMedium, color: colors.primary },
@@ -351,7 +365,7 @@ const styles = StyleSheet.create({
   },
   avatarText: { ...typography.headingMedium, color: colors.primary },
   centered: { alignItems: "center", gap: spacing.xs },
-  countdownArea: { alignItems: "center", gap: spacing.xs },
+  countdownArea: { alignItems: "center", gap: spacing.xxs },
   countdownLabel: { ...typography.bodyMedium, color: colors.textSecondary },
   countdown: {
     ...typography.display,
@@ -361,7 +375,7 @@ const styles = StyleSheet.create({
   },
   countdownApproaching: { color: colors.warning },
   deadline: { ...typography.caption, color: colors.textSecondary },
-  checkInArea: { alignItems: "center", gap: spacing.md },
+  checkInArea: { alignItems: "center", gap: spacing.sm },
   lastCheckIn: {
     ...typography.caption,
     color: colors.textSecondary,
@@ -398,10 +412,27 @@ const styles = StyleSheet.create({
   statusLabel: { ...typography.bodyMedium, color: colors.textSecondary },
   statusValue: { ...typography.label, color: colors.textPrimary },
   inlineRow: { alignItems: "center", flexDirection: "row", gap: spacing.xs },
-  warningCard: {
+  warningBanner: {
+    alignItems: "center",
     backgroundColor: colors.warningContainer,
     borderColor: colors.warning,
+    borderRadius: radii.lg,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: spacing.sm,
+    minHeight: sizes.minimumTouchTarget + spacing.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
   },
+  warningIcon: {
+    alignItems: "center",
+    backgroundColor: colors.surface,
+    borderRadius: radii.pill,
+    height: 40,
+    justifyContent: "center",
+    width: 40,
+  },
+  warningCopy: { flex: 1, gap: spacing.xxs },
   warningTitle: { ...typography.label, color: colors.warning },
   warningBody: { ...typography.bodyMedium, color: colors.textSecondary },
   errorCard: {

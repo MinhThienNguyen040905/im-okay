@@ -72,8 +72,12 @@ const SettingsRow = ({
         <Text style={[styles.rowLabel, danger && styles.dangerText]}>
           {label}
         </Text>
-        {value ? <Text style={styles.rowValue}>{value}</Text> : null}
       </View>
+      {value ? (
+        <Text numberOfLines={1} style={styles.rowValue}>
+          {value}
+        </Text>
+      ) : null}
       {onPress ? (
         <AppIcon color={colors.textSecondary} name="chevron-right" size={20} />
       ) : null}
@@ -141,6 +145,8 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
   const [formError, setFormError] = useState<string | null>(null);
   const [pushError, setPushError] = useState<string | null>(null);
   const [resultMessage, setResultMessage] = useState<string | null>(null);
+  const [profileExpanded, setProfileExpanded] = useState(false);
+  const [planExpanded, setPlanExpanded] = useState(false);
 
   const settingsQuery = useQuery({
     queryKey: settingsQueryKey(session.user.id),
@@ -200,6 +206,8 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
       setIntervalHours(null);
       setFormError(null);
       setResultMessage(message);
+      setProfileExpanded(false);
+      setPlanExpanded(false);
     },
     [queryClient, session.user.id, syncAuthoritativeSettings],
   );
@@ -394,8 +402,16 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
         <Badge label="Dữ liệu mẫu · không có bảo vệ thật" variant="warning" />
       ) : null}
 
-      <Card>
-        <View style={styles.profileHeading}>
+      <Card style={styles.profileCard}>
+        <Pressable
+          accessibilityLabel={`${profileExpanded ? "Đóng" : "Mở"} chỉnh sửa hồ sơ`}
+          accessibilityRole="button"
+          onPress={() => setProfileExpanded((expanded) => !expanded)}
+          style={({ pressed }) => [
+            styles.profileHeading,
+            pressed && styles.pressed,
+          ]}
+        >
           <View style={styles.avatar}>
             <Text style={styles.avatarText}>
               {projection.profile.displayName.charAt(0).toUpperCase()}
@@ -405,85 +421,106 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
             <Text style={styles.profileName}>
               {projection.profile.displayName}
             </Text>
-            <Text style={styles.rowValue}>{projection.profile.email}</Text>
+            <Text numberOfLines={1} style={styles.profileEmail}>
+              {projection.profile.email}
+            </Text>
           </View>
-        </View>
-        <Input
-          accessibilityLabel="Tên hiển thị"
-          autoCapitalize="words"
-          error={profileInvalid && formError ? formError : undefined}
-          label="Tên hiển thị"
-          maxLength={80}
-          onChangeText={setDisplayName}
-          value={displayName}
-        />
-        <Input
-          accessibilityLabel="Múi giờ IANA"
-          autoCapitalize="none"
-          autoCorrect={false}
-          error={timezoneInvalid && formError ? formError : undefined}
-          helperText="Ví dụ: Asia/Ho_Chi_Minh"
-          label="Múi giờ"
-          onChangeText={setTimezone}
-          value={timezone}
-        />
-        <Button
-          accessibilityLabel="Lưu tên hiển thị và múi giờ"
-          label="Lưu hồ sơ"
-          loading={profileMutation.isPending}
-          onPress={saveProfile}
-          variant="secondary"
-        />
+          <AppIcon
+            color={colors.textSecondary}
+            name={profileExpanded ? "expand-less" : "chevron-right"}
+            size={20}
+          />
+        </Pressable>
+        {profileExpanded ? (
+          <View style={styles.inlineEditor}>
+            <View style={styles.divider} />
+            <Input
+              accessibilityLabel="Tên hiển thị"
+              autoCapitalize="words"
+              error={profileInvalid && formError ? formError : undefined}
+              label="Tên hiển thị"
+              maxLength={80}
+              onChangeText={setDisplayName}
+              value={displayName}
+            />
+            <Input
+              accessibilityLabel="Múi giờ IANA"
+              autoCapitalize="none"
+              autoCorrect={false}
+              error={timezoneInvalid && formError ? formError : undefined}
+              helperText="Ví dụ: Asia/Ho_Chi_Minh"
+              label="Múi giờ"
+              onChangeText={setTimezone}
+              value={timezone}
+            />
+            <Button
+              accessibilityLabel="Lưu tên hiển thị và múi giờ"
+              label="Lưu hồ sơ"
+              loading={profileMutation.isPending}
+              onPress={saveProfile}
+              variant="secondary"
+            />
+          </View>
+        ) : null}
       </Card>
 
       {sectionTitle("KẾ HOẠCH AN TOÀN")}
-      <Card>
-        <Text style={styles.fieldLabel}>Chu kỳ điểm danh</Text>
-        <View style={styles.intervalRow}>
-          {([24, 36, 48] as const).map((hours) => {
-            const selected = intervalHours === hours;
-            return (
-              <Pressable
-                key={hours}
-                accessibilityLabel={`Chu kỳ ${hours} giờ`}
-                accessibilityRole="radio"
-                accessibilityState={{
-                  checked: selected,
-                  disabled: !projection.allowedActions.canUpdateSafetyPlan,
-                }}
-                disabled={!projection.allowedActions.canUpdateSafetyPlan}
-                onPress={() => setIntervalHours(hours)}
-                style={[
-                  styles.intervalOption,
-                  selected && styles.intervalSelected,
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.intervalText,
-                    selected && styles.intervalTextSelected,
-                  ]}
-                >
-                  {hours} giờ
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
-        <Text style={styles.deadline}>
-          Thời hạn do máy chủ trả về: {formatDeadline(projection)}
-        </Text>
-        <Button
-          accessibilityLabel="Lưu chu kỳ và yêu cầu máy chủ tạo lịch mới"
-          disabled={!projection.allowedActions.canUpdateSafetyPlan}
-          label="Lưu chu kỳ"
-          loading={planMutation.isPending}
-          onPress={() => {
-            setResultMessage(null);
-            planMutation.mutate();
-          }}
-          variant="secondary"
+      <Card style={styles.listCard}>
+        <SettingsRow
+          icon="timer"
+          label="Chu kỳ điểm danh"
+          onPress={() => setPlanExpanded((expanded) => !expanded)}
+          value={`${projection.safetyPlan.intervalHours} giờ`}
         />
+        {planExpanded ? (
+          <View style={styles.planEditor}>
+            <View style={styles.intervalRow}>
+              {([24, 36, 48] as const).map((hours) => {
+                const selected = intervalHours === hours;
+                return (
+                  <Pressable
+                    key={hours}
+                    accessibilityLabel={`Chu kỳ ${hours} giờ`}
+                    accessibilityRole="radio"
+                    accessibilityState={{
+                      checked: selected,
+                      disabled: !projection.allowedActions.canUpdateSafetyPlan,
+                    }}
+                    disabled={!projection.allowedActions.canUpdateSafetyPlan}
+                    onPress={() => setIntervalHours(hours)}
+                    style={[
+                      styles.intervalOption,
+                      selected && styles.intervalSelected,
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.intervalText,
+                        selected && styles.intervalTextSelected,
+                      ]}
+                    >
+                      {hours} giờ
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+            <Text style={styles.deadline}>
+              Thời hạn do máy chủ trả về: {formatDeadline(projection)}
+            </Text>
+            <Button
+              accessibilityLabel="Lưu chu kỳ và yêu cầu máy chủ tạo lịch mới"
+              disabled={!projection.allowedActions.canUpdateSafetyPlan}
+              label="Lưu chu kỳ"
+              loading={planMutation.isPending}
+              onPress={() => {
+                setResultMessage(null);
+                planMutation.mutate();
+              }}
+              variant="secondary"
+            />
+          </View>
+        ) : null}
         <View style={styles.divider} />
         <SettingsRow
           icon="group"
@@ -491,6 +528,7 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
           onPress={() => router.push("/contacts")}
           value={`${projection.contacts.acceptedCount}/${projection.contacts.totalCount} đã sẵn sàng`}
         />
+        <View style={styles.divider} />
         <SettingsRow
           icon="shield"
           label="Trạng thái bảo vệ"
@@ -505,7 +543,7 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
       </Card>
 
       {sectionTitle("THÔNG BÁO")}
-      <Card>
+      <Card style={styles.listCard}>
         <SettingsRow
           icon={pushReady ? "notifications-active" : "notifications-off"}
           label="Thông báo đẩy"
@@ -535,7 +573,7 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
       </Card>
 
       {sectionTitle("KIỂM TRA HỆ THỐNG")}
-      <Card>
+      <Card style={styles.listCard}>
         <SettingsRow
           icon="campaign"
           label="Diễn tập cảnh báo"
@@ -634,17 +672,20 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
   },
-  title: { ...typography.headingLarge, color: colors.textPrimary },
+  title: { ...typography.headingLarge, color: colors.primary },
   syncing: { ...typography.caption, color: colors.textSecondary },
   sectionTitle: {
     ...typography.caption,
     color: colors.textSecondary,
+    letterSpacing: 0.6,
     marginBottom: -spacing.sm,
   },
+  profileCard: { padding: spacing.md },
   profileHeading: {
     alignItems: "center",
     flexDirection: "row",
     gap: spacing.sm,
+    minHeight: 64,
   },
   avatar: {
     alignItems: "center",
@@ -656,18 +697,37 @@ const styles = StyleSheet.create({
   },
   avatarText: { ...typography.headingMedium, color: colors.primary },
   profileName: { ...typography.label, color: colors.textPrimary },
+  profileEmail: {
+    ...typography.caption,
+    color: colors.textSecondary,
+  },
+  inlineEditor: { gap: spacing.md },
+  listCard: { gap: 0, overflow: "hidden", padding: 0 },
   settingsRow: {
     alignItems: "center",
     flexDirection: "row",
     gap: spacing.sm,
-    minHeight: sizes.minimumTouchTarget,
+    minHeight: 56,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
   },
-  rowCopy: { flex: 1, gap: spacing.xxs },
+  rowCopy: { flex: 1, gap: spacing.xxs, minWidth: 0 },
   rowLabel: { ...typography.bodyMedium, color: colors.textPrimary },
-  rowValue: { ...typography.caption, color: colors.textSecondary },
+  rowValue: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    flexShrink: 1,
+    maxWidth: "42%",
+    textAlign: "right",
+  },
   pressed: { opacity: 0.7 },
   divider: { backgroundColor: colors.border, height: StyleSheet.hairlineWidth },
-  fieldLabel: { ...typography.label, color: colors.textPrimary },
+  planEditor: {
+    borderTopColor: colors.border,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    gap: spacing.md,
+    padding: spacing.md,
+  },
   intervalRow: { flexDirection: "row", gap: spacing.xs },
   intervalOption: {
     alignItems: "center",

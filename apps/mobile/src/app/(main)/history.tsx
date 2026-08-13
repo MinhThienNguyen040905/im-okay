@@ -61,7 +61,21 @@ const HistoryItemRow = ({
   }
   const copy = historyCopy(row.item);
   const iconColor =
-    row.item.event === "correction_failed" ? colors.danger : colors.primary;
+    row.item.event === "correction_failed"
+      ? colors.danger
+      : row.item.event === "reminder_sent" ||
+          row.item.event === "alert_triggered"
+        ? colors.warning
+        : colors.primary;
+  const iconBackground =
+    row.item.event === "correction_failed"
+      ? colors.dangerContainer
+      : row.item.event === "reminder_sent" ||
+          row.item.event === "alert_triggered"
+        ? colors.warningContainer
+        : row.item.event.startsWith("drill_")
+          ? colors.primaryContainer
+          : colors.surfaceMuted;
   const exactDeadline = row.item.nextDeadlineAt
     ? new Intl.DateTimeFormat("vi-VN", {
         dateStyle: "short",
@@ -79,7 +93,7 @@ const HistoryItemRow = ({
         <Text style={styles.time}>
           {formatHistoryTime(row.item.occurredAt, timezone)}
         </Text>
-        <View style={styles.eventIcon}>
+        <View style={[styles.eventIcon, { backgroundColor: iconBackground }]}>
           <AppIcon
             color={iconColor}
             name={eventIcon[row.item.event]}
@@ -270,13 +284,17 @@ export default function HistoryScreen() {
 }
 
 const styles = StyleSheet.create({
-  staticContent: { gap: spacing.md, paddingBottom: 0 },
+  staticContent: {
+    gap: spacing.md,
+    paddingBottom: 0,
+    paddingTop: spacing.lg,
+  },
   screenHeader: {
     alignItems: "center",
     flexDirection: "row",
     justifyContent: "space-between",
   },
-  title: { ...typography.headingLarge, color: colors.textPrimary },
+  title: { ...typography.headingLarge, color: colors.primary },
   syncing: { ...typography.caption, color: colors.textSecondary },
   segmented: {
     backgroundColor: colors.surfaceMuted,
@@ -302,6 +320,7 @@ const styles = StyleSheet.create({
     borderRadius: radii.md,
     flexDirection: "row",
     gap: spacing.xs,
+    justifyContent: "center",
     padding: spacing.sm,
   },
   summary: { ...typography.bodyMedium, color: colors.textSecondary, flex: 1 },
@@ -310,11 +329,11 @@ const styles = StyleSheet.create({
   dayHeader: {
     ...typography.label,
     color: colors.textSecondary,
-    marginTop: spacing.sm,
+    marginTop: spacing.xs,
   },
-  timelineCard: { padding: spacing.md },
+  timelineCard: { minHeight: 68, padding: spacing.sm },
   timelineRow: {
-    alignItems: "flex-start",
+    alignItems: "center",
     flexDirection: "row",
     gap: spacing.sm,
   },
@@ -326,11 +345,10 @@ const styles = StyleSheet.create({
   },
   eventIcon: {
     alignItems: "center",
-    backgroundColor: colors.surfaceMuted,
     borderRadius: radii.pill,
-    height: 34,
+    height: 32,
     justifyContent: "center",
-    width: 34,
+    width: 32,
   },
   eventCopy: { flex: 1, gap: spacing.xxs },
   titleRow: {

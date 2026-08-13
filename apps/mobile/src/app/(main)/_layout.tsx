@@ -2,7 +2,7 @@ import { Tabs } from "expo-router";
 import type { ColorValue } from "react-native";
 
 import { AppIcon, type AppIconName } from "@/components";
-import { colors, sizes, typography } from "@/theme";
+import { colors, radii, sizes, spacing, typography } from "@/theme";
 
 type TabIconProps = {
   color: ColorValue;
@@ -21,18 +21,28 @@ export default function MainTabsLayout() {
   return (
     <Tabs
       screenOptions={{
-        headerShadowVisible: false,
-        headerStyle: { backgroundColor: colors.background },
-        headerTintColor: colors.textPrimary,
+        headerShown: false,
+        sceneStyle: { backgroundColor: colors.background },
+        tabBarActiveBackgroundColor: colors.primaryContainer,
         tabBarActiveTintColor: colors.primary,
+        tabBarHideOnKeyboard: true,
         tabBarInactiveTintColor: colors.textSecondary,
-        tabBarLabelStyle: typography.caption,
+        tabBarLabelStyle: {
+          ...typography.caption,
+          fontWeight: "600",
+        },
         tabBarStyle: {
           backgroundColor: colors.surface,
           borderTopColor: colors.border,
-          minHeight: 64,
+          minHeight: 72,
+          paddingBottom: spacing.xs,
+          paddingTop: spacing.xs,
         },
-        tabBarItemStyle: { minHeight: sizes.minimumTouchTarget },
+        tabBarItemStyle: {
+          borderRadius: radii.pill,
+          marginHorizontal: spacing.xs,
+          minHeight: sizes.minimumTouchTarget,
+        },
       }}
     >
       <Tabs.Screen
