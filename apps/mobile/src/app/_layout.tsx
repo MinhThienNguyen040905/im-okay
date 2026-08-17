@@ -14,6 +14,7 @@ import {
   OnboardingProvider,
   useOnboarding,
 } from "@/features/onboarding/OnboardingProvider";
+import { I18nProvider, translate, useI18n } from "@/features/i18n/I18nProvider";
 import { getEntryRoute } from "@/features/onboarding/routing";
 import { InboundLinkGuard } from "@/features/security/InboundLinkGuard";
 import {
@@ -41,8 +42,11 @@ export const ErrorBoundary = ({ error, retry }: ErrorBoundaryProps) => {
     <SafeAreaProvider>
       <Screen scrollable={false}>
         <ErrorState
-          title="Ứng dụng gặp sự cố"
-          message="Dữ liệu an toàn trên máy chủ không bị thay đổi. Bạn có thể thử mở lại màn hình."
+          title={translate("common.appError", "Ứng dụng gặp sự cố")}
+          message={translate(
+            "common.appErrorMessage",
+            "Dữ liệu an toàn trên máy chủ không bị thay đổi. Bạn có thể thử mở lại màn hình.",
+          )}
           onRetry={retry}
         />
       </Screen>
@@ -51,6 +55,7 @@ export const ErrorBoundary = ({ error, retry }: ErrorBoundaryProps) => {
 };
 
 const RootNavigator = () => {
+  const { t } = useI18n();
   const { session } = useAuth();
   const { draft, loading } = useOnboarding();
   const { reduceMotionEnabled } = useAccessibilityPreferences();
@@ -77,7 +82,10 @@ const RootNavigator = () => {
           <Stack.Screen name="warning" options={{ headerShown: false }} />
           <Stack.Screen name="sos" options={{ headerShown: false }} />
         </Stack.Protected>
-        <Stack.Screen name="+not-found" options={{ title: "Không tìm thấy" }} />
+        <Stack.Screen
+          name="+not-found"
+          options={{ title: t("common.notFound", "Không tìm thấy") }}
+        />
       </Stack>
     </>
   );
@@ -85,15 +93,17 @@ const RootNavigator = () => {
 
 const RootLayout = () => (
   <SafeAreaProvider>
-    <AccessibilityProvider>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <OnboardingProvider>
-            <RootNavigator />
-          </OnboardingProvider>
-        </AuthProvider>
-      </QueryClientProvider>
-    </AccessibilityProvider>
+    <I18nProvider>
+      <AccessibilityProvider>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <OnboardingProvider>
+              <RootNavigator />
+            </OnboardingProvider>
+          </AuthProvider>
+        </QueryClientProvider>
+      </AccessibilityProvider>
+    </I18nProvider>
   </SafeAreaProvider>
 );
 

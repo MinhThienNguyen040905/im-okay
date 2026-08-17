@@ -3,7 +3,7 @@
 Đây là **nguồn duy nhất cho tiến độ hiện tại**. Cập nhật file này khi có build, deploy, test evidence,
 blocker hoặc thay đổi thứ tự ưu tiên. Không tạo thêm plan/roadmap tiến độ song song.
 
-Mốc cập nhật: **13/08/2026**.
+Mốc cập nhật: **17/08/2026**.
 
 ## Kết luận hiện tại
 
@@ -39,6 +39,17 @@ Supabase project `xnaanctveihyksgcveup` đã được reset theo yêu cầu owne
 - không gửi notification trong quá trình reset/readiness check.
 
 Đây là snapshot tại thời điểm reset. Sau khi owner đăng ký lại, các số lượng sẽ tăng bình thường.
+
+## Thay đổi source chưa có trong APK hiện hành
+
+- Mobile đã có i18n foundation cho `vi`/`en`: tự nhận locale thiết bị, lưu lựa chọn
+  bằng AsyncStorage, language switcher và resource typed.
+- Auth, onboarding, navigation, error/loading/progress state và bộ chọn ngôn ngữ trong Settings
+  đã dùng resource Việt/Anh; 136 test trong 40 suite, lint và typecheck pass.
+- Home, History, Contacts, Alert/SOS và các copy nghiệp vụ còn lại chưa migrate hết.
+  Tiếng Việt vẫn là fallback an toàn; không đánh dấu hỗ trợ tiếng Anh hoàn chỉnh.
+- Thay đổi này chưa có EAS build/device smoke mới; APK staging hiện hành bên dưới
+  vẫn là artifact từ commit `9ddce5e22c62`.
 
 ## Build Android hiện hành
 

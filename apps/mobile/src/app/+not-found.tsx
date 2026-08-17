@@ -1,19 +1,24 @@
 import { useRouter } from "expo-router";
 
 import { Button, ErrorState, Screen } from "@/components";
+import { useI18n } from "@/features/i18n/I18nProvider";
 
 export default function NotFoundScreen() {
+  const { t } = useI18n();
   const router = useRouter();
 
   return (
     <Screen scrollable={false}>
       <ErrorState
-        title="Không tìm thấy màn hình"
-        message="Liên kết này không còn hợp lệ hoặc màn hình đã được chuyển."
+        title={t("link.screenNotFound", "Không tìm thấy màn hình")}
+        message={t(
+          "link.invalidScreen",
+          "Liên kết này không còn hợp lệ hoặc màn hình đã được chuyển.",
+        )}
       />
       <Button
-        accessibilityLabel="Quay về trang chủ"
-        label="Về trang chủ"
+        accessibilityLabel={t("link.returnHome", "Quay về trang chủ")}
+        label={t("link.goHome", "Về trang chủ")}
         onPress={() => router.replace("/")}
       />
     </Screen>

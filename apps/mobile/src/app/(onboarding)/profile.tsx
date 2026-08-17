@@ -13,6 +13,7 @@ import {
   ProgressHeader,
   Screen,
 } from "@/components";
+import { translate, useI18n } from "@/features/i18n/I18nProvider";
 import { useOnboarding } from "@/features/onboarding/OnboardingProvider";
 import { colors, spacing, typography } from "@/theme";
 
@@ -31,17 +32,27 @@ const formSchema = z.object({
   displayName: z
     .string()
     .trim()
-    .min(1, "Hãy nhập tên bạn muốn hiển thị.")
-    .max(80, "Tên hiển thị tối đa 80 ký tự."),
+    .min(
+      1,
+      translate("profile.nameRequired", "Hãy nhập tên bạn muốn hiển thị."),
+    )
+    .max(80, translate("profile.nameMax", "Tên hiển thị tối đa 80 ký tự.")),
   timezone: z
     .string()
     .trim()
-    .refine(isValidTimezone, "Múi giờ không hợp lệ, ví dụ Asia/Ho_Chi_Minh."),
+    .refine(
+      isValidTimezone,
+      translate(
+        "profile.timezoneInvalid",
+        "Múi giờ không hợp lệ, ví dụ Asia/Ho_Chi_Minh.",
+      ),
+    ),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
 export default function ProfileScreen() {
+  const { t } = useI18n();
   const router = useRouter();
   const { draft, saveProfile } = useOnboarding();
   const { control, handleSubmit, setValue } = useForm<FormValues>({
@@ -60,21 +71,28 @@ export default function ProfileScreen() {
     <Screen
       footer={
         <Button
-          accessibilityLabel="Lưu hồ sơ và tiếp tục"
-          label="Lưu và tiếp tục"
+          accessibilityLabel={t("profile.saveA11y", "Lưu hồ sơ và tiếp tục")}
+          label={t("profile.save", "Lưu và tiếp tục")}
           loading={mutation.isPending}
           onPress={handleSubmit((values) => mutation.mutate(values))}
           testID="profile-save-button"
         />
       }
     >
-      <ProgressHeader current={1} label="Hồ sơ của bạn" total={3} />
+      <ProgressHeader
+        current={1}
+        label={t("profile.progress", "Hồ sơ của bạn")}
+        total={3}
+      />
       <View style={styles.heading}>
         <Text accessibilityRole="header" style={styles.title}>
-          Mình nên gọi bạn là gì?
+          {t("profile.title", "Mình nên gọi bạn là gì?")}
         </Text>
         <Text style={styles.description}>
-          Tên này giúp người thân nhận ra bạn trong lời mời và cảnh báo.
+          {t(
+            "profile.description",
+            "Tên này giúp người thân nhận ra bạn trong lời mời và cảnh báo.",
+          )}
         </Text>
       </View>
 
@@ -90,10 +108,10 @@ export default function ProfileScreen() {
             <Input
               autoCapitalize="words"
               error={fieldState.error?.message}
-              label="Tên hiển thị"
+              label={t("profile.displayName", "Tên hiển thị")}
               onBlur={field.onBlur}
               onChangeText={field.onChange}
-              placeholder="Ví dụ: Minh"
+              placeholder={t("profile.exampleName", "Ví dụ: Minh")}
               testID="profile-name-input"
               value={field.value}
             />
@@ -106,8 +124,11 @@ export default function ProfileScreen() {
             <Input
               autoCapitalize="none"
               error={fieldState.error?.message}
-              helperText="Dùng múi giờ IANA để lịch nhắc không bị lệch khi đi xa."
-              label="Múi giờ"
+              helperText={t(
+                "profile.timezoneHelp",
+                "Dùng múi giờ IANA để lịch nhắc không bị lệch khi đi xa.",
+              )}
+              label={t("profile.timezone", "Múi giờ")}
               onBlur={field.onBlur}
               onChangeText={field.onChange}
               placeholder="Asia/Ho_Chi_Minh"
@@ -116,8 +137,14 @@ export default function ProfileScreen() {
           )}
         />
         <Button
-          accessibilityLabel={`Dùng múi giờ phát hiện trên thiết bị: ${detectedTimezone}`}
-          label={`Dùng ${detectedTimezone}`}
+          accessibilityLabel={t(
+            "profile.detectedTimezoneA11y",
+            "Dùng múi giờ phát hiện trên thiết bị: {timezone}",
+            { timezone: detectedTimezone },
+          )}
+          label={t("profile.useTimezone", "Dùng {timezone}", {
+            timezone: detectedTimezone,
+          })}
           onPress={() =>
             setValue("timezone", detectedTimezone, { shouldValidate: true })
           }
@@ -127,15 +154,17 @@ export default function ProfileScreen() {
 
       <Card muted>
         <Text style={styles.privacy}>
-          Ở bước này I’m Okay chỉ cần tên hiển thị và múi giờ. App không yêu cầu
-          địa chỉ, thông tin sức khỏe hay số điện thoại.
+          {t(
+            "profile.privacy",
+            "Ở bước này I’m Okay chỉ cần tên hiển thị và múi giờ. App không yêu cầu địa chỉ, thông tin sức khỏe hay số điện thoại.",
+          )}
         </Text>
       </Card>
       {mutation.error ? (
         <Text accessibilityLiveRegion="polite" style={styles.error}>
           {mutation.error instanceof Error
             ? mutation.error.message
-            : "Không thể lưu hồ sơ."}
+            : t("profile.saveFailed", "Không thể lưu hồ sơ.")}
         </Text>
       ) : null}
     </Screen>

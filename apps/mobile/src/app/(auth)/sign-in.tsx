@@ -17,15 +17,20 @@ import {
 } from "@/components";
 import { env } from "@/config/env";
 import { useAuth } from "@/features/auth/AuthProvider";
+import { LanguageSwitcher } from "@/features/i18n/LanguageSwitcher";
+import { translate, useI18n } from "@/features/i18n/I18nProvider";
 import { colors, spacing, typography } from "@/theme";
 
 const formSchema = z.object({
-  email: z.email("Hãy nhập một địa chỉ email hợp lệ."),
+  email: z.email(
+    translate("auth.invalidEmail", "Hãy nhập một địa chỉ email hợp lệ."),
+  ),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
 export default function SignInScreen() {
+  const { t } = useI18n();
   const router = useRouter();
   const auth = useAuth();
   const [sentTo, setSentTo] = useState<string | null>(null);
@@ -53,19 +58,26 @@ export default function SignInScreen() {
   if (sentTo) {
     return (
       <Screen>
+        <LanguageSwitcher />
         <View style={styles.heroIcon}>
           <AppIcon color={colors.primary} name="mark-email-read" size={40} />
         </View>
         <Text accessibilityRole="header" style={styles.title}>
-          Kiểm tra email của bạn
+          {t("auth.checkEmail", "Kiểm tra email của bạn")}
         </Text>
         <Text style={styles.description}>
-          Mình đã gửi liên kết đăng nhập tới {sentTo}. Hãy mở liên kết trên
-          thiết bị này để tiếp tục.
+          {t(
+            "auth.linkSent",
+            "Mình đã gửi liên kết đăng nhập tới {email}. Hãy mở liên kết trên thiết bị này để tiếp tục.",
+            { email: sentTo },
+          )}
         </Text>
         <Button
-          accessibilityLabel="Dùng địa chỉ email khác"
-          label="Dùng email khác"
+          accessibilityLabel={t(
+            "auth.useAnotherEmailA11y",
+            "Dùng địa chỉ email khác",
+          )}
+          label={t("auth.useAnotherEmail", "Dùng email khác")}
           onPress={() => setSentTo(null)}
           variant="secondary"
         />
@@ -75,12 +87,16 @@ export default function SignInScreen() {
 
   return (
     <Screen>
+      <LanguageSwitcher />
       {env.dataMode === "fixture" ? (
-        <Badge label="Dữ liệu mẫu chỉ trên thiết bị này" variant="warning" />
+        <Badge
+          label={t("auth.fixtureBadge", "Dữ liệu mẫu chỉ trên thiết bị này")}
+          variant="warning"
+        />
       ) : null}
       <View style={styles.heading}>
         <Text accessibilityRole="header" style={styles.title}>
-          Chào mừng bạn
+          {t("auth.welcome", "Chào mừng bạn")}
         </Text>
         <Text style={styles.description}>
           Đăng nhập không cần mật khẩu bằng Google hoặc liên kết gửi qua email.
@@ -88,7 +104,7 @@ export default function SignInScreen() {
       </View>
 
       <Button
-        accessibilityLabel="Tiếp tục bằng Google"
+        accessibilityLabel={t("auth.continueGoogle", "Tiếp tục bằng Google")}
         label="Tiếp tục bằng Google"
         leadingIcon={<GoogleIcon />}
         loading={googleMutation.isPending}
@@ -96,9 +112,13 @@ export default function SignInScreen() {
         variant="secondary"
       />
 
-      <View accessible accessibilityLabel="hoặc" style={styles.dividerRow}>
+      <View
+        accessible
+        accessibilityLabel={t("auth.or", "hoặc")}
+        style={styles.dividerRow}
+      >
         <View style={styles.divider} />
-        <Text style={styles.dividerText}>hoặc</Text>
+        <Text style={styles.dividerText}>{t("auth.or", "hoặc")}</Text>
         <View style={styles.divider} />
       </View>
 
@@ -108,12 +128,12 @@ export default function SignInScreen() {
           name="email"
           render={({ field, fieldState }) => (
             <Input
-              accessibilityLabel="Địa chỉ email"
+              accessibilityLabel={t("auth.emailAddress", "Địa chỉ email")}
               autoCapitalize="none"
               autoComplete="email"
               error={fieldState.error?.message}
               keyboardType="email-address"
-              label="Email"
+              label={t("auth.email", "Email")}
               onBlur={field.onBlur}
               onChangeText={field.onChange}
               placeholder="ban@example.com"
@@ -123,7 +143,7 @@ export default function SignInScreen() {
           )}
         />
         <Button
-          accessibilityLabel="Tiếp tục bằng email"
+          accessibilityLabel={t("auth.continueEmail", "Tiếp tục bằng email")}
           label="Tiếp tục bằng email"
           loading={emailMutation.isPending}
           onPress={handleSubmit((values) => emailMutation.mutate(values))}
@@ -137,8 +157,10 @@ export default function SignInScreen() {
         </Text>
       ) : null}
       <Text style={styles.terms}>
-        Khi tiếp tục, bạn đồng ý với Điều khoản sử dụng và Chính sách quyền
-        riêng tư của I’m Okay.
+        {t(
+          "auth.terms",
+          "Khi tiếp tục, bạn đồng ý với Điều khoản sử dụng và Chính sách quyền riêng tư của I’m Okay.",
+        )}
       </Text>
     </Screen>
   );

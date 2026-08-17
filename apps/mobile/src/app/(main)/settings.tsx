@@ -25,6 +25,7 @@ import {
 } from "@/components";
 import { env } from "@/config/env";
 import { useAuth } from "@/features/auth/AuthProvider";
+import { useI18n } from "@/features/i18n/I18nProvider";
 import type { AuthSession } from "@/features/auth/types";
 import { safetyStatusQueryKey } from "@/features/check-in/query";
 import { historyQueryKey } from "@/features/history/query";
@@ -130,6 +131,7 @@ const formatDeadline = (projection: SettingsProjection) =>
     : "Không có thời hạn đang hoạt động";
 
 const SettingsContent = ({ session }: { session: AuthSession }) => {
+  const { locale, setLocale, t } = useI18n();
   const router = useRouter();
   const auth = useAuth();
   const { draft, requestPush, syncAuthoritativeSettings } = useOnboarding();
@@ -387,6 +389,19 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
         },
       ],
     );
+  const chooseLanguage = () =>
+    Alert.alert(
+      t("common.chooseLanguage", "Chọn ngôn ngữ hiển thị"),
+      t("common.languageSaved", "Ngôn ngữ được lưu trên thiết bị này."),
+      [
+        {
+          text: "Tiếng Việt",
+          onPress: () => void setLocale("vi"),
+        },
+        { text: "English", onPress: () => void setLocale("en") },
+        { text: t("common.cancel", "Hủy"), style: "cancel" },
+      ],
+    );
 
   return (
     <Screen>
@@ -401,6 +416,20 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
       {env.dataMode === "fixture" ? (
         <Badge label="Dữ liệu mẫu · không có bảo vệ thật" variant="warning" />
       ) : null}
+
+      {sectionTitle(t("settings.languageSection", "NGÔN NGỮ"))}
+      <Card style={styles.listCard}>
+        <SettingsRow
+          icon="language"
+          label={t("common.language", "Ngôn ngữ")}
+          onPress={chooseLanguage}
+          value={
+            locale === "vi"
+              ? t("common.vietnamese", "Tiếng Việt")
+              : t("common.english", "English")
+          }
+        />
+      </Card>
 
       <Card style={styles.profileCard}>
         <Pressable

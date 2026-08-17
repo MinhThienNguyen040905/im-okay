@@ -2,6 +2,7 @@ import { Tabs } from "expo-router";
 import type { ColorValue } from "react-native";
 
 import { AppIcon, type AppIconName } from "@/components";
+import { useI18n } from "@/features/i18n/I18nProvider";
 import { colors, radii, sizes, spacing, typography } from "@/theme";
 
 type TabIconProps = {
@@ -18,6 +19,7 @@ const tabIcon = (active: AppIconName, inactive: AppIconName) =>
   };
 
 export default function MainTabsLayout() {
+  const { t } = useI18n();
   return (
     <Tabs
       screenOptions={{
@@ -48,24 +50,24 @@ export default function MainTabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Trang chủ",
-          tabBarAccessibilityLabel: "Mở Trang chủ",
+          title: t("nav.home", "Trang chủ"),
+          tabBarAccessibilityLabel: t("nav.openHome", "Mở Trang chủ"),
           tabBarIcon: tabIcon("home", "home-filled"),
         }}
       />
       <Tabs.Screen
         name="history"
         options={{
-          title: "Lịch sử",
-          tabBarAccessibilityLabel: "Mở Lịch sử",
+          title: t("nav.history", "Lịch sử"),
+          tabBarAccessibilityLabel: t("nav.openHistory", "Mở Lịch sử"),
           tabBarIcon: tabIcon("history", "history"),
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
-          title: "Cài đặt",
-          tabBarAccessibilityLabel: "Mở Cài đặt",
+          title: t("nav.settings", "Cài đặt"),
+          tabBarAccessibilityLabel: t("nav.openSettings", "Mở Cài đặt"),
           tabBarIcon: tabIcon("settings", "settings"),
         }}
       />

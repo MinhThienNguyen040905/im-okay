@@ -12,16 +12,26 @@ import {
   Screen,
 } from "@/components";
 import { env } from "@/config/env";
+import { useI18n } from "@/features/i18n/I18nProvider";
 import { useOnboarding } from "@/features/onboarding/OnboardingProvider";
 import { colors, spacing, typography } from "@/theme";
 
-const choices = [
-  { hours: 24 as const, description: "Nhịp kiểm tra hằng ngày" },
-  { hours: 36 as const, description: "Cân bằng giữa an tâm và linh hoạt" },
-  { hours: 48 as const, description: "Khoảng thời gian thư thả hơn" },
-];
-
 export default function SafetyPlanScreen() {
+  const { t } = useI18n();
+  const choices = [
+    {
+      hours: 24 as const,
+      description: t("plan.choice24", "Nhịp kiểm tra hằng ngày"),
+    },
+    {
+      hours: 36 as const,
+      description: t("plan.choice36", "Cân bằng giữa an tâm và linh hoạt"),
+    },
+    {
+      hours: 48 as const,
+      description: t("plan.choice48", "Khoảng thời gian thư thả hơn"),
+    },
+  ];
   const router = useRouter();
   const { draft, saveSafetyPlan } = useOnboarding();
   const [selected, setSelected] = useState<24 | 36 | 48>(
@@ -36,21 +46,32 @@ export default function SafetyPlanScreen() {
     <Screen
       footer={
         <Button
-          accessibilityLabel={`Tạo kế hoạch an toàn ${selected} giờ`}
-          label="Tạo kế hoạch an toàn"
+          accessibilityLabel={t(
+            "plan.createA11y",
+            "Tạo kế hoạch an toàn {hours} giờ",
+            { hours: selected },
+          )}
+          label={t("plan.create", "Tạo kế hoạch an toàn")}
           loading={mutation.isPending}
           onPress={() => mutation.mutate(selected)}
           testID="safety-plan-create-button"
         />
       }
     >
-      <ProgressHeader current={3} label="Kế hoạch an toàn" total={3} />
+      <ProgressHeader
+        current={3}
+        label={t("nav.safetyPlan", "Kế hoạch an toàn")}
+        total={3}
+      />
       <View style={styles.heading}>
         <Text accessibilityRole="header" style={styles.title}>
-          Bao lâu bạn muốn điểm danh một lần?
+          {t("plan.title", "Bao lâu bạn muốn điểm danh một lần?")}
         </Text>
         <Text style={styles.description}>
-          Chọn khoảng thời gian phù hợp với nhịp sống. Bạn có thể đổi lại sau.
+          {t(
+            "plan.description",
+            "Chọn khoảng thời gian phù hợp với nhịp sống. Bạn có thể đổi lại sau.",
+          )}
         </Text>
       </View>
 
@@ -59,7 +80,7 @@ export default function SafetyPlanScreen() {
           <OptionCard
             description={choice.description}
             key={choice.hours}
-            label={`${choice.hours} giờ`}
+            label={t("plan.hours", "{hours} giờ", { hours: choice.hours })}
             onPress={() => setSelected(choice.hours)}
             selected={selected === choice.hours}
           />
@@ -67,17 +88,24 @@ export default function SafetyPlanScreen() {
       </View>
 
       <Card muted>
-        <Text style={styles.serverTitle}>Thời hạn do máy chủ quản lý</Text>
+        <Text style={styles.serverTitle}>
+          {t("plan.serverTitle", "Thời hạn do máy chủ quản lý")}
+        </Text>
         <Text style={styles.serverBody}>
-          Khoảng {selected} giờ được tính từ lần điểm danh thành công gần nhất.
-          App sẽ hiển thị deadline chính thức từ API và không tự suy đoán thời
-          gian cảnh báo.
+          {t(
+            "plan.serverBody",
+            "Khoảng {hours} giờ được tính từ lần điểm danh thành công gần nhất. App sẽ hiển thị deadline chính thức từ API và không tự suy đoán thời gian cảnh báo.",
+            { hours: selected },
+          )}
         </Text>
       </Card>
 
       {env.dataMode === "fixture" ? (
         <Badge
-          label="Kế hoạch mẫu cục bộ — chưa đồng bộ máy chủ"
+          label={t(
+            "plan.fixtureBadge",
+            "Kế hoạch mẫu cục bộ — chưa đồng bộ máy chủ",
+          )}
           variant="warning"
         />
       ) : null}
@@ -85,7 +113,7 @@ export default function SafetyPlanScreen() {
         <Text accessibilityLiveRegion="polite" style={styles.error}>
           {mutation.error instanceof Error
             ? mutation.error.message
-            : "Không thể tạo kế hoạch an toàn."}
+            : t("plan.failed", "Không thể tạo kế hoạch an toàn.")}
         </Text>
       ) : null}
     </Screen>
