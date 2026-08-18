@@ -10,7 +10,6 @@ import {
   AppIcon,
   Badge,
   Button,
-  Card,
   GoogleIcon,
   Input,
   Screen,
@@ -19,7 +18,7 @@ import { env } from "@/config/env";
 import { useAuth } from "@/features/auth/AuthProvider";
 import { LanguageSwitcher } from "@/features/i18n/LanguageSwitcher";
 import { translate, useI18n } from "@/features/i18n/I18nProvider";
-import { colors, spacing, typography } from "@/theme";
+import { colors, radii, spacing, typography } from "@/theme";
 
 const formSchema = z.object({
   email: z.email(
@@ -57,37 +56,39 @@ export default function SignInScreen() {
 
   if (sentTo) {
     return (
-      <Screen>
-        <LanguageSwitcher />
-        <View style={styles.heroIcon}>
-          <AppIcon color={colors.primary} name="mark-email-read" size={40} />
+      <Screen contentStyle={styles.screenContent}>
+        <BrandBar />
+        <View style={styles.statusContent}>
+          <View style={styles.heroIcon}>
+            <AppIcon color={colors.primary} name="mark-email-read" size={40} />
+          </View>
+          <Text accessibilityRole="header" style={styles.title}>
+            {t("auth.checkEmail", "Kiểm tra email của bạn")}
+          </Text>
+          <Text style={styles.description}>
+            {t(
+              "auth.linkSent",
+              "Mình đã gửi liên kết đăng nhập tới {email}. Hãy mở liên kết trên thiết bị này để tiếp tục.",
+              { email: sentTo },
+            )}
+          </Text>
+          <Button
+            accessibilityLabel={t(
+              "auth.useAnotherEmailA11y",
+              "Dùng địa chỉ email khác",
+            )}
+            label={t("auth.useAnotherEmail", "Dùng email khác")}
+            onPress={() => setSentTo(null)}
+            variant="secondary"
+          />
         </View>
-        <Text accessibilityRole="header" style={styles.title}>
-          {t("auth.checkEmail", "Kiểm tra email của bạn")}
-        </Text>
-        <Text style={styles.description}>
-          {t(
-            "auth.linkSent",
-            "Mình đã gửi liên kết đăng nhập tới {email}. Hãy mở liên kết trên thiết bị này để tiếp tục.",
-            { email: sentTo },
-          )}
-        </Text>
-        <Button
-          accessibilityLabel={t(
-            "auth.useAnotherEmailA11y",
-            "Dùng địa chỉ email khác",
-          )}
-          label={t("auth.useAnotherEmail", "Dùng email khác")}
-          onPress={() => setSentTo(null)}
-          variant="secondary"
-        />
       </Screen>
     );
   }
 
   return (
-    <Screen>
-      <LanguageSwitcher />
+    <Screen contentStyle={styles.screenContent}>
+      <BrandBar />
       {env.dataMode === "fixture" ? (
         <Badge
           label={t("auth.fixtureBadge", "Dữ liệu mẫu chỉ trên thiết bị này")}
@@ -96,65 +97,78 @@ export default function SignInScreen() {
       ) : null}
       <View style={styles.heading}>
         <Text accessibilityRole="header" style={styles.title}>
-          {t("auth.welcome", "Chào mừng bạn")}
+          {t("auth.welcomeBack", "Chào mừng bạn trở lại")}
         </Text>
         <Text style={styles.description}>
-          Đăng nhập không cần mật khẩu bằng Google hoặc liên kết gửi qua email.
+          {t("auth.description", "Đăng nhập an toàn, không cần mật khẩu.")}
         </Text>
       </View>
 
-      <Button
-        accessibilityLabel={t("auth.continueGoogle", "Tiếp tục bằng Google")}
-        label="Tiếp tục bằng Google"
-        leadingIcon={<GoogleIcon />}
-        loading={googleMutation.isPending}
-        onPress={() => googleMutation.mutate()}
-        variant="secondary"
-      />
-
-      <View
-        accessible
-        accessibilityLabel={t("auth.or", "hoặc")}
-        style={styles.dividerRow}
-      >
-        <View style={styles.divider} />
-        <Text style={styles.dividerText}>{t("auth.or", "hoặc")}</Text>
-        <View style={styles.divider} />
-      </View>
-
-      <Card>
-        <Controller
-          control={control}
-          name="email"
-          render={({ field, fieldState }) => (
-            <Input
-              accessibilityLabel={t("auth.emailAddress", "Địa chỉ email")}
-              autoCapitalize="none"
-              autoComplete="email"
-              error={fieldState.error?.message}
-              keyboardType="email-address"
-              label={t("auth.email", "Email")}
-              onBlur={field.onBlur}
-              onChangeText={field.onChange}
-              placeholder="ban@example.com"
-              testID="sign-in-email-input"
-              value={field.value}
-            />
-          )}
-        />
+      <View style={styles.authFlow}>
         <Button
-          accessibilityLabel={t("auth.continueEmail", "Tiếp tục bằng email")}
-          label="Tiếp tục bằng email"
-          loading={emailMutation.isPending}
-          onPress={handleSubmit((values) => emailMutation.mutate(values))}
-          testID="sign-in-email-button"
+          accessibilityLabel={t("auth.continueGoogle", "Tiếp tục bằng Google")}
+          label={t("auth.continueGoogle", "Tiếp tục bằng Google")}
+          leadingIcon={<GoogleIcon />}
+          loading={googleMutation.isPending}
+          onPress={() => googleMutation.mutate()}
+          variant="google"
         />
-      </Card>
+
+        <View
+          accessible
+          accessibilityLabel={t("auth.or", "hoặc")}
+          style={styles.dividerRow}
+        >
+          <View style={styles.divider} />
+          <Text style={styles.dividerText}>{t("auth.or", "hoặc")}</Text>
+          <View style={styles.divider} />
+        </View>
+
+        <View style={styles.emailSection}>
+          <Controller
+            control={control}
+            name="email"
+            render={({ field, fieldState }) => (
+              <Input
+                accessibilityLabel={t("auth.emailAddress", "Địa chỉ email")}
+                autoCapitalize="none"
+                autoComplete="email"
+                error={fieldState.error?.message}
+                keyboardType="email-address"
+                label={t("auth.email", "Email")}
+                onBlur={field.onBlur}
+                onChangeText={field.onChange}
+                placeholder="ban@example.com"
+                testID="sign-in-email-input"
+                value={field.value}
+              />
+            )}
+          />
+          <Button
+            accessibilityLabel={t("auth.sendLink", "Gửi liên kết đăng nhập")}
+            label={t("auth.sendLink", "Gửi liên kết đăng nhập")}
+            loading={emailMutation.isPending}
+            onPress={handleSubmit((values) => emailMutation.mutate(values))}
+            testID="sign-in-email-button"
+          />
+          <Text style={styles.helperText}>
+            {t(
+              "auth.emailHelper",
+              "Chúng tôi sẽ gửi một liên kết đăng nhập an toàn đến email của bạn. Không cần mật khẩu.",
+            )}
+          </Text>
+        </View>
+      </View>
 
       {auth.error ? (
-        <Text accessibilityLiveRegion="polite" style={styles.error}>
-          {auth.error}
-        </Text>
+        <View
+          accessible
+          accessibilityLiveRegion="polite"
+          style={styles.errorBanner}
+        >
+          <AppIcon color={colors.danger} name="error-outline" size={20} />
+          <Text style={styles.error}>{auth.error}</Text>
+        </View>
       ) : null}
       <Text style={styles.terms}>
         {t(
@@ -166,7 +180,46 @@ export default function SignInScreen() {
   );
 }
 
+const BrandBar = () => (
+  <View style={styles.brandBar}>
+    <View style={styles.brandLockup}>
+      <View style={styles.brandIcon}>
+        <AppIcon color={colors.primary} name="shield" size={18} />
+      </View>
+      <Text style={styles.wordmark}>I&apos;m Okay</Text>
+    </View>
+    <LanguageSwitcher />
+  </View>
+);
+
 const styles = StyleSheet.create({
+  screenContent: {
+    flex: 1,
+    gap: 0,
+  },
+  brandBar: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  brandLockup: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: spacing.xs,
+  },
+  brandIcon: {
+    alignItems: "center",
+    backgroundColor: colors.primaryContainer,
+    borderRadius: radii.pill,
+    height: 36,
+    justifyContent: "center",
+    width: 36,
+  },
+  wordmark: {
+    ...typography.label,
+    color: colors.textPrimary,
+    fontSize: 16,
+  },
   heroIcon: {
     alignItems: "center",
     alignSelf: "center",
@@ -176,16 +229,48 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     width: 72,
   },
-  heading: { gap: spacing.sm },
+  statusContent: {
+    gap: spacing.lg,
+    marginTop: spacing.huge,
+  },
+  heading: {
+    gap: spacing.xs,
+    marginTop: spacing.xxl,
+  },
   title: { ...typography.display, color: colors.textPrimary },
   description: { ...typography.bodyLarge, color: colors.textSecondary },
+  authFlow: {
+    gap: spacing.lg,
+    marginTop: spacing.xl,
+  },
   dividerRow: { alignItems: "center", flexDirection: "row", gap: spacing.sm },
   divider: { backgroundColor: colors.border, flex: 1, height: 1 },
   dividerText: { ...typography.caption, color: colors.textSecondary },
-  error: { ...typography.bodyMedium, color: colors.danger },
+  emailSection: {
+    gap: spacing.sm,
+  },
+  helperText: {
+    ...typography.caption,
+    color: colors.textSecondary,
+  },
+  errorBanner: {
+    alignItems: "flex-start",
+    backgroundColor: colors.dangerContainer,
+    borderRadius: radii.md,
+    flexDirection: "row",
+    gap: spacing.xs,
+    marginTop: spacing.lg,
+    padding: spacing.sm,
+  },
+  error: {
+    ...typography.bodyMedium,
+    color: colors.danger,
+    flex: 1,
+  },
   terms: {
     ...typography.caption,
     color: colors.textSecondary,
-    textAlign: "center",
+    marginTop: "auto",
+    paddingTop: spacing.xxl,
   },
 });

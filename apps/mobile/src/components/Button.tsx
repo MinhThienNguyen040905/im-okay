@@ -11,7 +11,7 @@ import {
 
 import { colors, radii, sizes, spacing, typography } from "@/theme";
 
-type ButtonVariant = "primary" | "secondary" | "danger";
+type ButtonVariant = "primary" | "secondary" | "danger" | "google";
 
 type ButtonProps = Omit<PressableProps, "children" | "style"> & {
   accessibilityLabel: string;
@@ -40,6 +40,12 @@ const variantStyles = {
     pressed: colors.dangerPressed,
     border: colors.danger,
     text: colors.onPrimary,
+  },
+  google: {
+    background: colors.surface,
+    pressed: colors.googleButtonPressed,
+    border: colors.googleButtonBorder,
+    text: colors.googleButtonText,
   },
 } as const;
 

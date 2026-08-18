@@ -22,6 +22,9 @@ export const colors = {
   dangerPressed: "#912018",
   dangerContainer: "#FEE4E2",
   focus: "#2563EB",
+  googleButtonBorder: "#747775",
+  googleButtonPressed: "#F0F4F9",
+  googleButtonText: "#1F1F1F",
   overlay: "rgba(16, 42, 42, 0.42)",
   transparent: "transparent",
 } as const;

@@ -1,17 +1,17 @@
-import { FontAwesome } from "@expo/vector-icons";
+import { Image } from "react-native";
 
 type GoogleIconProps = {
   size?: number;
 };
 
-/** Brand mark used only for the Google authentication action. */
+/** Official multicolour Google G used only for the authentication action. */
 export const GoogleIcon = ({ size = 20 }: GoogleIconProps) => (
-  <FontAwesome
+  <Image
     accessible={false}
-    color="#4285F4"
     importantForAccessibility="no-hide-descendants"
-    name="google"
-    size={size}
+    resizeMode="contain"
+    source={require("../../assets/google-g.png")}
+    style={{ height: size, width: size }}
     testID="google-brand-icon"
   />
 );

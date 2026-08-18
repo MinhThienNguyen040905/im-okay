@@ -22,10 +22,10 @@
     },
     {
       "code": "M02",
-      "screenId": "8e5b2b6aaeef4e8d92b26f60b2e91185",
-      "title": "Đăng nhập - I'm Okay",
+      "screenId": "826ae3d6bb7a40c0a48bdc4e54ad04bd",
+      "title": "Đăng nhập - I'm Okay (Redesign)",
       "deviceType": "MOBILE",
-      "status": "approved",
+      "status": "approved-redesign-2026-08-18",
       "html": ".stitch/designs/M02.html",
       "screenshot": ".stitch/designs/M02.png"
     },
@@ -284,5 +284,5 @@
     ],
     "note": "M11 và M12 truy xuất được qua get_screen; list_screens/get_project chưa đồng bộ hai screen instance này."
   },
-  "lastSyncedAt": "2026-08-02T02:51:26Z"
+  "lastSyncedAt": "2026-08-18T15:27:59+07:00"
 }

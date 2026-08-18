@@ -38,13 +38,16 @@ export const englishMessages = {
   "auth.useAnotherEmail": "Use another email",
   "auth.fixtureBadge": "Sample data on this device only",
   "auth.welcome": "Welcome",
-  "auth.description":
-    "Sign in without a password using Google or a link sent by email.",
+  "auth.welcomeBack": "Welcome back",
+  "auth.description": "Sign in securely without a password.",
   "auth.continueGoogle": "Continue with Google",
   "auth.or": "or",
   "auth.emailAddress": "Email address",
   "auth.email": "Email",
   "auth.continueEmail": "Continue with email",
+  "auth.sendLink": "Send sign-in link",
+  "auth.emailHelper":
+    "We'll email you a secure sign-in link. No password needed.",
   "auth.terms":
     "By continuing, you agree to I'm Okay's Terms of Use and Privacy Policy.",
   "auth.confirmFailed": "Unable to confirm sign-in",

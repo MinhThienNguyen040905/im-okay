@@ -3,7 +3,7 @@
 Đây là **nguồn duy nhất cho tiến độ hiện tại**. Cập nhật file này khi có build, deploy, test evidence,
 blocker hoặc thay đổi thứ tự ưu tiên. Không tạo thêm plan/roadmap tiến độ song song.
 
-Mốc cập nhật: **17/08/2026**.
+Mốc cập nhật: **18/08/2026**.
 
 ## Kết luận hiện tại
 
@@ -15,8 +15,8 @@ Google Play/App Store và chưa vượt toàn bộ gate của internal release.
 
 | Hệ thống               | Trạng thái                            | Evidence chính                                                                                                                          |
 | ---------------------- | ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| Thiết kế               | Hoàn thành baseline                   | 12 màn mobile + 5 màn web trong Stitch; metadata ở `.stitch/metadata.json`                                                              |
-| Mobile M01–M12         | Hoàn thành chức năng MVP              | Expo SDK 57, remote adapters, accessibility hardening, 136 test trong 40 suite                                                          |
+| Thiết kế               | Hoàn thành baseline                   | 12 màn mobile + 5 màn web trong Stitch; M02 đăng nhập được redesign ngày 18/08; metadata ở `.stitch/metadata.json`                      |
+| Mobile M01–M12         | Hoàn thành chức năng MVP              | Expo SDK 57, remote adapters, accessibility hardening, 137 test trong 41 suite                                                          |
 | Android personal pilot | Sẵn sàng dùng thử có giám sát         | APK staging build `7cbd62f1-1888-49e9-b378-b74efc320dfb`, commit `2c2b5320026b`, cài nâng cấp thành công trên TECNO KJ7 ngày 17/08/2026 |
 | iOS                    | Source build được; phân phối chưa làm | Chưa có signed device build/TestFlight acceptance                                                                                       |
 | Supabase backend       | Đã chạy trên cloud staging            | 8 migrations, Auth/PostgreSQL/RLS/RPC, 5 Edge Function deployables, Cron/Queues/outbox                                                  |
@@ -45,11 +45,14 @@ Supabase project `xnaanctveihyksgcveup` đã được reset theo yêu cầu owne
 - Mobile đã có i18n foundation cho `vi`/`en`: tự nhận locale thiết bị, lưu lựa chọn
   bằng AsyncStorage, language switcher và resource typed.
 - Auth, onboarding, navigation, error/loading/progress state và bộ chọn ngôn ngữ trong Settings
-  đã dùng resource Việt/Anh; 136 test trong 40 suite, lint và typecheck pass.
+  đã dùng resource Việt/Anh; 137 test trong 41 suite, lint và typecheck pass.
 - Home, History, Contacts, Alert/SOS và các copy nghiệp vụ còn lại chưa migrate hết.
   Tiếng Việt vẫn là fallback an toàn; không đánh dấu hỗ trợ tiếng Anh hoàn chỉnh.
 - Foundation và các màn đã migrate ở trên có trong APK staging hiện hành từ commit
   `2c2b5320026b`; phạm vi tiếng Anh vẫn là Phase 1, chưa phải bản dịch đầy đủ toàn app.
+- Source M02 ngày 18/08 đã bỏ native header trùng lặp, đổi language switcher thành chip 48×48,
+  dùng logo Google đa màu chính thức và bố cục đăng nhập một cột không card. Lint, typecheck,
+  137 test và Expo export Android/iOS/web đều pass; thay đổi này chưa có trong APK staging hiện hành.
 
 ## Build Android hiện hành
 

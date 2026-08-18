@@ -11,5 +11,8 @@ describe("GoogleIcon", () => {
     expect(icon && !Array.isArray(icon) ? icon.props.testID : null).toBe(
       "google-brand-icon",
     );
+    expect(
+      icon && !Array.isArray(icon) ? icon.props.source : null,
+    ).toBeTruthy();
   });
 });
