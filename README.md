@@ -21,7 +21,8 @@ Tại ngày 13/08/2026:
 
 - Android personal pilot đã sẵn sàng trên Supabase staging.
 - Mobile M01–M12, contact web W01–W05 và backend check-in/contact/alert cốt lõi đã triển khai.
-- APK staging mới nhất được build từ commit `9ddce5e22c62`, cài và smoke pass trên TECNO KJ7.
+- APK staging mới nhất là build `7cbd62f1-1888-49e9-b378-b74efc320dfb` từ commit
+  `2c2b5320026b`, cài nâng cấp và smoke pass trên TECNO KJ7 ngày 17/08/2026.
 - Contact web staging: <https://im-okay-contact-staging.vercel.app>.
 - Chưa phát hành Google Play/TestFlight; iOS, Sentry, hosted restore, legal/support và full device matrix
   còn là gate trước internal release hoàn chỉnh.

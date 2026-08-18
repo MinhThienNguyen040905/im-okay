@@ -13,17 +13,17 @@ Google Play/App Store và chưa vượt toàn bộ gate của internal release.
 
 ## Tiến độ theo hệ thống
 
-| Hệ thống               | Trạng thái                            | Evidence chính                                                                                                                 |
-| ---------------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| Thiết kế               | Hoàn thành baseline                   | 12 màn mobile + 5 màn web trong Stitch; metadata ở `.stitch/metadata.json`                                                     |
-| Mobile M01–M12         | Hoàn thành chức năng MVP              | Expo SDK 57, remote adapters, accessibility hardening, 133 test trong 38 suite                                                 |
-| Android personal pilot | Sẵn sàng dùng thử có giám sát         | APK staging build `a5f80154-9d89-48c1-a9eb-3178e49d5a94`, commit `9ddce5e22c62`, cài thành công trên TECNO KJ7 ngày 13/08/2026 |
-| iOS                    | Source build được; phân phối chưa làm | Chưa có signed device build/TestFlight acceptance                                                                              |
-| Supabase backend       | Đã chạy trên cloud staging            | 8 migrations, Auth/PostgreSQL/RLS/RPC, 5 Edge Function deployables, Cron/Queues/outbox                                         |
-| Contact web            | Đã deploy staging                     | `https://im-okay-contact-staging.vercel.app`                                                                                   |
-| Push/email E2E         | Đã chứng minh cho personal pilot      | Expo receipt và Gmail invitation/alert/correction đã pass trong supervised cycle                                               |
-| Security baseline      | Đạt mức staging                       | JWT/actor/IDOR/RLS/public-token/rate-limit negative matrix đã pass                                                             |
-| Store/internal release | Chưa hoàn thành                       | Chưa có Google Play Internal Testing hoặc TestFlight                                                                           |
+| Hệ thống               | Trạng thái                            | Evidence chính                                                                                                                          |
+| ---------------------- | ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| Thiết kế               | Hoàn thành baseline                   | 12 màn mobile + 5 màn web trong Stitch; metadata ở `.stitch/metadata.json`                                                              |
+| Mobile M01–M12         | Hoàn thành chức năng MVP              | Expo SDK 57, remote adapters, accessibility hardening, 136 test trong 40 suite                                                          |
+| Android personal pilot | Sẵn sàng dùng thử có giám sát         | APK staging build `7cbd62f1-1888-49e9-b378-b74efc320dfb`, commit `2c2b5320026b`, cài nâng cấp thành công trên TECNO KJ7 ngày 17/08/2026 |
+| iOS                    | Source build được; phân phối chưa làm | Chưa có signed device build/TestFlight acceptance                                                                                       |
+| Supabase backend       | Đã chạy trên cloud staging            | 8 migrations, Auth/PostgreSQL/RLS/RPC, 5 Edge Function deployables, Cron/Queues/outbox                                                  |
+| Contact web            | Đã deploy staging                     | `https://im-okay-contact-staging.vercel.app`                                                                                            |
+| Push/email E2E         | Đã chứng minh cho personal pilot      | Expo receipt và Gmail invitation/alert/correction đã pass trong supervised cycle                                                        |
+| Security baseline      | Đạt mức staging                       | JWT/actor/IDOR/RLS/public-token/rate-limit negative matrix đã pass                                                                      |
+| Store/internal release | Chưa hoàn thành                       | Chưa có Google Play Internal Testing hoặc TestFlight                                                                                    |
 
 ## Trạng thái dữ liệu staging
 
@@ -40,7 +40,7 @@ Supabase project `xnaanctveihyksgcveup` đã được reset theo yêu cầu owne
 
 Đây là snapshot tại thời điểm reset. Sau khi owner đăng ký lại, các số lượng sẽ tăng bình thường.
 
-## Thay đổi source chưa có trong APK hiện hành
+## Trạng thái đa ngôn ngữ trong APK hiện hành
 
 - Mobile đã có i18n foundation cho `vi`/`en`: tự nhận locale thiết bị, lưu lựa chọn
   bằng AsyncStorage, language switcher và resource typed.
@@ -48,17 +48,19 @@ Supabase project `xnaanctveihyksgcveup` đã được reset theo yêu cầu owne
   đã dùng resource Việt/Anh; 136 test trong 40 suite, lint và typecheck pass.
 - Home, History, Contacts, Alert/SOS và các copy nghiệp vụ còn lại chưa migrate hết.
   Tiếng Việt vẫn là fallback an toàn; không đánh dấu hỗ trợ tiếng Anh hoàn chỉnh.
-- Thay đổi này chưa có EAS build/device smoke mới; APK staging hiện hành bên dưới
-  vẫn là artifact từ commit `9ddce5e22c62`.
+- Foundation và các màn đã migrate ở trên có trong APK staging hiện hành từ commit
+  `2c2b5320026b`; phạm vi tiếng Anh vẫn là Phase 1, chưa phải bản dịch đầy đủ toàn app.
 
 ## Build Android hiện hành
 
-- EAS build ID: `a5f80154-9d89-48c1-a9eb-3178e49d5a94`.
-- Git commit: `9ddce5e22c62bfc79d24d9a8e8b2e43fb0cdcaa0`.
+- EAS build ID: `7cbd62f1-1888-49e9-b378-b74efc320dfb`.
+- Git commit: `2c2b5320026b0117f2256f75e031fa933aaf8689`.
 - Profile: `staging`, distribution `internal`, package `com.imokay.app`.
 - App version: `0.1.0`, Android version code `1`.
-- Kết quả device smoke ngày 13/08/2026: cài đè thành công, giữ dữ liệu, mở `MainActivity`, không có
-  crash khởi động; UI mới chỉ còn một tiêu đề trên Trang chủ/Lịch sử/Cài đặt.
+- APK SHA-256: `FD72D724A4522B5823A6494F107D47743508F7DEF09FEF20F7E48EB5D28B69F7`.
+- Kết quả device smoke ngày 17/08/2026 trên TECNO KJ7/Android 14: certificate khớp bản cũ,
+  `adb install -r` thành công và giữ dữ liệu, cold-start `MainActivity` thành công trong 341 ms,
+  process còn sống và log khởi động không có FATAL/AndroidRuntime/React Native error.
 - Artifact EAS có thời hạn; nếu link hết hạn phải tạo build mới từ exact commit.
 
 ## Những gì đã hoạt động
