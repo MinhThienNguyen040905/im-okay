@@ -9,6 +9,7 @@ import { AppState, Platform } from "react-native";
 import { requireSupabaseConfig } from "@/config/env";
 import { secureAuthStorage } from "@/lib/storage/secureAuthStorage";
 
+import { isGoogleProviderEnabled } from "./oauthCapabilities";
 import type { AuthAdapter, AuthSession } from "./types";
 
 WebBrowser.maybeCompleteAuthSession();
@@ -89,6 +90,10 @@ export const createSupabaseAuthAdapter = (): AuthAdapter => {
       return { status: "link-sent", email };
     },
     async signInWithGoogle() {
+      if (!(await isGoogleProviderEnabled(config.url, config.publishableKey))) {
+        throw new Error("google_provider_unavailable");
+      }
+
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: { redirectTo, skipBrowserRedirect: true },

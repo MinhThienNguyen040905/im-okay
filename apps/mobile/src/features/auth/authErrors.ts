@@ -17,6 +17,14 @@ export const toFriendlyAuthError = (error: unknown) => {
     return "Liên kết đăng nhập đã hết hạn hoặc đã được dùng. Hãy yêu cầu một liên kết mới.";
   }
 
+  if (
+    /google_provider_unavailable|provider is not enabled|unsupported provider/i.test(
+      message,
+    )
+  ) {
+    return "Đăng nhập bằng Google hiện chưa sẵn sàng. Hãy tiếp tục bằng email hoặc thử lại sau.";
+  }
+
   if (/network request failed|failed to fetch|networkerror/i.test(message)) {
     return "Không thể kết nối để đăng nhập. Hãy kiểm tra mạng rồi thử lại.";
   }

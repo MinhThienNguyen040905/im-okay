@@ -25,6 +25,15 @@ describe("friendly auth errors", () => {
     );
   });
 
+  it.each([
+    new Error("google_provider_unavailable"),
+    new Error("Unsupported provider: provider is not enabled"),
+  ])("maps unavailable Google provider errors", (error) => {
+    expect(toFriendlyAuthError(error)).toBe(
+      "Đăng nhập bằng Google hiện chưa sẵn sàng. Hãy tiếp tục bằng email hoặc thử lại sau.",
+    );
+  });
+
   it("does not expose unknown backend details", () => {
     expect(toFriendlyAuthError(new Error("database internals"))).toBe(
       "Không thể hoàn tất đăng nhập. Vui lòng thử lại sau.",
