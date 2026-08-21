@@ -1,5 +1,12 @@
-import { addTrustedContactSchema } from "../form";
-import { formatResendCooldown, moveContactIds } from "../presentation";
+import {
+  addTrustedContactSchema,
+  createAddTrustedContactSchema,
+} from "../form";
+import {
+  formatResendCooldown,
+  invitationStatusCopy,
+  moveContactIds,
+} from "../presentation";
 import type { TrustedContact } from "../types";
 
 const contact = (id: string, priority: number): TrustedContact => ({
@@ -38,6 +45,8 @@ describe("trusted-contact presentation helpers", () => {
     expect(formatResendCooldown(45_000)).toBe("45 giây");
     expect(formatResendCooldown(61_000)).toBe("2 phút");
     expect(formatResendCooldown(0)).toBeNull();
+    expect(formatResendCooldown(45_000, "en")).toBe("45 seconds");
+    expect(invitationStatusCopy("accepted", "en").label).toBe("Confirmed");
   });
 
   it("requires a valid email and explicit consent", () => {
@@ -55,5 +64,16 @@ describe("trusted-contact presentation helpers", () => {
         consentConfirmed: false,
       }).success,
     ).toBe(false);
+  });
+
+  it("localizes validation errors created after the language changes", () => {
+    const result = createAddTrustedContactSchema("en").safeParse({
+      displayName: "",
+      email: "not-an-email",
+      consentConfirmed: false,
+    });
+    expect(result.error?.issues.map(({ message }) => message)).toContain(
+      "Enter the contact's name.",
+    );
   });
 });

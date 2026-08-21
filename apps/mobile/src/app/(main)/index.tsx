@@ -30,15 +30,28 @@ import {
 } from "@/features/check-in/types";
 import { getPushPermission } from "@/features/notifications/push";
 import { useOnboarding } from "@/features/onboarding/OnboardingProvider";
+import {
+  translate,
+  useI18n,
+  type AppLocale,
+} from "@/features/i18n/I18nProvider";
 import type { PushDecision } from "@/features/onboarding/types";
 import { colors, radii, sizes, spacing, typography } from "@/theme";
 
-const getErrorMessage = (error: unknown) => {
-  if (error instanceof CheckInApiError) return error.message;
-  return "Chưa thể tải trạng thái an toàn từ máy chủ.";
+const getErrorMessage = (_error: unknown, locale: AppLocale) => {
+  return translate(
+    "home.loadFailed",
+    "Chưa thể tải trạng thái an toàn từ máy chủ.",
+    {},
+    locale,
+  );
 };
 
-const getGreeting = (serverTime: string, timezone: string) => {
+const getGreeting = (
+  serverTime: string,
+  timezone: string,
+  locale: AppLocale,
+) => {
   const hour = Number(
     new Intl.DateTimeFormat("en-GB", {
       hour: "2-digit",
@@ -46,16 +59,27 @@ const getGreeting = (serverTime: string, timezone: string) => {
       timeZone: timezone,
     }).format(new Date(serverTime)),
   );
-  if (hour < 11) return "Chào buổi sáng";
-  if (hour < 18) return "Chào buổi chiều";
-  return "Chào buổi tối";
+  if (hour < 11)
+    return translate("home.greetingMorning", "Chào buổi sáng", {}, locale);
+  if (hour < 18)
+    return translate("home.greetingAfternoon", "Chào buổi chiều", {}, locale);
+  return translate("home.greetingEvening", "Chào buổi tối", {}, locale);
 };
 
-const planBadge = {
-  active: { label: "Đang được bảo vệ", variant: "success" as const },
-  snoozed: { label: "Đang tạm hoãn", variant: "warning" as const },
-  inactive: { label: "Kế hoạch chưa hoạt động", variant: "danger" as const },
-};
+const planBadge = (locale: AppLocale) => ({
+  active: {
+    label: translate("home.protected", "Đang được bảo vệ", {}, locale),
+    variant: "success" as const,
+  },
+  snoozed: {
+    label: translate("home.snoozed", "Đang tạm hoãn", {}, locale),
+    variant: "warning" as const,
+  },
+  inactive: {
+    label: translate("home.inactive", "Kế hoạch chưa hoạt động", {}, locale),
+    variant: "danger" as const,
+  },
+});
 
 type StatusActionProps = {
   icon: "group" | "notifications-active";
@@ -83,6 +107,7 @@ const StatusAction = ({ icon, label, onPress, value }: StatusActionProps) => (
 
 const HomeContent = ({ session }: { session: AuthSession }) => {
   const router = useRouter();
+  const { locale, t } = useI18n();
   const { draft } = useOnboarding();
   const api = useMemo(() => createCheckInApi(session), [session]);
   const [success, setSuccess] = useState<SafetyStatusSnapshot | null>(null);
@@ -138,9 +163,12 @@ const HomeContent = ({ session }: { session: AuthSession }) => {
     return (
       <Screen scrollable={false}>
         <ErrorState
-          message={`${getErrorMessage(statusQuery.error)} Deadline không được app tự suy đoán.`}
+          message={`${getErrorMessage(statusQuery.error, locale)} ${t("home.serverDoesNotGuessDeadline", "Deadline không được app tự suy đoán.")}`}
           onRetry={refreshStatus}
-          title="Chưa có trạng thái từ máy chủ"
+          title={t(
+            "home.serverStatusUnavailable",
+            "Chưa có trạng thái từ máy chủ",
+          )}
         />
       </Screen>
     );
@@ -154,14 +182,16 @@ const HomeContent = ({ session }: { session: AuthSession }) => {
   );
   const pushReady =
     pushPermission === "granted" && draft.deviceRegistration === "registered";
-  const badge = planBadge[status.plan.state];
+  const badge = planBadge(locale)[status.plan.state];
   const nextDeadline = formatStatusTimestamp(
     status.plan.nextDeadlineAt,
     timezone,
+    locale,
   );
   const lastCheckIn = formatStatusTimestamp(
     status.plan.lastCheckInAt,
     timezone,
+    locale,
   );
 
   return (
@@ -169,15 +199,19 @@ const HomeContent = ({ session }: { session: AuthSession }) => {
       <View style={styles.header}>
         <View style={styles.headerCopy}>
           <Text accessibilityRole="header" style={styles.greeting}>
-            {getGreeting(status.serverTime, timezone)}, {draft.displayName}
+            {getGreeting(status.serverTime, timezone, locale)},{" "}
+            {draft.displayName}
           </Text>
           {statusQuery.isFetching ? (
             <Text accessibilityLiveRegion="polite" style={styles.syncing}>
-              Đang đồng bộ trạng thái…
+              {t("home.statusSyncing", "Đang đồng bộ trạng thái…")}
             </Text>
           ) : null}
         </View>
-        <View accessibilityLabel="Ảnh đại diện" style={styles.avatar}>
+        <View
+          accessibilityLabel={t("home.avatarA11y", "Ảnh đại diện")}
+          style={styles.avatar}
+        >
           <Text style={styles.avatarText}>
             {draft.displayName?.trim().charAt(0).toUpperCase() ?? "?"}
           </Text>
@@ -187,19 +221,37 @@ const HomeContent = ({ session }: { session: AuthSession }) => {
       <View style={styles.centered}>
         <Badge label={badge.label} variant={badge.variant} />
         {env.dataMode === "fixture" ? (
-          <Badge label="Dữ liệu mẫu · không có bảo vệ thật" variant="warning" />
+          <Badge
+            label={t(
+              "home.fixtureNoProtection",
+              "Dữ liệu mẫu · không có bảo vệ thật",
+            )}
+            variant="warning"
+          />
         ) : null}
       </View>
 
       <View style={styles.countdownArea}>
-        <Text style={styles.countdownLabel}>Thời gian còn lại</Text>
+        <Text style={styles.countdownLabel}>
+          {t("home.timeRemaining", "Thời gian còn lại")}
+        </Text>
         <Text
-          accessibilityLabel={`Thời gian còn lại ${formatRemainingTime(remainingMs)}`}
+          accessibilityLabel={t(
+            "home.timeRemainingA11y",
+            "Thời gian còn lại {time}",
+            {
+              time: formatRemainingTime(remainingMs, locale),
+            },
+          )}
           style={[styles.countdown, approaching && styles.countdownApproaching]}
         >
-          {formatRemainingTime(remainingMs)}
+          {formatRemainingTime(remainingMs, locale)}
         </Text>
-        <Text style={styles.deadline}>Hạn tiếp theo: {nextDeadline}</Text>
+        <Text style={styles.deadline}>
+          {t("home.nextDeadlineValue", "Hạn tiếp theo: {time}", {
+            time: nextDeadline,
+          })}
+        </Text>
       </View>
 
       <View style={styles.checkInArea}>
@@ -209,22 +261,36 @@ const HomeContent = ({ session }: { session: AuthSession }) => {
           onPress={() => checkInMutation.mutate()}
         />
         <Text style={styles.lastCheckIn}>
-          Lần xác nhận gần nhất: {lastCheckIn}
+          {t("home.lastCheckInValue", "Lần xác nhận gần nhất: {time}", {
+            time: lastCheckIn,
+          })}
         </Text>
         {checkInMutation.isPending ? (
           <Text accessibilityLiveRegion="polite" style={styles.pendingText}>
-            Đang chờ máy chủ xác nhận. Không đóng app nếu có thể.
+            {t(
+              "home.pendingConfirmation",
+              "Đang chờ máy chủ xác nhận. Không đóng app nếu có thể.",
+            )}
           </Text>
         ) : null}
       </View>
 
       {approaching || currentAlertNeedsAttention ? (
         <Pressable
-          accessibilityHint="Mở chi tiết và các hành động xử lý cảnh báo"
+          accessibilityHint={t(
+            "home.openWarningHint",
+            "Mở chi tiết và các hành động xử lý cảnh báo",
+          )}
           accessibilityLabel={
             currentAlertNeedsAttention
-              ? "Trạng thái cần bạn chú ý, xem cảnh báo"
-              : "Thời hạn đang đến gần, xem cảnh báo"
+              ? t(
+                  "home.attentionBannerA11y",
+                  "Trạng thái cần bạn chú ý, xem cảnh báo",
+                )
+              : t(
+                  "home.approachingBannerA11y",
+                  "Thời hạn đang đến gần, xem cảnh báo",
+                )
           }
           accessibilityRole="button"
           onPress={() => router.push("/warning")}
@@ -239,10 +305,12 @@ const HomeContent = ({ session }: { session: AuthSession }) => {
           <View style={styles.warningCopy}>
             <Text style={styles.warningTitle}>
               {currentAlertNeedsAttention
-                ? "Trạng thái cần bạn chú ý"
-                : "Thời hạn đang đến gần"}
+                ? t("home.attention", "Trạng thái cần bạn chú ý")
+                : t("home.approaching", "Thời hạn đang đến gần")}
             </Text>
-            <Text style={styles.warningBody}>Chạm để xem và xử lý</Text>
+            <Text style={styles.warningBody}>
+              {t("home.reviewAction", "Chạm để xem và xử lý")}
+            </Text>
           </View>
           <AppIcon color={colors.warning} name="chevron-right" />
         </Pressable>
@@ -251,14 +319,18 @@ const HomeContent = ({ session }: { session: AuthSession }) => {
       {checkInMutation.error ? (
         <Card style={styles.errorCard}>
           <Text accessibilityLiveRegion="assertive" style={styles.errorTitle}>
-            Lần xác nhận chưa được ghi nhận
+            {t("home.checkInNotRecorded", "Lần xác nhận chưa được ghi nhận")}
           </Text>
           <Text style={styles.errorBody}>
-            {getErrorMessage(checkInMutation.error)} Deadline cũ vẫn giữ nguyên.
+            {getErrorMessage(checkInMutation.error, locale)}{" "}
+            {t("home.previousDeadlineUnchanged", "Deadline cũ vẫn giữ nguyên.")}
           </Text>
           <Button
-            accessibilityLabel="Thử gửi lại cùng mã xác nhận"
-            label="Thử lại"
+            accessibilityLabel={t(
+              "home.retryCheckInA11y",
+              "Thử gửi lại cùng mã xác nhận",
+            )}
+            label={t("common.retry", "Thử lại")}
             onPress={() => checkInMutation.mutate()}
             variant="secondary"
           />
@@ -268,12 +340,17 @@ const HomeContent = ({ session }: { session: AuthSession }) => {
       {statusQuery.isError ? (
         <Card muted>
           <Text accessibilityLiveRegion="polite" style={styles.warningTitle}>
-            Chưa thể làm mới trạng thái. Dữ liệu đang hiển thị là lần đồng bộ
-            gần nhất.
+            {t(
+              "home.statusStale",
+              "Chưa thể làm mới trạng thái. Dữ liệu đang hiển thị là lần đồng bộ gần nhất.",
+            )}
           </Text>
           <Button
-            accessibilityLabel="Đồng bộ lại trạng thái"
-            label="Đồng bộ lại"
+            accessibilityLabel={t(
+              "home.refreshStatusA11y",
+              "Đồng bộ lại trạng thái",
+            )}
+            label={t("home.refreshStatus", "Đồng bộ lại")}
             onPress={refreshStatus}
             variant="secondary"
           />
@@ -283,15 +360,21 @@ const HomeContent = ({ session }: { session: AuthSession }) => {
       <View style={styles.statusGrid}>
         <StatusAction
           icon="group"
-          label="Liên hệ"
+          label={t("home.contacts", "Liên hệ")}
           onPress={() => router.push("/contacts")}
-          value={`${status.contactSummary.confirmedCount} đã xác nhận`}
+          value={t("home.confirmedContacts", "{count} đã xác nhận", {
+            count: status.contactSummary.confirmedCount,
+          })}
         />
         <StatusAction
           icon="notifications-active"
-          label="Thông báo"
+          label={t("home.notifications", "Thông báo")}
           onPress={() => void Linking.openSettings()}
-          value={pushReady ? "Đã bật" : "Chưa sẵn sàng"}
+          value={
+            pushReady
+              ? t("home.notificationsEnabled", "Đã bật")
+              : t("home.notificationsNotReady", "Chưa sẵn sàng")
+          }
         />
       </View>
 
@@ -299,14 +382,22 @@ const HomeContent = ({ session }: { session: AuthSession }) => {
         <Card muted>
           <View style={styles.inlineRow}>
             <AppIcon color={colors.warning} name="notifications-off" />
-            <Text style={styles.warningTitle}>Push chưa sẵn sàng</Text>
+            <Text style={styles.warningTitle}>
+              {t("home.pushNotReady", "Push chưa sẵn sàng")}
+            </Text>
           </View>
           <Text style={styles.warningBody}>
-            Kế hoạch trên máy chủ không đổi, nhưng bạn có thể bỏ lỡ lời nhắc.
+            {t(
+              "home.pushNotReadyBody",
+              "Kế hoạch trên máy chủ không đổi, nhưng bạn có thể bỏ lỡ lời nhắc.",
+            )}
           </Text>
           <Button
-            accessibilityLabel="Mở cài đặt thông báo hệ thống"
-            label="Mở cài đặt"
+            accessibilityLabel={t(
+              "home.openSystemNotificationSettings",
+              "Mở cài đặt thông báo hệ thống",
+            )}
+            label={t("home.openSettings", "Mở cài đặt")}
             onPress={() => void Linking.openSettings()}
             variant="secondary"
           />
@@ -314,8 +405,8 @@ const HomeContent = ({ session }: { session: AuthSession }) => {
       ) : null}
 
       <Button
-        accessibilityLabel="Mở trợ giúp khẩn cấp"
-        label="Cần trợ giúp ngay"
+        accessibilityLabel={t("home.openSos", "Mở trợ giúp khẩn cấp")}
+        label={t("home.urgentHelp", "Cần trợ giúp ngay")}
         leadingIcon={<AppIcon color={colors.danger} name="warning-amber" />}
         onPress={() => router.push("/sos")}
         variant="secondary"
@@ -326,6 +417,7 @@ const HomeContent = ({ session }: { session: AuthSession }) => {
         nextDeadline={formatStatusTimestamp(
           success?.status.plan.nextDeadlineAt ?? null,
           timezone,
+          locale,
         )}
         onClose={() => setSuccess(null)}
         visible={Boolean(success)}

@@ -25,12 +25,16 @@ import {
 import { historyQueryKey } from "@/features/history/query";
 import type { HistoryFilter } from "@/features/history/types";
 import { useOnboarding } from "@/features/onboarding/OnboardingProvider";
+import { useI18n, type AppLocale } from "@/features/i18n/I18nProvider";
 import { colors, radii, sizes, spacing, typography } from "@/theme";
 
-const filters: { id: HistoryFilter; label: string }[] = [
-  { id: "all", label: "Tất cả" },
-  { id: "check_in", label: "Điểm danh" },
-  { id: "alert", label: "Cảnh báo" },
+const filters = (locale: AppLocale) => [
+  { id: "all" as const, label: locale === "en" ? "All" : "Tất cả" },
+  {
+    id: "check_in" as const,
+    label: locale === "en" ? "Check-ins" : "Điểm danh",
+  },
+  { id: "alert" as const, label: locale === "en" ? "Alerts" : "Cảnh báo" },
 ];
 
 const eventIcon = {
@@ -52,14 +56,16 @@ const eventIcon = {
 const HistoryItemRow = ({
   row,
   timezone,
+  locale,
 }: {
   row: HistoryRow;
   timezone: string;
+  locale: AppLocale;
 }) => {
   if (row.kind === "header") {
     return <Text style={styles.dayHeader}>{row.label}</Text>;
   }
-  const copy = historyCopy(row.item);
+  const copy = historyCopy(row.item, locale);
   const iconColor =
     row.item.event === "correction_failed"
       ? colors.danger
@@ -77,7 +83,7 @@ const HistoryItemRow = ({
           ? colors.primaryContainer
           : colors.surfaceMuted;
   const exactDeadline = row.item.nextDeadlineAt
-    ? new Intl.DateTimeFormat("vi-VN", {
+    ? new Intl.DateTimeFormat(locale === "en" ? "en-US" : "vi-VN", {
         dateStyle: "short",
         timeStyle: "short",
         timeZone: timezone,
@@ -86,12 +92,12 @@ const HistoryItemRow = ({
 
   return (
     <Card
-      accessibilityLabel={`${formatHistoryTime(row.item.occurredAt, timezone)}, ${copy.title}`}
+      accessibilityLabel={`${formatHistoryTime(row.item.occurredAt, timezone, locale)}, ${copy.title}`}
       style={styles.timelineCard}
     >
       <View style={styles.timelineRow}>
         <Text style={styles.time}>
-          {formatHistoryTime(row.item.occurredAt, timezone)}
+          {formatHistoryTime(row.item.occurredAt, timezone, locale)}
         </Text>
         <View style={[styles.eventIcon, { backgroundColor: iconBackground }]}>
           <AppIcon
@@ -103,11 +109,18 @@ const HistoryItemRow = ({
         <View style={styles.eventCopy}>
           <View style={styles.titleRow}>
             <Text style={styles.eventTitle}>{copy.title}</Text>
-            {copy.drill ? <Badge label="DIỄN TẬP" variant="success" /> : null}
+            {copy.drill ? (
+              <Badge
+                label={locale === "en" ? "DRILL" : "DIỄN TẬP"}
+                variant="success"
+              />
+            ) : null}
           </View>
           {exactDeadline ? (
             <Text style={styles.eventDetail}>
-              Thời hạn mới: {exactDeadline}
+              {locale === "en"
+                ? `New deadline: ${exactDeadline}`
+                : `Thời hạn mới: ${exactDeadline}`}
             </Text>
           ) : copy.detail ? (
             <Text style={styles.eventDetail}>{copy.detail}</Text>
@@ -120,6 +133,7 @@ const HistoryItemRow = ({
 
 const HistoryContent = ({ session }: { session: AuthSession }) => {
   const { draft } = useOnboarding();
+  const { locale, t } = useI18n();
   const [filter, setFilter] = useState<HistoryFilter>("all");
   const api = useMemo(() => createHistoryApi(session), [session]);
   const query = useInfiniteQuery({
@@ -147,6 +161,7 @@ const HistoryContent = ({ session }: { session: AuthSession }) => {
         filterHistory(allItems, filter),
         firstPage.serverTime,
         timezone,
+        locale,
       )
     : [];
 
@@ -155,12 +170,14 @@ const HistoryContent = ({ session }: { session: AuthSession }) => {
       <Screen scrollable={false}>
         <View style={styles.screenHeader}>
           <Text accessibilityRole="header" style={styles.title}>
-            Lịch sử
+            {t("history.title", "Lịch sử")}
           </Text>
         </View>
         <View style={styles.centerState}>
           <ActivityIndicator color={colors.primary} size="large" />
-          <Text style={styles.eventDetail}>Đang tải lịch sử an toàn…</Text>
+          <Text style={styles.eventDetail}>
+            {t("history.loading", "Đang tải lịch sử an toàn…")}
+          </Text>
         </View>
       </Screen>
     );
@@ -170,10 +187,13 @@ const HistoryContent = ({ session }: { session: AuthSession }) => {
     return (
       <Screen scrollable={false}>
         <Text accessibilityRole="header" style={styles.title}>
-          Lịch sử
+          {t("history.title", "Lịch sử")}
         </Text>
         <ErrorState
-          message="Không thể tải projection lịch sử an toàn từ máy chủ."
+          message={t(
+            "history.loadFailed",
+            "Không thể tải projection lịch sử an toàn từ máy chủ.",
+          )}
           onRetry={() => void query.refetch()}
         />
       </Screen>
@@ -184,17 +204,17 @@ const HistoryContent = ({ session }: { session: AuthSession }) => {
     <Screen contentStyle={styles.staticContent} scrollable={false}>
       <View style={styles.screenHeader}>
         <Text accessibilityRole="header" style={styles.title}>
-          Lịch sử
+          {t("history.title", "Lịch sử")}
         </Text>
         {query.isFetching && !query.isFetchingNextPage ? (
           <Text accessibilityLiveRegion="polite" style={styles.syncing}>
-            Đang đồng bộ…
+            {t("history.syncing", "Đang đồng bộ…")}
           </Text>
         ) : null}
       </View>
 
       <View accessibilityRole="tablist" style={styles.segmented}>
-        {filters.map((option) => {
+        {filters(locale).map((option) => {
           const selected = filter === option.id;
           return (
             <Pressable
@@ -220,12 +240,21 @@ const HistoryContent = ({ session }: { session: AuthSession }) => {
       <View style={styles.summaryRow}>
         <AppIcon color={colors.primary} name="info-outline" size={18} />
         <Text style={styles.summary}>
-          7 ngày gần đây · {firstPage.summary.onTimeCheckInCount} lần xác nhận
-          đúng hạn
+          {t(
+            "history.summary",
+            "7 ngày gần đây · {count} lần xác nhận đúng hạn",
+            { count: firstPage.summary.onTimeCheckInCount },
+          )}
         </Text>
       </View>
       {env.dataMode === "fixture" ? (
-        <Badge label="Dữ liệu mẫu · không có bảo vệ thật" variant="warning" />
+        <Badge
+          label={t(
+            "history.fixtureNoProtection",
+            "Dữ liệu mẫu · không có bảo vệ thật",
+          )}
+          variant="warning"
+        />
       ) : null}
 
       <FlatList
@@ -243,14 +272,19 @@ const HistoryContent = ({ session }: { session: AuthSession }) => {
         onRefresh={() => void query.refetch()}
         refreshing={query.isRefetching && !query.isFetchingNextPage}
         renderItem={({ item }) => (
-          <HistoryItemRow row={item} timezone={timezone} />
+          <HistoryItemRow locale={locale} row={item} timezone={timezone} />
         )}
         ListEmptyComponent={
           <View style={styles.centerState}>
             <AppIcon color={colors.textSecondary} name="history" size={36} />
-            <Text style={styles.emptyTitle}>Chưa có hoạt động phù hợp</Text>
+            <Text style={styles.emptyTitle}>
+              {t("history.emptyTitle", "Chưa có hoạt động phù hợp")}
+            </Text>
             <Text style={styles.eventDetail}>
-              Kéo xuống để đồng bộ hoặc chọn bộ lọc khác.
+              {t(
+                "history.emptyBody",
+                "Kéo xuống để đồng bộ hoặc chọn bộ lọc khác.",
+              )}
             </Text>
           </View>
         }
@@ -267,7 +301,7 @@ const HistoryContent = ({ session }: { session: AuthSession }) => {
               style={styles.retryPage}
             >
               <Text style={styles.retryText}>
-                Chưa tải được trang tiếp · Thử lại
+                {t("history.retryPage", "Chưa tải được trang tiếp · Thử lại")}
               </Text>
             </Pressable>
           ) : null

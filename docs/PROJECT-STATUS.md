@@ -3,7 +3,7 @@
 Đây là **nguồn duy nhất cho tiến độ hiện tại**. Cập nhật file này khi có build, deploy, test evidence,
 blocker hoặc thay đổi thứ tự ưu tiên. Không tạo thêm plan/roadmap tiến độ song song.
 
-Mốc cập nhật: **18/08/2026**.
+Mốc cập nhật: **21/08/2026**.
 
 ## Kết luận hiện tại
 
@@ -16,7 +16,7 @@ Google Play/App Store và chưa vượt toàn bộ gate của internal release.
 | Hệ thống               | Trạng thái                            | Evidence chính                                                                                                                                     |
 | ---------------------- | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Thiết kế               | Hoàn thành baseline                   | 12 màn mobile + 5 màn web trong Stitch; M02 đăng nhập được redesign ngày 18/08; metadata ở `.stitch/metadata.json`                                 |
-| Mobile M01–M12         | Hoàn thành chức năng MVP              | Expo SDK 57, remote adapters, accessibility hardening, 137 test trong 41 suite                                                                     |
+| Mobile M01–M12         | Hoàn thành chức năng MVP              | Expo SDK 57, remote adapters, accessibility hardening, i18n Việt/Anh toàn bộ giao diện, 142 test trong 42 suite                                    |
 | Android personal pilot | Sẵn sàng dùng thử có giám sát         | APK staging build `1e2fd945-2d1c-4220-8123-696f1bf7962a`, commit `b12aa76`, cài nâng cấp và visual smoke thành công trên TECNO KJ7 ngày 18/08/2026 |
 | iOS                    | Source build được; phân phối chưa làm | Chưa có signed device build/TestFlight acceptance                                                                                                  |
 | Supabase backend       | Đã chạy trên cloud staging            | 8 migrations, Auth/PostgreSQL/RLS/RPC, 5 Edge Function deployables, Cron/Queues/outbox                                                             |
@@ -40,21 +40,24 @@ Supabase project `xnaanctveihyksgcveup` đã được reset theo yêu cầu owne
 
 Đây là snapshot tại thời điểm reset. Sau khi owner đăng ký lại, các số lượng sẽ tăng bình thường.
 
-## Trạng thái đa ngôn ngữ trong APK hiện hành
+## Trạng thái đa ngôn ngữ
 
 - Mobile đã có i18n foundation cho `vi`/`en`: tự nhận locale thiết bị, lưu lựa chọn
   bằng AsyncStorage, language switcher và resource typed.
-- Auth, onboarding, navigation, error/loading/progress state và bộ chọn ngôn ngữ trong Settings
-  đã dùng resource Việt/Anh; 141 test trong 42 suite, lint và typecheck pass.
-- Home, History, Contacts, Alert/SOS và các copy nghiệp vụ còn lại chưa migrate hết.
-  Tiếng Việt vẫn là fallback an toàn; không đánh dấu hỗ trợ tiếng Anh hoàn chỉnh.
-- Foundation và các màn đã migrate ở trên, bao gồm M02 redesign ngày 18/08, có trong APK staging
-  hiện hành từ commit `b12aa76`; phạm vi tiếng Anh vẫn là Phase 1, chưa phải bản dịch đầy đủ toàn app.
+- Resource Việt/Anh hiện bao phủ Auth, onboarding, navigation, Home, History, Contacts,
+  Alert/SOS, Settings, trạng thái tải/lỗi, validation và các hộp xác nhận. Đổi lựa chọn trong
+  Settings áp dụng ngay cho màn hình đang mở, copy nghiệp vụ, nhãn trợ năng và định dạng thời gian.
+- Có regression test cho đổi locale trong formatter check-in, lịch sử, alert và trusted contacts;
+  mobile typecheck và 142 test trong 42 suite pass.
+- APK staging hiện hành từ commit `b12aa76` vẫn là artifact cũ, **chưa chứa** lần hoàn thiện
+  i18n này. Cần tạo/cài APK mới trước khi xác nhận trên thiết bị.
 - M02 đã bỏ native header trùng lặp, đổi language switcher thành chip 48×48, dùng logo Google đa màu
-  chính thức và bố cục đăng nhập một cột không card. Lint, typecheck, 141 test, Expo export Android/iOS/web
+  chính thức và bố cục đăng nhập một cột không card. Lint, typecheck, 142 test, Expo export Android/iOS/web
   và visual smoke trên TECNO KJ7 đều pass.
-- Staging Auth hiện trả `external.google=false` (kiểm tra read-only ngày 18/08). Source sau build hiện hành
-  chặn lỗi provider thô trước khi mở browser và hướng người dùng sang email; chưa có APK mới chứa guard này.
+- Google OAuth staging đã được cấu hình trực tiếp ngày 20/08: Google Auth Platform ở chế độ `Testing`,
+  có một test user đã đồng thuận, OAuth Web client dùng callback Supabase chuẩn và provider Supabase đã bật.
+  Kiểm tra read-only trả `external.google=true`; request `/auth/v1/authorize?provider=google` trả `302`
+  tới Google. Credential chỉ nằm trong Google Cloud và Supabase Dashboard, không ở repository.
 
 ## Build Android hiện hành
 
@@ -71,8 +74,8 @@ Supabase project `xnaanctveihyksgcveup` đã được reset theo yêu cầu owne
 
 ## Những gì đã hoạt động
 
-- Đăng nhập email và onboarding hồ sơ, timezone, push permission, safety plan. Google OAuth chỉ hoạt động
-  sau khi provider được cấu hình tại Google Cloud/Supabase; hiện staging đang tắt provider.
+- Đăng nhập email và onboarding hồ sơ, timezone, push permission, safety plan. Google OAuth staging đã bật;
+  hiện chỉ cho các test user Google đã được thêm vào consent screen trong giai đoạn `Testing`.
 - Check-in 24/36/48 giờ với deadline do server quản lý.
 - Trusted contact tối đa ba người, invitation qua public web và acceptance.
 - Reminder, overdue alert, escalation, acknowledgement/resolve/cannot-help và correction.
@@ -93,8 +96,9 @@ Các mục sau không chặn Android personal pilot nhỏ nhưng chặn phát h�
 6. Privacy Policy, Terms, support/privacy contact và ownership vẫn còn mục `OWNER REQUIRED`.
 7. Gmail SMTP chỉ phù hợp personal pilot; cần verified-domain email provider trước beta rộng/production.
 8. Workflow export/deletion mới ghi nhận request; chưa có worker/SLA hoàn tất tự động.
-9. Google OAuth staging chưa có OAuth Client ID/Secret và provider đang tắt; cần cấu hình callback Supabase
-   và credential trực tiếp trong Google Cloud/Supabase Dashboard trước khi nghiệm thu luồng Google.
+9. Google OAuth staging đang ở `Testing` với một test user; cần hoàn tất smoke đăng nhập Google trên Android
+   trước khi nghiệm thu luồng và chỉ thêm tester đã đồng thuận. Không publish consent screen hoặc mở rộng
+   ngoài personal pilot khi chưa xử lý các gate privacy/support còn lại.
 
 ## Trạng thái notification
 

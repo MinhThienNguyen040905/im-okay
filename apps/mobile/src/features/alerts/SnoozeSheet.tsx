@@ -7,6 +7,7 @@ import {
   useAccessibilityPreferences,
 } from "@/features/accessibility/AccessibilityProvider";
 import { useAccessibilityFocus } from "@/features/accessibility/focus";
+import { useI18n } from "@/features/i18n/I18nProvider";
 import { colors, radii, spacing, typography } from "@/theme";
 
 import type { SnoozeDuration } from "./types";
@@ -28,10 +29,11 @@ export const SnoozeSheet = ({
   onSubmit,
   visible,
 }: SnoozeSheetProps) => {
+  const { t } = useI18n();
   const [selected, setSelected] = useState<SnoozeDuration | null>(null);
   const { reduceMotionEnabled } = useAccessibilityPreferences();
   const { focus, ref } = useAccessibilityFocus<Text>(
-    "Chọn thời gian tạm hoãn có thời hạn.",
+    t("alerts.snoozeFocus", "Chọn thời gian tạm hoãn có thời hạn."),
   );
 
   const close = () => {
@@ -48,7 +50,10 @@ export const SnoozeSheet = ({
       visible={visible}
     >
       <Pressable
-        accessibilityLabel="Đóng lựa chọn tạm hoãn"
+        accessibilityLabel={t(
+          "alerts.closeSnoozeA11y",
+          "Đóng lựa chọn tạm hoãn",
+        )}
         disabled={loading}
         onPress={close}
         style={styles.backdrop}
@@ -65,18 +70,24 @@ export const SnoozeSheet = ({
               ref={ref}
               style={styles.title}
             >
-              Tạm hoãn có thời hạn
+              {t("alerts.snoozeTitle", "Tạm hoãn có thời hạn")}
             </Text>
             <Text style={styles.body}>
-              Máy chủ sẽ trả về thời điểm kết thúc chính xác. Không có tùy chọn
-              tạm hoãn vô thời hạn.
+              {t(
+                "alerts.snoozeBody",
+                "Máy chủ sẽ trả về thời điểm kết thúc chính xác. Không có tùy chọn tạm hoãn vô thời hạn.",
+              )}
             </Text>
 
             {durations.map((duration) => {
               const checked = selected === duration;
               return (
                 <Pressable
-                  accessibilityLabel={`Tạm hoãn ${duration} giờ`}
+                  accessibilityLabel={t(
+                    "alerts.snoozeDurationA11y",
+                    "Tạm hoãn {hours} giờ",
+                    { hours: duration },
+                  )}
                   accessibilityRole="radio"
                   accessibilityState={{ checked, disabled: loading }}
                   disabled={loading}
@@ -96,7 +107,9 @@ export const SnoozeSheet = ({
                         : "radio-button-unchecked"
                     }
                   />
-                  <Text style={styles.optionLabel}>{duration} giờ</Text>
+                  <Text style={styles.optionLabel}>
+                    {t("alerts.hours", "{hours} giờ", { hours: duration })}
+                  </Text>
                 </Pressable>
               );
             })}
@@ -108,9 +121,12 @@ export const SnoozeSheet = ({
             ) : null}
 
             <Button
-              accessibilityLabel="Xác nhận tạm hoãn có thời hạn"
+              accessibilityLabel={t(
+                "alerts.confirmSnoozeA11y",
+                "Xác nhận tạm hoãn có thời hạn",
+              )}
               disabled={!selected}
-              label="Xác nhận tạm hoãn"
+              label={t("alerts.confirmSnooze", "Xác nhận tạm hoãn")}
               loading={loading}
               onPress={() => {
                 if (!selected) return;
@@ -120,9 +136,9 @@ export const SnoozeSheet = ({
               }}
             />
             <Button
-              accessibilityLabel="Không tạm hoãn"
+              accessibilityLabel={t("alerts.noSnoozeA11y", "Không tạm hoãn")}
               disabled={loading}
-              label="Hủy"
+              label={t("common.cancel", "Hủy")}
               onPress={close}
               variant="secondary"
             />

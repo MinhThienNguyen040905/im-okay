@@ -15,6 +15,11 @@ import {
 import { env } from "@/config/env";
 import { useAuth } from "@/features/auth/AuthProvider";
 import type { AuthSession } from "@/features/auth/types";
+import {
+  translate,
+  useI18n,
+  type AppLocale,
+} from "@/features/i18n/I18nProvider";
 import { createTrustedContactsApi } from "@/features/trusted-contacts/api";
 import {
   useResendCooldown,
@@ -22,7 +27,7 @@ import {
 } from "@/features/trusted-contacts/hooks";
 import {
   formatResendCooldown,
-  invitationStatusPresentation,
+  invitationStatusCopy,
   moveContactIds,
 } from "@/features/trusted-contacts/presentation";
 import { trustedContactsQueryKey } from "@/features/trusted-contacts/query";
@@ -33,10 +38,13 @@ import {
 } from "@/features/trusted-contacts/types";
 import { colors, radii, sizes, spacing, typography } from "@/theme";
 
-const getErrorMessage = (error: unknown) =>
-  error instanceof TrustedContactsApiError
-    ? error.message
-    : "Chưa thể đồng bộ danh sách liên hệ từ máy chủ.";
+const getErrorMessage = (_error: unknown, locale: AppLocale) =>
+  translate(
+    "contacts.requestFailed",
+    "Máy chủ chưa thể xử lý yêu cầu. Danh sách chưa thay đổi.",
+    {},
+    locale,
+  );
 
 type ContactCardProps = {
   clockOffsetMs: number;
@@ -61,12 +69,13 @@ const ContactCard = ({
   onRemove,
   onResend,
 }: ContactCardProps) => {
-  const status = invitationStatusPresentation[contact.invitation.status];
+  const { locale, t } = useI18n();
+  const status = invitationStatusCopy(contact.invitation.status, locale);
   const cooldownMs = useResendCooldown(
     contact.invitation.resendAvailableAt,
     clockOffsetMs,
   );
-  const cooldown = formatResendCooldown(cooldownMs);
+  const cooldown = formatResendCooldown(cooldownMs, locale);
   const canResend = ["pending", "declined", "expired"].includes(
     contact.invitation.status,
   );
@@ -77,7 +86,11 @@ const ContactCard = ({
         <View style={styles.contactCopy}>
           <View style={styles.nameRow}>
             <Text style={styles.contactName}>{contact.displayName}</Text>
-            <Text style={styles.priority}>Ưu tiên {index + 1}</Text>
+            <Text style={styles.priority}>
+              {t("contacts.priority", "Ưu tiên {number}", {
+                number: index + 1,
+              })}
+            </Text>
           </View>
           <Text selectable style={styles.email}>
             {contact.email}
@@ -86,9 +99,16 @@ const ContactCard = ({
         </View>
       </View>
 
-      <View accessibilityLabel="Đổi thứ tự ưu tiên" style={styles.orderRow}>
+      <View
+        accessibilityLabel={t("contacts.reorderA11y", "Đổi thứ tự ưu tiên")}
+        style={styles.orderRow}
+      >
         <Pressable
-          accessibilityLabel={`Đưa ${contact.displayName} lên một bậc`}
+          accessibilityLabel={t(
+            "contacts.moveUpA11y",
+            "Đưa {name} lên một bậc",
+            { name: contact.displayName },
+          )}
           accessibilityRole="button"
           accessibilityState={{ disabled: isFirst || mutationPending }}
           disabled={isFirst || mutationPending}
@@ -102,7 +122,11 @@ const ContactCard = ({
           <AppIcon color={colors.primary} name="arrow-upward" />
         </Pressable>
         <Pressable
-          accessibilityLabel={`Đưa ${contact.displayName} xuống một bậc`}
+          accessibilityLabel={t(
+            "contacts.moveDownA11y",
+            "Đưa {name} xuống một bậc",
+            { name: contact.displayName },
+          )}
           accessibilityRole="button"
           accessibilityState={{ disabled: isLast || mutationPending }}
           disabled={isLast || mutationPending}
@@ -115,27 +139,45 @@ const ContactCard = ({
         >
           <AppIcon color={colors.primary} name="arrow-downward" />
         </Pressable>
-        <Text style={styles.orderHint}>Đổi thứ tự</Text>
+        <Text style={styles.orderHint}>
+          {t("contacts.reorder", "Đổi thứ tự")}
+        </Text>
       </View>
 
       {canResend ? (
         <Button
           accessibilityLabel={
             cooldown
-              ? `Có thể gửi lại lời mời sau ${cooldown}`
-              : `Gửi lại lời mời cho ${contact.displayName}`
+              ? t(
+                  "contacts.resendAfterA11y",
+                  "Có thể gửi lại lời mời sau {time}",
+                  { time: cooldown },
+                )
+              : t("contacts.resendA11y", "Gửi lại lời mời cho {name}", {
+                  name: contact.displayName,
+                })
           }
           disabled={Boolean(cooldown) || mutationPending}
-          label={cooldown ? `Gửi lại sau ${cooldown}` : "Gửi lại lời mời"}
+          label={
+            cooldown
+              ? t("contacts.resendAfter", "Gửi lại sau {time}", {
+                  time: cooldown,
+                })
+              : t("contacts.resend", "Gửi lại lời mời")
+          }
           onPress={onResend}
           variant="secondary"
         />
       ) : null}
 
       <Button
-        accessibilityLabel={`Xóa ${contact.displayName} khỏi liên hệ tin cậy`}
+        accessibilityLabel={t(
+          "contacts.removeA11y",
+          "Xóa {name} khỏi liên hệ tin cậy",
+          { name: contact.displayName },
+        )}
         disabled={mutationPending}
-        label="Xóa liên hệ"
+        label={t("contacts.remove", "Xóa liên hệ")}
         onPress={onRemove}
         variant="danger"
       />
@@ -144,6 +186,7 @@ const ContactCard = ({
 };
 
 const ContactsContent = ({ session }: { session: AuthSession }) => {
+  const { locale, t } = useI18n();
   const api = useMemo(() => createTrustedContactsApi(session), [session]);
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -188,7 +231,9 @@ const ContactsContent = ({ session }: { session: AuthSession }) => {
   if (contactsQuery.isPending) {
     return (
       <Screen scrollable={false}>
-        <LoadingState label="Đang tải liên hệ tin cậy…" />
+        <LoadingState
+          label={t("contacts.loading", "Đang tải liên hệ tin cậy…")}
+        />
       </Screen>
     );
   }
@@ -198,9 +243,12 @@ const ContactsContent = ({ session }: { session: AuthSession }) => {
     return (
       <Screen scrollable={false}>
         <ErrorState
-          message={getErrorMessage(contactsQuery.error)}
+          message={getErrorMessage(contactsQuery.error, locale)}
           onRetry={refresh}
-          title="Chưa có danh sách từ máy chủ"
+          title={t(
+            "contacts.serverListUnavailable",
+            "Chưa có danh sách từ máy chủ",
+          )}
         />
       </Screen>
     );
@@ -221,12 +269,15 @@ const ContactsContent = ({ session }: { session: AuthSession }) => {
 
   const confirmRemove = (contact: TrustedContact) => {
     Alert.alert(
-      `Xóa ${contact.displayName}?`,
-      "Liên hệ sẽ không còn nhận cảnh báo. Lời mời còn hiệu lực cũng phải được máy chủ thu hồi.",
+      t("contacts.removeTitle", "Xóa {name}?", { name: contact.displayName }),
+      t(
+        "contacts.removeBody",
+        "Liên hệ sẽ không còn nhận cảnh báo. Lời mời còn hiệu lực cũng phải được máy chủ thu hồi.",
+      ),
       [
-        { text: "Giữ lại", style: "cancel" },
+        { text: t("contacts.keep", "Giữ lại"), style: "cancel" },
         {
-          text: "Xóa liên hệ",
+          text: t("contacts.remove", "Xóa liên hệ"),
           style: "destructive",
           onPress: () => removeMutation.mutate(contact.id),
         },
@@ -237,23 +288,38 @@ const ContactsContent = ({ session }: { session: AuthSession }) => {
   return (
     <Screen>
       <Text style={styles.intro}>
-        Khi cảnh báo được kích hoạt, hệ thống sẽ liên hệ theo thứ tự dưới đây.
+        {t(
+          "contacts.alertOrder",
+          "Khi cảnh báo được kích hoạt, hệ thống sẽ liên hệ theo thứ tự dưới đây.",
+        )}
       </Text>
 
       {env.dataMode === "fixture" ? (
-        <Badge label="Dữ liệu mẫu · không gửi email thật" variant="warning" />
+        <Badge
+          label={t(
+            "contacts.fixtureNoEmail",
+            "Dữ liệu mẫu · không gửi email thật",
+          )}
+          variant="warning"
+        />
       ) : null}
 
       <Card muted>
         <View style={styles.summaryRow}>
           <Text style={styles.summary}>
-            {acceptedCount}/{snapshot.projection.maxContacts} liên hệ đã sẵn
-            sàng
+            {t("contacts.readySummary", "{ready}/{total} liên hệ đã sẵn sàng", {
+              ready: acceptedCount,
+              total: snapshot.projection.maxContacts,
+            })}
           </Text>
           <AppIcon color={colors.success} name="check-circle-outline" />
         </View>
         <View
-          accessibilityLabel={`${acceptedCount} trên ${snapshot.projection.maxContacts} liên hệ đã sẵn sàng`}
+          accessibilityLabel={t(
+            "contacts.readySummaryA11y",
+            "{ready} trên {total} liên hệ đã sẵn sàng",
+            { ready: acceptedCount, total: snapshot.projection.maxContacts },
+          )}
           accessibilityRole="progressbar"
           accessibilityValue={{
             max: snapshot.projection.maxContacts,
@@ -279,11 +345,13 @@ const ContactsContent = ({ session }: { session: AuthSession }) => {
             <AppIcon color={colors.primary} name="group-add" size={32} />
           </View>
           <Text accessibilityRole="header" style={styles.emptyTitle}>
-            Chưa có liên hệ tin cậy
+            {t("contacts.emptyTitle", "Chưa có liên hệ tin cậy")}
           </Text>
           <Text style={styles.emptyBody}>
-            Thêm người bạn tin tưởng. Họ chỉ được tính là sẵn sàng sau khi tự
-            chấp nhận lời mời.
+            {t(
+              "contacts.emptyBody",
+              "Thêm người bạn tin tưởng. Họ chỉ được tính là sẵn sàng sau khi tự chấp nhận lời mời.",
+            )}
           </Text>
         </Card>
       ) : (
@@ -310,12 +378,18 @@ const ContactsContent = ({ session }: { session: AuthSession }) => {
       {mutationError ? (
         <Card style={styles.errorCard}>
           <Text accessibilityLiveRegion="assertive" style={styles.errorText}>
-            {getErrorMessage(mutationError)} Danh sách chỉ thay đổi sau khi máy
-            chủ xác nhận.
+            {getErrorMessage(mutationError, locale)}{" "}
+            {t(
+              "contacts.listChangesAfterConfirmation",
+              "Danh sách chỉ thay đổi sau khi máy chủ xác nhận.",
+            )}
           </Text>
           <Button
-            accessibilityLabel="Đồng bộ lại danh sách liên hệ"
-            label="Đồng bộ lại"
+            accessibilityLabel={t(
+              "contacts.refreshA11y",
+              "Đồng bộ lại danh sách liên hệ",
+            )}
+            label={t("contacts.refresh", "Đồng bộ lại")}
             onPress={() => {
               reorderMutation.reset();
               resendMutation.reset();
@@ -330,7 +404,10 @@ const ContactsContent = ({ session }: { session: AuthSession }) => {
       {contactsQuery.isError ? (
         <Card muted>
           <Text accessibilityLiveRegion="polite" style={styles.staleText}>
-            Chưa thể làm mới. Đây là danh sách từ lần đồng bộ gần nhất.
+            {t(
+              "contacts.listStale",
+              "Chưa thể làm mới. Đây là danh sách từ lần đồng bộ gần nhất.",
+            )}
           </Text>
         </Card>
       ) : null}
@@ -338,16 +415,16 @@ const ContactsContent = ({ session }: { session: AuthSession }) => {
       <Button
         accessibilityLabel={
           contacts.length >= snapshot.projection.maxContacts
-            ? "Đã đạt tối đa 3 liên hệ"
-            : "Thêm liên hệ tin cậy"
+            ? t("contacts.maximumA11y", "Đã đạt tối đa 3 liên hệ")
+            : t("contacts.addA11y", "Thêm liên hệ tin cậy")
         }
         disabled={
           contacts.length >= snapshot.projection.maxContacts || isMutating
         }
         label={
           contacts.length >= snapshot.projection.maxContacts
-            ? "Đã đủ 3 liên hệ"
-            : "Thêm liên hệ"
+            ? t("contacts.maximum", "Đã đủ 3 liên hệ")
+            : t("contacts.add", "Thêm liên hệ")
         }
         leadingIcon={<AppIcon color={colors.primary} name="add" />}
         onPress={() => router.push("/contacts/add")}
@@ -358,7 +435,10 @@ const ContactsContent = ({ session }: { session: AuthSession }) => {
         <View style={styles.guidanceRow}>
           <AppIcon color={colors.primary} name="info-outline" />
           <Text style={styles.guidance}>
-            Nên có ít nhất hai người đã xác nhận để giảm nguy cơ bỏ lỡ cảnh báo.
+            {t(
+              "contacts.guidance",
+              "Nên có ít nhất hai người đã xác nhận để giảm nguy cơ bỏ lỡ cảnh báo.",
+            )}
           </Text>
         </View>
       </Card>

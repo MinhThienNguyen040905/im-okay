@@ -11,6 +11,7 @@ import {
 import * as Linking from "expo-linking";
 
 import { env } from "@/config/env";
+import { translate } from "@/features/i18n/I18nProvider";
 import { captureException } from "@/lib/observability/sentry";
 
 import { fixtureAuthAdapter } from "./fixtureAuth";
@@ -55,13 +56,24 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
       })
       .catch((cause) => {
         captureException(cause);
-        if (mounted) setError("Phiên đăng nhập không thể khôi phục.");
+        if (mounted)
+          setError(
+            translate(
+              "auth.restoreFailed",
+              "Phiên đăng nhập không thể khôi phục.",
+            ),
+          );
       })
       .finally(() => mounted && setLoading(false));
 
     const unsubscribe = adapter.onSessionChange((nextSession) => {
       if (!nextSession && sessionRef.current && !explicitSignOut.current) {
-        setError("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+        setError(
+          translate(
+            "auth.sessionExpired",
+            "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
+          ),
+        );
       }
       sessionRef.current = nextSession;
       setSession(nextSession);

@@ -9,9 +9,10 @@ import { AppIcon, Button, Card, Input, Screen } from "@/components";
 import { env } from "@/config/env";
 import { useAuth } from "@/features/auth/AuthProvider";
 import type { AuthSession } from "@/features/auth/types";
+import { useI18n } from "@/features/i18n/I18nProvider";
 import { createTrustedContactsApi } from "@/features/trusted-contacts/api";
 import {
-  addTrustedContactSchema,
+  createAddTrustedContactSchema,
   type AddTrustedContactForm,
 } from "@/features/trusted-contacts/form";
 import { trustedContactsQueryKey } from "@/features/trusted-contacts/query";
@@ -19,6 +20,7 @@ import { TrustedContactsApiError } from "@/features/trusted-contacts/types";
 import { colors, radii, sizes, spacing, typography } from "@/theme";
 
 const AddContactContent = ({ session }: { session: AuthSession }) => {
+  const { locale, t } = useI18n();
   const api = useMemo(() => createTrustedContactsApi(session), [session]);
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -30,7 +32,7 @@ const AddContactContent = ({ session }: { session: AuthSession }) => {
   } = useForm<AddTrustedContactForm>({
     defaultValues: { displayName: "", email: "", consentConfirmed: false },
     mode: "onChange",
-    resolver: zodResolver(addTrustedContactSchema),
+    resolver: zodResolver(createAddTrustedContactSchema(locale)),
   });
 
   const createMutation = useMutation({
@@ -47,7 +49,13 @@ const AddContactContent = ({ session }: { session: AuthSession }) => {
         error instanceof TrustedContactsApiError &&
         error.code === "CONTACT_DUPLICATE"
       ) {
-        setError("email", { type: "server", message: error.message });
+        setError("email", {
+          type: "server",
+          message: t(
+            "contacts.duplicate",
+            "Email này đã có trong danh sách liên hệ tin cậy.",
+          ),
+        });
       }
     },
   });
@@ -71,9 +79,12 @@ const AddContactContent = ({ session }: { session: AuthSession }) => {
     <Screen
       footer={
         <Button
-          accessibilityLabel="Gửi lời mời liên hệ tin cậy"
+          accessibilityLabel={t(
+            "contacts.sendInvitationA11y",
+            "Gửi lời mời liên hệ tin cậy",
+          )}
           disabled={!isValid}
-          label="Gửi lời mời"
+          label={t("contacts.sendInvitation", "Gửi lời mời")}
           leadingIcon={<AppIcon color={colors.onPrimary} name="send" />}
           loading={createMutation.isPending}
           onPress={() => void submit()}
@@ -81,13 +92,19 @@ const AddContactContent = ({ session }: { session: AuthSession }) => {
       }
     >
       <Text style={styles.intro}>
-        Người này sẽ nhận email khi bạn quá hạn và có thể xác nhận đang hỗ trợ.
+        {t(
+          "contacts.addIntro",
+          "Người này sẽ nhận email khi bạn quá hạn và có thể xác nhận đang hỗ trợ.",
+        )}
       </Text>
 
       {env.dataMode === "fixture" ? (
         <Card muted>
           <Text style={styles.fixtureText}>
-            Chế độ dữ liệu mẫu không gửi email thật.
+            {t(
+              "contacts.fixtureNoEmailFull",
+              "Chế độ dữ liệu mẫu không gửi email thật.",
+            )}
           </Text>
         </Card>
       ) : null}
@@ -101,7 +118,7 @@ const AddContactContent = ({ session }: { session: AuthSession }) => {
             autoCapitalize="words"
             autoComplete="name"
             error={errors.displayName?.message}
-            label="Tên"
+            label={t("contacts.name", "Tên")}
             maxLength={80}
             onBlur={onBlur}
             onChangeText={onChange}
@@ -124,7 +141,7 @@ const AddContactContent = ({ session }: { session: AuthSession }) => {
             error={errors.email?.message}
             inputMode="email"
             keyboardType="email-address"
-            label="Email"
+            label={t("contacts.email", "Email")}
             onBlur={onBlur}
             onChangeText={(next) => {
               createMutation.reset();
@@ -141,8 +158,10 @@ const AddContactContent = ({ session }: { session: AuthSession }) => {
         <View style={styles.noticeRow}>
           <AppIcon color={colors.primary} name="info-outline" />
           <Text style={styles.notice}>
-            Liên hệ chỉ được tính là sẵn sàng sau khi họ mở email và tự chấp
-            nhận lời mời.
+            {t(
+              "contacts.readyAfterAcceptance",
+              "Liên hệ chỉ được tính là sẵn sàng sau khi họ mở email và tự chấp nhận lời mời.",
+            )}
           </Text>
         </View>
       </Card>
@@ -153,7 +172,10 @@ const AddContactContent = ({ session }: { session: AuthSession }) => {
         render={({ field: { onChange, value } }) => (
           <View>
             <Pressable
-              accessibilityLabel="Tôi đã trao đổi và được người này đồng ý nhận cảnh báo"
+              accessibilityLabel={t(
+                "contacts.consentA11y",
+                "Tôi đã trao đổi và được người này đồng ý nhận cảnh báo",
+              )}
               accessibilityRole="checkbox"
               accessibilityState={{ checked: value }}
               onPress={() => onChange(!value)}
@@ -168,7 +190,10 @@ const AddContactContent = ({ session }: { session: AuthSession }) => {
                 ) : null}
               </View>
               <Text style={styles.consentText}>
-                Tôi đã trao đổi và được người này đồng ý nhận cảnh báo.
+                {t(
+                  "contacts.consent",
+                  "Tôi đã trao đổi và được người này đồng ý nhận cảnh báo.",
+                )}
               </Text>
             </Pressable>
             {errors.consentConfirmed?.message ? (
@@ -183,7 +208,11 @@ const AddContactContent = ({ session }: { session: AuthSession }) => {
       {showGeneralError ? (
         <Card style={styles.errorCard}>
           <Text accessibilityLiveRegion="assertive" style={styles.errorText}>
-            {formError.message} Lời mời chưa được tạo.
+            {t(
+              "contacts.requestFailed",
+              "Máy chủ chưa thể xử lý yêu cầu. Danh sách chưa thay đổi.",
+            )}{" "}
+            {t("contacts.invitationNotCreated", "Lời mời chưa được tạo.")}
           </Text>
         </Card>
       ) : null}

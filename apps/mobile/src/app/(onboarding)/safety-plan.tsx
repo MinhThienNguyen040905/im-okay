@@ -111,9 +111,7 @@ export default function SafetyPlanScreen() {
       ) : null}
       {mutation.error ? (
         <Text accessibilityLiveRegion="polite" style={styles.error}>
-          {mutation.error instanceof Error
-            ? mutation.error.message
-            : t("plan.failed", "Không thể tạo kế hoạch an toàn.")}
+          {t("plan.requestFailed", "Máy chủ chưa thể tạo kế hoạch an toàn.")}
         </Text>
       ) : null}
     </Screen>

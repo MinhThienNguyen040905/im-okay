@@ -1,4 +1,9 @@
 import type { HistoryEvent, HistoryFilter, HistoryItem } from "./types";
+import {
+  getLocaleTag,
+  translate,
+  type AppLocale,
+} from "@/features/i18n/I18nProvider";
 
 const checkInEvents = new Set<HistoryEvent>(["check_in_recorded"]);
 const drillEvents = new Set<HistoryEvent>([
@@ -15,48 +20,159 @@ export const filterHistory = (items: HistoryItem[], filter: HistoryFilter) =>
     ? items
     : items.filter(({ event }) => historyCategory(event) === filter);
 
-export const historyCopy = (item: HistoryItem) => {
+export const historyCopy = (item: HistoryItem, locale: AppLocale = "vi") => {
   const channels = item.channels
-    ?.map((channel) => (channel === "push" ? "Push" : "Email"))
-    .join(" và ");
+    ?.map((channel) =>
+      translate(
+        channel === "push" ? "history.push" : "history.email",
+        channel === "push" ? "Push" : "Email",
+        {},
+        locale,
+      ),
+    )
+    .reduce((left, right) =>
+      translate(
+        "history.channels",
+        "{first} và {second}",
+        { first: left, second: right },
+        locale,
+      ),
+    );
   const copy: Record<HistoryEvent, { title: string; detail?: string }> = {
     check_in_recorded: {
-      title: "Đã xác nhận an toàn",
+      title: translate(
+        "history.checkInRecorded",
+        "Đã xác nhận an toàn",
+        {},
+        locale,
+      ),
       detail: item.nextDeadlineAt
-        ? "Máy chủ đã tạo thời hạn tiếp theo"
+        ? translate(
+            "history.nextDeadlineCreated",
+            "Máy chủ đã tạo thời hạn tiếp theo",
+            {},
+            locale,
+          )
         : undefined,
     },
     reminder_sent: {
-      title: "Đã gửi lời nhắc",
-      detail: channels ? `Kênh: ${channels}` : undefined,
-    },
-    snooze_applied: {
-      title: "Đã tạm hoãn bảo vệ",
-      detail: item.durationHours
-        ? `Trong ${item.durationHours} giờ`
+      title: translate("history.reminderSent", "Đã gửi lời nhắc", {}, locale),
+      detail: channels
+        ? translate("history.channel", "Kênh: {channels}", { channels }, locale)
         : undefined,
     },
-    alert_triggered: { title: "Cảnh báo đã được kích hoạt" },
-    alert_acknowledged: { title: "Máy chủ đã nhận cảnh báo" },
-    alert_resolved: { title: "Cảnh báo đã kết thúc" },
+    snooze_applied: {
+      title: translate(
+        "history.snoozeApplied",
+        "Đã tạm hoãn bảo vệ",
+        {},
+        locale,
+      ),
+      detail: item.durationHours
+        ? translate(
+            "history.snoozeDuration",
+            "Trong {hours} giờ",
+            { hours: item.durationHours },
+            locale,
+          )
+        : undefined,
+    },
+    alert_triggered: {
+      title: translate(
+        "history.alertTriggered",
+        "Cảnh báo đã được kích hoạt",
+        {},
+        locale,
+      ),
+    },
+    alert_acknowledged: {
+      title: translate(
+        "history.alertAcknowledged",
+        "Máy chủ đã nhận cảnh báo",
+        {},
+        locale,
+      ),
+    },
+    alert_resolved: {
+      title: translate(
+        "history.alertResolved",
+        "Cảnh báo đã kết thúc",
+        {},
+        locale,
+      ),
+    },
     contact_response_received: {
-      title: "Đã nhận phản hồi từ liên hệ tin cậy",
+      title: translate(
+        "history.contactResponse",
+        "Đã nhận phản hồi từ liên hệ tin cậy",
+        {},
+        locale,
+      ),
     },
-    correction_queued: { title: "Đã xếp hàng thông báo đính chính" },
-    correction_sent: { title: "Đã gửi thông báo đính chính" },
+    correction_queued: {
+      title: translate(
+        "history.correctionQueued",
+        "Đã xếp hàng thông báo đính chính",
+        {},
+        locale,
+      ),
+    },
+    correction_sent: {
+      title: translate(
+        "history.correctionSent",
+        "Đã gửi thông báo đính chính",
+        {},
+        locale,
+      ),
+    },
     correction_failed: {
-      title: "Thông báo đính chính chưa gửi đủ",
-      detail: "Hệ thống đang theo dõi trạng thái gửi",
+      title: translate(
+        "history.correctionFailed",
+        "Thông báo đính chính chưa gửi đủ",
+        {},
+        locale,
+      ),
+      detail: translate(
+        "history.correctionFailedDetail",
+        "Hệ thống đang theo dõi trạng thái gửi",
+        {},
+        locale,
+      ),
     },
-    drill_triggered: { title: "Đã bắt đầu diễn tập cảnh báo" },
-    drill_acknowledged: { title: "Máy chủ đã nhận yêu cầu diễn tập" },
-    drill_resolved: { title: "Diễn tập cảnh báo đã kết thúc" },
+    drill_triggered: {
+      title: translate(
+        "history.drillTriggered",
+        "Đã bắt đầu diễn tập cảnh báo",
+        {},
+        locale,
+      ),
+    },
+    drill_acknowledged: {
+      title: translate(
+        "history.drillAcknowledged",
+        "Máy chủ đã nhận yêu cầu diễn tập",
+        {},
+        locale,
+      ),
+    },
+    drill_resolved: {
+      title: translate(
+        "history.drillResolved",
+        "Diễn tập cảnh báo đã kết thúc",
+        {},
+        locale,
+      ),
+    },
   };
   return { ...copy[item.event], drill: drillEvents.has(item.event) };
 };
 
-export const formatHistoryTime = (timestamp: string, timezone: string) =>
-  new Intl.DateTimeFormat("vi-VN", {
+export const formatHistoryTime = (
+  timestamp: string,
+  timezone: string,
+  locale: AppLocale = "vi",
+) =>
+  new Intl.DateTimeFormat(getLocaleTag(locale), {
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
@@ -75,6 +191,7 @@ export const formatHistoryDay = (
   timestamp: string,
   serverTime: string,
   timezone: string,
+  locale: AppLocale = "vi",
 ) => {
   const itemKey = dayKey(timestamp, timezone);
   const todayKey = dayKey(serverTime, timezone);
@@ -82,9 +199,11 @@ export const formatHistoryDay = (
     new Date(Date.parse(serverTime) - 24 * 60 * 60_000).toISOString(),
     timezone,
   );
-  if (itemKey === todayKey) return "Hôm nay";
-  if (itemKey === yesterdayKey) return "Hôm qua";
-  return new Intl.DateTimeFormat("vi-VN", {
+  if (itemKey === todayKey)
+    return translate("history.today", "Hôm nay", {}, locale);
+  if (itemKey === yesterdayKey)
+    return translate("history.yesterday", "Hôm qua", {}, locale);
+  return new Intl.DateTimeFormat(getLocaleTag(locale), {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
@@ -100,11 +219,17 @@ export const buildHistoryRows = (
   items: HistoryItem[],
   serverTime: string,
   timezone: string,
+  locale: AppLocale = "vi",
 ): HistoryRow[] => {
   const rows: HistoryRow[] = [];
   let previousLabel: string | null = null;
   for (const item of items) {
-    const label = formatHistoryDay(item.occurredAt, serverTime, timezone);
+    const label = formatHistoryDay(
+      item.occurredAt,
+      serverTime,
+      timezone,
+      locale,
+    );
     if (label !== previousLabel) {
       rows.push({ kind: "header", id: `day:${label}`, label });
       previousLabel = label;

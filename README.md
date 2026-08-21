@@ -109,9 +109,9 @@ npm --prefix apps/mobile run build
 ### Ngôn ngữ mobile
 
 - Nền tảng i18n hỗ trợ `vi` và `en`, tự nhận ngôn ngữ thiết bị và lưu lựa chọn cục bộ.
-- Auth, onboarding, navigation và các state dùng chung đã có resource Việt/Anh.
-- Copy nghiệp vụ trong Home, History, Contacts, Alert/SOS và phần còn lại của Settings
-  vẫn lấy tiếng Việt làm fallback an toàn; chưa coi mobile là đã dịch hoàn chỉnh.
+- Toàn bộ màn hình mobile hiện dùng resource Việt/Anh, gồm Home, History, Contacts,
+  Alert/SOS, Settings, các hộp xác nhận, trạng thái gửi và lỗi hiển thị cho người dùng.
+- Thay đổi ngôn ngữ trong Settings áp dụng ngay cho toàn bộ giao diện hiện có và được lưu cục bộ.
 
 ## Chạy contact web
 

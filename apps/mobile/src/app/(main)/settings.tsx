@@ -25,7 +25,12 @@ import {
 } from "@/components";
 import { env } from "@/config/env";
 import { useAuth } from "@/features/auth/AuthProvider";
-import { useI18n } from "@/features/i18n/I18nProvider";
+import {
+  getLocaleTag,
+  translate,
+  useI18n,
+  type AppLocale,
+} from "@/features/i18n/I18nProvider";
 import type { AuthSession } from "@/features/auth/types";
 import { safetyStatusQueryKey } from "@/features/check-in/query";
 import { historyQueryKey } from "@/features/history/query";
@@ -101,34 +106,66 @@ const sectionTitle = (label: string) => (
   <Text style={styles.sectionTitle}>{label}</Text>
 );
 
-const friendlyError = (error: unknown) =>
+const friendlyError = (error: unknown, locale: AppLocale) =>
   error instanceof SettingsApiError &&
   (error.code === "REAUTH_REQUIRED" || error.code === "RECENT_AUTH_REQUIRED")
-    ? "Bạn cần đăng nhập lại trước khi thực hiện hành động này. Cài đặt cũ vẫn được giữ nguyên."
+    ? translate(
+        "settings.reauthRequired",
+        "Bạn cần đăng nhập lại trước khi thực hiện hành động này. Cài đặt cũ vẫn được giữ nguyên.",
+        {},
+        locale,
+      )
     : error instanceof SettingsApiError && error.kind === "offline"
-      ? "Không có kết nối tới máy chủ. Cài đặt cũ vẫn được giữ nguyên."
+      ? translate(
+          "settings.offline",
+          "Không có kết nối tới máy chủ. Cài đặt cũ vẫn được giữ nguyên.",
+          {},
+          locale,
+        )
       : error instanceof SettingsApiError && error.kind === "timeout"
-        ? "Yêu cầu quá thời gian chờ và chưa được xác nhận. Cài đặt cũ vẫn được giữ nguyên."
-        : "Máy chủ chưa xác nhận thay đổi. Cài đặt cũ vẫn được giữ nguyên.";
+        ? translate(
+            "settings.timeout",
+            "Yêu cầu quá thời gian chờ và chưa được xác nhận. Cài đặt cũ vẫn được giữ nguyên.",
+            {},
+            locale,
+          )
+        : translate(
+            "settings.notConfirmed",
+            "Máy chủ chưa xác nhận thay đổi. Cài đặt cũ vẫn được giữ nguyên.",
+            {},
+            locale,
+          );
 
-const requestStatusLabel: Record<string, string> = {
-  requested: "đã tiếp nhận",
-  processing: "đang xử lý",
-  ready: "đã sẵn sàng",
-  completed: "đã hoàn tất",
-  failed: "cần thử lại",
-  scheduled: "đã lên lịch",
-  cancelled: "đã hủy",
+const requestStatusLabel = (status: string, locale: AppLocale) => {
+  const copy = {
+    requested: ["settings.requestStatusRequested", "đã tiếp nhận"],
+    processing: ["settings.requestStatusProcessing", "đang xử lý"],
+    ready: ["settings.requestStatusReady", "đã sẵn sàng"],
+    completed: ["settings.requestStatusCompleted", "đã hoàn tất"],
+    failed: ["settings.requestStatusFailed", "cần thử lại"],
+    scheduled: ["settings.requestStatusScheduled", "đã lên lịch"],
+    cancelled: ["settings.requestStatusCancelled", "đã hủy"],
+  } as const;
+  const [key, fallback] = copy[status as keyof typeof copy] ?? [
+    "settings.notConfirmed",
+    status,
+  ];
+  return translate(key, fallback, {}, locale);
 };
 
-const formatDeadline = (projection: SettingsProjection) =>
+const formatDeadline = (projection: SettingsProjection, locale: AppLocale) =>
   projection.safetyPlan.nextDeadlineAt
-    ? new Intl.DateTimeFormat("vi-VN", {
+    ? new Intl.DateTimeFormat(getLocaleTag(locale), {
         dateStyle: "short",
         timeStyle: "short",
         timeZone: projection.profile.timezone,
       }).format(new Date(projection.safetyPlan.nextDeadlineAt))
-    : "Không có thời hạn đang hoạt động";
+    : translate(
+        "settings.deadlineNone",
+        "Không có thời hạn đang hoạt động",
+        {},
+        locale,
+      );
 
 const SettingsContent = ({ session }: { session: AuthSession }) => {
   const { locale, setLocale, t } = useI18n();
@@ -221,14 +258,24 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
         timezone: timezone.trim(),
       }),
     onSuccess: (projection) =>
-      applyProjection(projection, "Máy chủ đã cập nhật hồ sơ và lịch an toàn."),
+      applyProjection(
+        projection,
+        t(
+          "settings.profileSaved",
+          "Máy chủ đã cập nhật hồ sơ và lịch an toàn.",
+        ),
+      ),
   });
   const planMutation = useMutation({
     mutationFn: () => api.updateSafetyPlan(intervalHours),
     onSuccess: (projection) =>
       applyProjection(
         projection,
-        `Máy chủ đã tạo lịch ${projection.safetyPlan.intervalHours} giờ và trả về thời hạn mới.`,
+        t(
+          "settings.planSaved",
+          "Máy chủ đã tạo lịch {hours} giờ và trả về thời hạn mới.",
+          { hours: projection.safetyPlan.intervalHours },
+        ),
       ),
   });
   const disableMutation = useMutation({
@@ -243,7 +290,10 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
       await clearSettingsAttempt(session.user.id, "disable-plan");
       await applyProjection(
         projection,
-        "Máy chủ đã xác nhận tắt kế hoạch an toàn.",
+        t(
+          "settings.planDisabledSaved",
+          "Máy chủ đã xác nhận tắt kế hoạch an toàn.",
+        ),
       );
     },
   });
@@ -259,7 +309,10 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
       await clearSettingsAttempt(session.user.id, "account-export");
       await applyProjection(
         projection,
-        "Yêu cầu xuất dữ liệu đã được máy chủ tiếp nhận.",
+        t(
+          "settings.exportRequested",
+          "Yêu cầu xuất dữ liệu đã được máy chủ tiếp nhận.",
+        ),
       );
     },
   });
@@ -275,7 +328,10 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
       await clearSettingsAttempt(session.user.id, "account-deletion");
       await applyProjection(
         projection,
-        "Yêu cầu xóa tài khoản đã được máy chủ tiếp nhận theo chính sách lưu giữ.",
+        t(
+          "settings.deletionRequested",
+          "Yêu cầu xóa tài khoản đã được máy chủ tiếp nhận theo chính sách lưu giữ.",
+        ),
       );
     },
   });
@@ -289,22 +345,33 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
       setPushPermission(result.decision);
       const refreshed = await refetchSettings();
       if (refreshed.data?.push.registration === "registered") {
-        setResultMessage("Thiết bị đã đăng ký nhận thông báo đẩy.");
+        setResultMessage(
+          t("settings.pushSaved", "Thiết bị đã đăng ký nhận thông báo đẩy."),
+        );
         return;
       }
       if (result.decision === "denied") {
         setPushError(
-          "Thông báo đang bị tắt. Hãy mở cài đặt hệ thống để cấp quyền rồi thử lại.",
+          t(
+            "settings.pushDenied",
+            "Thông báo đang bị tắt. Hãy mở cài đặt hệ thống để cấp quyền rồi thử lại.",
+          ),
         );
         return;
       }
       setPushError(
-        "Đã có quyền thông báo nhưng máy chủ chưa xác nhận thiết bị. Hãy kiểm tra kết nối rồi thử lại.",
+        t(
+          "settings.pushNotRegistered",
+          "Đã có quyền thông báo nhưng máy chủ chưa xác nhận thiết bị. Hãy kiểm tra kết nối rồi thử lại.",
+        ),
       );
     },
     onError: () =>
       setPushError(
-        "Không thể đăng ký thông báo đẩy lúc này. Hãy kiểm tra kết nối rồi thử lại.",
+        t(
+          "settings.pushFailed",
+          "Không thể đăng ký thông báo đẩy lúc này. Hãy kiểm tra kết nối rồi thử lại.",
+        ),
       ),
   });
   const signOutMutation = useMutation({
@@ -316,9 +383,11 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
     return (
       <Screen scrollable={false}>
         <Text accessibilityRole="header" style={styles.title}>
-          Cài đặt
+          {t("settings.title", "Cài đặt")}
         </Text>
-        <LoadingState label="Đang tải cài đặt từ máy chủ…" />
+        <LoadingState
+          label={t("settings.loading", "Đang tải cài đặt từ máy chủ…")}
+        />
       </Screen>
     );
   }
@@ -327,10 +396,13 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
     return (
       <Screen scrollable={false}>
         <Text accessibilityRole="header" style={styles.title}>
-          Cài đặt
+          {t("settings.title", "Cài đặt")}
         </Text>
         <ErrorState
-          message="Không thể tải projection cài đặt an toàn."
+          message={t(
+            "settings.loadFailed",
+            "Không thể tải projection cài đặt an toàn.",
+          )}
           onRetry={() => void settingsQuery.refetch()}
         />
       </Screen>
@@ -352,11 +424,18 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
 
   const saveProfile = () => {
     if (profileInvalid) {
-      setFormError("Tên hiển thị cần từ 1 đến 80 ký tự.");
+      setFormError(
+        t("settings.profileInvalid", "Tên hiển thị cần từ 1 đến 80 ký tự."),
+      );
       return;
     }
     if (timezoneInvalid) {
-      setFormError("Hãy nhập múi giờ IANA hợp lệ, ví dụ Asia/Ho_Chi_Minh.");
+      setFormError(
+        t(
+          "settings.timezoneInvalid",
+          "Hãy nhập múi giờ IANA hợp lệ, ví dụ Asia/Ho_Chi_Minh.",
+        ),
+      );
       return;
     }
     setResultMessage(null);
@@ -365,12 +444,15 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
 
   const confirmDisable = () =>
     Alert.alert(
-      "Tắt kế hoạch an toàn?",
-      "Sau khi máy chủ xác nhận, hệ thống sẽ không tạo deadline hoặc cảnh báo mới. Máy chủ có thể yêu cầu bạn đăng nhập lại.",
+      t("settings.disableConfirmTitle", "Tắt kế hoạch an toàn?"),
+      t(
+        "settings.disableConfirmBody",
+        "Sau khi máy chủ xác nhận, hệ thống sẽ không tạo deadline hoặc cảnh báo mới. Máy chủ có thể yêu cầu bạn đăng nhập lại.",
+      ),
       [
-        { text: "Giữ kế hoạch", style: "cancel" },
+        { text: t("settings.keepPlan", "Giữ kế hoạch"), style: "cancel" },
         {
-          text: "Tắt kế hoạch",
+          text: t("settings.disablePlan", "Tắt kế hoạch an toàn"),
           style: "destructive",
           onPress: () => disableMutation.mutate(),
         },
@@ -378,12 +460,15 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
     );
   const confirmDeletion = () =>
     Alert.alert(
-      "Yêu cầu xóa tài khoản?",
-      "Đây là yêu cầu theo quy trình lưu giữ dữ liệu, không xóa ngay trên thiết bị. Máy chủ có thể yêu cầu xác thực lại.",
+      t("settings.deleteConfirmTitle", "Yêu cầu xóa tài khoản?"),
+      t(
+        "settings.deleteConfirmBody",
+        "Đây là yêu cầu theo quy trình lưu giữ dữ liệu, không xóa ngay trên thiết bị. Máy chủ có thể yêu cầu xác thực lại.",
+      ),
       [
-        { text: "Hủy", style: "cancel" },
+        { text: t("settings.cancel", "Hủy"), style: "cancel" },
         {
-          text: "Gửi yêu cầu xóa",
+          text: t("settings.deleteRequest", "Gửi yêu cầu xóa"),
           style: "destructive",
           onPress: () => deletionMutation.mutate(),
         },
@@ -407,14 +492,19 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
     <Screen>
       <View style={styles.headerRow}>
         <Text accessibilityRole="header" style={styles.title}>
-          Cài đặt
+          {t("settings.title", "Cài đặt")}
         </Text>
         {settingsQuery.isFetching ? (
-          <Text style={styles.syncing}>Đang đồng bộ…</Text>
+          <Text style={styles.syncing}>
+            {t("settings.syncing", "Đang đồng bộ…")}
+          </Text>
         ) : null}
       </View>
       {env.dataMode === "fixture" ? (
-        <Badge label="Dữ liệu mẫu · không có bảo vệ thật" variant="warning" />
+        <Badge
+          label={t("settings.fixture", "Dữ liệu mẫu · không có bảo vệ thật")}
+          variant="warning"
+        />
       ) : null}
 
       {sectionTitle(t("settings.languageSection", "NGÔN NGỮ"))}
@@ -433,7 +523,15 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
 
       <Card style={styles.profileCard}>
         <Pressable
-          accessibilityLabel={`${profileExpanded ? "Đóng" : "Mở"} chỉnh sửa hồ sơ`}
+          accessibilityLabel={t(
+            "settings.profileA11y",
+            "{action} chỉnh sửa hồ sơ",
+            {
+              action: profileExpanded
+                ? t("settings.close", "Đóng")
+                : t("settings.open", "Mở"),
+            },
+          )}
           accessibilityRole="button"
           onPress={() => setProfileExpanded((expanded) => !expanded)}
           style={({ pressed }) => [
@@ -464,27 +562,33 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
           <View style={styles.inlineEditor}>
             <View style={styles.divider} />
             <Input
-              accessibilityLabel="Tên hiển thị"
+              accessibilityLabel={t("settings.displayName", "Tên hiển thị")}
               autoCapitalize="words"
               error={profileInvalid && formError ? formError : undefined}
-              label="Tên hiển thị"
+              label={t("settings.displayName", "Tên hiển thị")}
               maxLength={80}
               onChangeText={setDisplayName}
               value={displayName}
             />
             <Input
-              accessibilityLabel="Múi giờ IANA"
+              accessibilityLabel={t("settings.timezoneA11y", "Múi giờ IANA")}
               autoCapitalize="none"
               autoCorrect={false}
               error={timezoneInvalid && formError ? formError : undefined}
-              helperText="Ví dụ: Asia/Ho_Chi_Minh"
-              label="Múi giờ"
+              helperText={t(
+                "settings.timezoneExample",
+                "Ví dụ: Asia/Ho_Chi_Minh",
+              )}
+              label={t("settings.timezone", "Múi giờ")}
               onChangeText={setTimezone}
               value={timezone}
             />
             <Button
-              accessibilityLabel="Lưu tên hiển thị và múi giờ"
-              label="Lưu hồ sơ"
+              accessibilityLabel={t(
+                "settings.saveProfileA11y",
+                "Lưu tên hiển thị và múi giờ",
+              )}
+              label={t("settings.saveProfile", "Lưu hồ sơ")}
               loading={profileMutation.isPending}
               onPress={saveProfile}
               variant="secondary"
@@ -493,13 +597,15 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
         ) : null}
       </Card>
 
-      {sectionTitle("KẾ HOẠCH AN TOÀN")}
+      {sectionTitle(t("settings.safetyPlanSection", "KẾ HOẠCH AN TOÀN"))}
       <Card style={styles.listCard}>
         <SettingsRow
           icon="timer"
-          label="Chu kỳ điểm danh"
+          label={t("settings.interval", "Chu kỳ điểm danh")}
           onPress={() => setPlanExpanded((expanded) => !expanded)}
-          value={`${projection.safetyPlan.intervalHours} giờ`}
+          value={t("settings.hours", "{hours} giờ", {
+            hours: projection.safetyPlan.intervalHours,
+          })}
         />
         {planExpanded ? (
           <View style={styles.planEditor}>
@@ -509,7 +615,11 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
                 return (
                   <Pressable
                     key={hours}
-                    accessibilityLabel={`Chu kỳ ${hours} giờ`}
+                    accessibilityLabel={t(
+                      "settings.intervalA11y",
+                      "Chu kỳ {hours} giờ",
+                      { hours },
+                    )}
                     accessibilityRole="radio"
                     accessibilityState={{
                       checked: selected,
@@ -528,19 +638,26 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
                         selected && styles.intervalTextSelected,
                       ]}
                     >
-                      {hours} giờ
+                      {t("settings.hours", "{hours} giờ", { hours })}
                     </Text>
                   </Pressable>
                 );
               })}
             </View>
             <Text style={styles.deadline}>
-              Thời hạn do máy chủ trả về: {formatDeadline(projection)}
+              {t(
+                "settings.serverDeadline",
+                "Thời hạn do máy chủ trả về: {time}",
+                { time: formatDeadline(projection, locale) },
+              )}
             </Text>
             <Button
-              accessibilityLabel="Lưu chu kỳ và yêu cầu máy chủ tạo lịch mới"
+              accessibilityLabel={t(
+                "settings.saveIntervalA11y",
+                "Lưu chu kỳ và yêu cầu máy chủ tạo lịch mới",
+              )}
               disabled={!projection.allowedActions.canUpdateSafetyPlan}
-              label="Lưu chu kỳ"
+              label={t("settings.saveInterval", "Lưu chu kỳ")}
               loading={planMutation.isPending}
               onPress={() => {
                 setResultMessage(null);
@@ -553,29 +670,32 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
         <View style={styles.divider} />
         <SettingsRow
           icon="group"
-          label="Liên hệ tin cậy"
+          label={t("settings.contacts", "Liên hệ tin cậy")}
           onPress={() => router.push("/contacts")}
-          value={`${projection.contacts.acceptedCount}/${projection.contacts.totalCount} đã sẵn sàng`}
+          value={t("settings.contactsReady", "{ready}/{total} đã sẵn sàng", {
+            ready: projection.contacts.acceptedCount,
+            total: projection.contacts.totalCount,
+          })}
         />
         <View style={styles.divider} />
         <SettingsRow
           icon="shield"
-          label="Trạng thái bảo vệ"
+          label={t("settings.protection", "Trạng thái bảo vệ")}
           value={
             projection.safetyPlan.state === "inactive"
-              ? "Đã tắt"
+              ? t("settings.protectionInactive", "Đã tắt")
               : projection.safetyPlan.state === "snoozed"
-                ? "Đang tạm hoãn"
-                : "Đang hoạt động"
+                ? t("settings.protectionSnoozed", "Đang tạm hoãn")
+                : t("settings.protectionActive", "Đang hoạt động")
           }
         />
       </Card>
 
-      {sectionTitle("THÔNG BÁO")}
+      {sectionTitle(t("settings.notificationsSection", "THÔNG BÁO"))}
       <Card style={styles.listCard}>
         <SettingsRow
           icon={pushReady ? "notifications-active" : "notifications-off"}
-          label="Thông báo đẩy"
+          label={t("settings.push", "Thông báo đẩy")}
           onPress={() => {
             if (pushPermission === "denied") {
               void Linking.openSettings();
@@ -585,62 +705,80 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
           }}
           value={
             pushReady
-              ? "Đã bật và đăng ký"
+              ? t("settings.pushRegistered", "Đã bật và đăng ký")
               : pushMutation.isPending
-                ? "Đang đăng ký thiết bị…"
+                ? t("settings.pushRegistering", "Đang đăng ký thiết bị…")
                 : pushPermission === "denied"
-                  ? "Đang tắt · Mở cài đặt"
-                  : "Chưa sẵn sàng · Thử đăng ký"
+                  ? t("settings.pushDisabled", "Đang tắt · Mở cài đặt")
+                  : t("settings.pushUnavailable", "Chưa sẵn sàng · Thử đăng ký")
           }
         />
         <View style={styles.divider} />
         <SettingsRow
           icon="mail-outline"
-          label="Email của tôi"
+          label={t("settings.email", "Email của tôi")}
           value={projection.profile.email}
         />
       </Card>
 
-      {sectionTitle("KIỂM TRA HỆ THỐNG")}
+      {sectionTitle(t("settings.systemSection", "KIỂM TRA HỆ THỐNG"))}
       <Card style={styles.listCard}>
         <SettingsRow
           icon="campaign"
-          label="Diễn tập cảnh báo"
+          label={t("settings.drill", "Diễn tập cảnh báo")}
           onPress={() => router.push("/sos/drill")}
         />
         <View style={styles.divider} />
         <SettingsRow
           icon="security"
-          label="Kiểm tra quyền thiết bị"
+          label={t("settings.devicePermissions", "Kiểm tra quyền thiết bị")}
           onPress={() => void Linking.openSettings()}
         />
       </Card>
 
-      {sectionTitle("DỮ LIỆU CỦA TÔI")}
+      {sectionTitle(t("settings.dataSection", "DỮ LIỆU CỦA TÔI"))}
       <Card>
         <Text style={styles.helpText}>
-          Xuất và xóa dữ liệu là quy trình phía máy chủ. App chỉ báo thành công
-          sau khi nhận trạng thái yêu cầu.
+          {t(
+            "settings.dataHelp",
+            "Xuất và xóa dữ liệu là quy trình phía máy chủ. App chỉ báo thành công sau khi nhận trạng thái yêu cầu.",
+          )}
         </Text>
         <Button
-          accessibilityLabel="Gửi yêu cầu xuất dữ liệu tài khoản"
+          accessibilityLabel={t(
+            "settings.exportA11y",
+            "Gửi yêu cầu xuất dữ liệu tài khoản",
+          )}
           disabled={!projection.allowedActions.canRequestExport}
           label={
             projection.account.exportRequest
-              ? `Xuất dữ liệu: ${requestStatusLabel[projection.account.exportRequest.status]}`
-              : "Yêu cầu xuất dữ liệu"
+              ? t("settings.exportStatus", "Xuất dữ liệu: {status}", {
+                  status: requestStatusLabel(
+                    projection.account.exportRequest.status,
+                    locale,
+                  ),
+                })
+              : t("settings.export", "Yêu cầu xuất dữ liệu")
           }
           loading={exportMutation.isPending}
           onPress={() => exportMutation.mutate()}
           variant="secondary"
         />
         <Button
-          accessibilityLabel="Gửi yêu cầu xóa tài khoản"
+          accessibilityLabel={t(
+            "settings.deletionA11y",
+            "Gửi yêu cầu xóa tài khoản",
+          )}
           disabled={!projection.allowedActions.canRequestDeletion}
           label={
             projection.account.deletionRequest
-              ? `Xóa tài khoản: ${requestStatusLabel[projection.account.deletionRequest.status]}`
-              : "Yêu cầu xóa tài khoản"
+              ? t("settings.deletionStatus", "Xóa tài khoản: {status}", {
+                  status: requestStatusLabel(
+                    projection.account.deletionRequest.status,
+                    locale,
+                  ),
+                })
+              : t("settings.deletion", "Yêu cầu xóa tài khoản")
           }
           loading={deletionMutation.isPending}
           onPress={confirmDeletion}
@@ -660,23 +798,29 @@ const SettingsContent = ({ session }: { session: AuthSession }) => {
       ) : null}
       <SettingsErrorCard message={pushError} />
       <SettingsErrorCard
-        message={mutationError ? friendlyError(mutationError) : null}
+        message={mutationError ? friendlyError(mutationError, locale) : null}
       />
 
       <Button
-        accessibilityLabel="Đăng xuất khỏi I’m Okay"
-        label="Đăng xuất"
+        accessibilityLabel={t(
+          "settings.signOutA11y",
+          "Đăng xuất khỏi I’m Okay",
+        )}
+        label={t("settings.signOut", "Đăng xuất")}
         loading={signOutMutation.isPending}
         onPress={() => signOutMutation.mutate()}
         variant="secondary"
       />
       <Button
-        accessibilityLabel="Tắt kế hoạch an toàn"
+        accessibilityLabel={t(
+          "settings.disablePlanA11y",
+          "Tắt kế hoạch an toàn",
+        )}
         disabled={!projection.allowedActions.canDisableSafetyPlan}
         label={
           projection.safetyPlan.state === "inactive"
-            ? "Kế hoạch an toàn đã tắt"
-            : "Tắt kế hoạch an toàn"
+            ? t("settings.planDisabled", "Kế hoạch an toàn đã tắt")
+            : t("settings.disablePlan", "Tắt kế hoạch an toàn")
         }
         loading={disableMutation.isPending}
         onPress={confirmDisable}

@@ -13,46 +13,67 @@ import {
   ProgressHeader,
   Screen,
 } from "@/components";
-import { translate, useI18n } from "@/features/i18n/I18nProvider";
+import {
+  getLocaleTag,
+  translate,
+  useI18n,
+  type AppLocale,
+} from "@/features/i18n/I18nProvider";
 import { useOnboarding } from "@/features/onboarding/OnboardingProvider";
 import { colors, spacing, typography } from "@/theme";
 
 const detectedTimezone =
   Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
-const isValidTimezone = (value: string) => {
+const isValidTimezone = (value: string, locale: AppLocale) => {
   try {
-    new Intl.DateTimeFormat("vi-VN", { timeZone: value }).format();
+    new Intl.DateTimeFormat(getLocaleTag(locale), { timeZone: value }).format();
     return true;
   } catch {
     return false;
   }
 };
 
-const formSchema = z.object({
-  displayName: z
-    .string()
-    .trim()
-    .min(
-      1,
-      translate("profile.nameRequired", "Hãy nhập tên bạn muốn hiển thị."),
-    )
-    .max(80, translate("profile.nameMax", "Tên hiển thị tối đa 80 ký tự.")),
-  timezone: z
-    .string()
-    .trim()
-    .refine(
-      isValidTimezone,
-      translate(
-        "profile.timezoneInvalid",
-        "Múi giờ không hợp lệ, ví dụ Asia/Ho_Chi_Minh.",
+const formSchema = (locale: AppLocale) =>
+  z.object({
+    displayName: z
+      .string()
+      .trim()
+      .min(
+        1,
+        translate(
+          "profile.nameRequired",
+          "Hãy nhập tên bạn muốn hiển thị.",
+          {},
+          locale,
+        ),
+      )
+      .max(
+        80,
+        translate(
+          "profile.nameMax",
+          "Tên hiển thị tối đa 80 ký tự.",
+          {},
+          locale,
+        ),
       ),
-    ),
-});
+    timezone: z
+      .string()
+      .trim()
+      .refine(
+        (value) => isValidTimezone(value, locale),
+        translate(
+          "profile.timezoneInvalid",
+          "Múi giờ không hợp lệ, ví dụ Asia/Ho_Chi_Minh.",
+          {},
+          locale,
+        ),
+      ),
+  });
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<ReturnType<typeof formSchema>>;
 
 export default function ProfileScreen() {
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
   const router = useRouter();
   const { draft, saveProfile } = useOnboarding();
   const { control, handleSubmit, setValue } = useForm<FormValues>({
@@ -60,7 +81,7 @@ export default function ProfileScreen() {
       displayName: draft.displayName ?? "",
       timezone: draft.timezone ?? detectedTimezone,
     },
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(formSchema(locale)),
   });
   const mutation = useMutation({
     mutationFn: saveProfile,
@@ -162,9 +183,7 @@ export default function ProfileScreen() {
       </Card>
       {mutation.error ? (
         <Text accessibilityLiveRegion="polite" style={styles.error}>
-          {mutation.error instanceof Error
-            ? mutation.error.message
-            : t("profile.saveFailed", "Không thể lưu hồ sơ.")}
+          {t("profile.requestFailed", "Máy chủ chưa thể lưu hồ sơ.")}
         </Text>
       ) : null}
     </Screen>

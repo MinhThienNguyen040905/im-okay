@@ -17,6 +17,7 @@ describe("server clock display", () => {
     const deadline = "2026-08-02T12:30:00.000Z";
     expect(remainingUntilDeadline(deadline, 0, clientNow)).toBe(9_000_000);
     expect(formatRemainingTime(9_000_000)).toBe("2 giờ 30 phút");
+    expect(formatRemainingTime(9_000_000, "en")).toBe("2 hr 30 min");
   });
 
   it("uses four hours only as an approaching-display threshold", () => {

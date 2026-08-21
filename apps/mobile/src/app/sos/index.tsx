@@ -31,20 +31,26 @@ import {
 } from "@/features/alerts/types";
 import { useAuth } from "@/features/auth/AuthProvider";
 import type { AuthSession } from "@/features/auth/types";
+import {
+  translate,
+  useI18n,
+  type AppLocale,
+} from "@/features/i18n/I18nProvider";
 import { colors, radii, spacing, typography } from "@/theme";
 
-const errorMessage = (error: unknown) =>
-  error instanceof AlertsApiError
-    ? error.message
-    : "Chưa thể xử lý yêu cầu trợ giúp.";
+const errorMessage = (_error: unknown, locale: AppLocale) =>
+  translate("sos.error", "Chưa thể xử lý yêu cầu trợ giúp.", {}, locale);
 
 const SosContent = ({ session }: { session: AuthSession }) => {
+  const { locale, t } = useI18n();
   const api = useMemo(() => createAlertsApi(session), [session]);
   const queryClient = useQueryClient();
   const router = useRouter();
   const [twoStep, setTwoStep] = useState(false);
   const { focus: focusTwoStep, ref: twoStepTitleRef } =
-    useAccessibilityFocus<Text>("Bước hai trên hai, xác nhận gửi SOS.");
+    useAccessibilityFocus<Text>(
+      t("sos.twoStepFocus", "Bước hai trên hai, xác nhận gửi SOS."),
+    );
   const [accepted, setAccepted] = useState<AlertContextSnapshot | null>(null);
   const queryKey = alertContextQueryKey(session.user.id);
 
@@ -93,7 +99,9 @@ const SosContent = ({ session }: { session: AuthSession }) => {
   if (contextQuery.isPending) {
     return (
       <Screen scrollable={false}>
-        <LoadingState label="Đang kiểm tra liên hệ sẵn sàng…" />
+        <LoadingState
+          label={t("sos.loading", "Đang kiểm tra liên hệ sẵn sàng…")}
+        />
       </Screen>
     );
   }
@@ -102,9 +110,9 @@ const SosContent = ({ session }: { session: AuthSession }) => {
     return (
       <Screen scrollable={false}>
         <ErrorState
-          message={errorMessage(contextQuery.error)}
+          message={errorMessage(contextQuery.error, locale)}
           onRetry={refresh}
-          title="Chưa thể chuẩn bị SOS"
+          title={t("sos.unavailable", "Chưa thể chuẩn bị SOS")}
         />
       </Screen>
     );
@@ -120,17 +128,19 @@ const SosContent = ({ session }: { session: AuthSession }) => {
         <AppIcon color={colors.primary} name="health-and-safety" size={44} />
       </View>
       <Text accessibilityRole="header" style={styles.heading}>
-        Bạn cần người thân kiểm tra ngay?
+        {t("sos.title", "Bạn cần người thân kiểm tra ngay?")}
       </Text>
       <Text style={styles.intro}>
-        I’m Okay sẽ yêu cầu máy chủ cảnh báo ngay cho các liên hệ đã xác nhận,
-        không chờ thời hạn điểm danh.
+        {t(
+          "sos.intro",
+          "I’m Okay sẽ yêu cầu máy chủ cảnh báo ngay cho các liên hệ đã xác nhận, không chờ thời hạn điểm danh.",
+        )}
       </Text>
 
       {env.dataMode === "fixture" ? (
         <View style={styles.centered}>
           <Badge
-            label="Dữ liệu mẫu · không gửi cảnh báo thật"
+            label={t("sos.fixture", "Dữ liệu mẫu · không gửi cảnh báo thật")}
             variant="warning"
           />
         </View>
@@ -140,37 +150,54 @@ const SosContent = ({ session }: { session: AuthSession }) => {
         <View style={styles.infoRow}>
           <AppIcon color={colors.primary} name="groups" />
           <Text style={styles.infoText}>
-            {projection.contactSummary.eligibleCount} liên hệ đã xác nhận sẽ
-            được thông báo
+            {t(
+              "sos.eligibleContacts",
+              "{count} liên hệ đã xác nhận sẽ được thông báo",
+              { count: projection.contactSummary.eligibleCount },
+            )}
           </Text>
         </View>
         <View style={styles.divider} />
         <View style={styles.infoRow}>
           <AppIcon color={colors.primary} name="notifications-active" />
           <Text style={styles.infoText}>
-            Kênh: {channelsCopy(projection.channelSummary.sos)}
+            {t("sos.channels", "Kênh: {channels}", {
+              channels: channelsCopy(projection.channelSummary.sos),
+            })}
           </Text>
         </View>
         <View style={styles.divider} />
         <View style={styles.infoRow}>
           <AppIcon color={colors.primary} name="location-off" />
           <Text style={styles.infoText}>
-            Vị trí không được chia sẻ trong phiên bản này
+            {t(
+              "sos.locationNotShared",
+              "Vị trí không được chia sẻ trong phiên bản này",
+            )}
           </Text>
         </View>
       </Card>
 
       {names.length > 0 ? (
-        <Text style={styles.names}>Sẽ báo cho: {names.join(", ")}</Text>
+        <Text style={styles.names}>
+          {t("sos.notifyNames", "Sẽ báo cho: {names}", {
+            names: names.join(", "),
+          })}
+        </Text>
       ) : (
         <Card style={styles.warningCard}>
           <Text accessibilityLiveRegion="polite" style={styles.warningText}>
-            Chưa có liên hệ đã xác nhận. SOS bị khóa vì hiện không có người đủ
-            điều kiện nhận cảnh báo.
+            {t(
+              "sos.noContact",
+              "Chưa có liên hệ đã xác nhận. SOS bị khóa vì hiện không có người đủ điều kiện nhận cảnh báo.",
+            )}
           </Text>
           <Button
-            accessibilityLabel="Mở danh sách liên hệ tin cậy"
-            label="Quản lý liên hệ"
+            accessibilityLabel={t(
+              "sos.openContactsA11y",
+              "Mở danh sách liên hệ tin cậy",
+            )}
+            label={t("sos.manageContacts", "Quản lý liên hệ")}
             onPress={() => router.push("/contacts")}
             variant="secondary"
           />
@@ -188,9 +215,15 @@ const SosContent = ({ session }: { session: AuthSession }) => {
             }}
           />
           <Button
-            accessibilityLabel="Dùng xác nhận SOS hai bước thay cho nhấn giữ"
+            accessibilityLabel={t(
+              "sos.twoStepA11y",
+              "Dùng xác nhận SOS hai bước thay cho nhấn giữ",
+            )}
             disabled={!canSend || sosMutation.isPending}
-            label="Không thể nhấn giữ? Dùng xác nhận hai bước"
+            label={t(
+              "sos.twoStep",
+              "Không thể nhấn giữ? Dùng xác nhận hai bước",
+            )}
             onPress={() => {
               sosMutation.reset();
               setTwoStep(true);
@@ -206,23 +239,31 @@ const SosContent = ({ session }: { session: AuthSession }) => {
             ref={twoStepTitleRef}
             style={styles.twoStepTitle}
           >
-            Bước 2/2 · Xác nhận gửi SOS
+            {t("sos.twoStepTitle", "Bước 2/2 · Xác nhận gửi SOS")}
           </Text>
           <Text style={styles.twoStepBody}>
-            Nút tiếp theo sẽ gửi yêu cầu SOS thật tới máy chủ. Đây không phải
-            nút xem trước.
+            {t(
+              "sos.twoStepBody",
+              "Nút tiếp theo sẽ gửi yêu cầu SOS thật tới máy chủ. Đây không phải nút xem trước.",
+            )}
           </Text>
           <Button
-            accessibilityLabel="Bước hai, xác nhận gửi SOS tới máy chủ"
-            label="Xác nhận gửi SOS"
+            accessibilityLabel={t(
+              "sos.confirmA11y",
+              "Bước hai, xác nhận gửi SOS tới máy chủ",
+            )}
+            label={t("sos.confirm", "Xác nhận gửi SOS")}
             loading={sosMutation.isPending}
             onPress={() => sosMutation.mutate()}
             variant="danger"
           />
           <Button
-            accessibilityLabel="Hủy xác nhận SOS hai bước"
+            accessibilityLabel={t(
+              "sos.cancelTwoStepA11y",
+              "Hủy xác nhận SOS hai bước",
+            )}
             disabled={sosMutation.isPending}
-            label="Quay lại"
+            label={t("common.back", "Quay lại")}
             onPress={() => setTwoStep(false)}
             variant="secondary"
           />
@@ -232,12 +273,18 @@ const SosContent = ({ session }: { session: AuthSession }) => {
       {sosMutation.error ? (
         <Card style={styles.errorCard}>
           <Text accessibilityLiveRegion="assertive" style={styles.errorText}>
-            {errorMessage(sosMutation.error)} Không hiển thị thành công khi máy
-            chủ chưa xác nhận.
+            {errorMessage(sosMutation.error, locale)}{" "}
+            {t(
+              "sos.notConfirmed",
+              "Không hiển thị thành công khi máy chủ chưa xác nhận.",
+            )}
           </Text>
           <Button
-            accessibilityLabel="Kiểm tra trạng thái SOS từ máy chủ"
-            label="Kiểm tra trạng thái"
+            accessibilityLabel={t(
+              "sos.checkStatusA11y",
+              "Kiểm tra trạng thái SOS từ máy chủ",
+            )}
+            label={t("sos.checkStatus", "Kiểm tra trạng thái")}
             onPress={refresh}
             variant="secondary"
           />
@@ -245,22 +292,30 @@ const SosContent = ({ session }: { session: AuthSession }) => {
       ) : null}
 
       <Button
-        accessibilityLabel="Tôi không cần trợ giúp, đóng mà không gửi SOS"
+        accessibilityLabel={t(
+          "sos.noHelpA11y",
+          "Tôi không cần trợ giúp, đóng mà không gửi SOS",
+        )}
         disabled={sosMutation.isPending}
-        label="Tôi không cần trợ giúp"
+        label={t("sos.noHelp", "Tôi không cần trợ giúp")}
         onPress={() => router.back()}
         variant="secondary"
       />
       <Button
-        accessibilityLabel="Mở diễn tập cảnh báo, không phải SOS thật"
+        accessibilityLabel={t(
+          "sos.openDrillA11y",
+          "Mở diễn tập cảnh báo, không phải SOS thật",
+        )}
         disabled={sosMutation.isPending}
-        label="Mở diễn tập cảnh báo"
+        label={t("sos.openDrill", "Mở diễn tập cảnh báo")}
         onPress={() => router.push("/sos/drill")}
         variant="secondary"
       />
       <Text style={styles.disclaimer}>
-        I’m Okay không tự động liên hệ dịch vụ cứu hộ. Nếu đang gặp nguy hiểm
-        tức thời, hãy chủ động dùng dịch vụ khẩn cấp phù hợp tại nơi bạn sống.
+        {t(
+          "sos.disclaimer",
+          "I’m Okay không tự động liên hệ dịch vụ cứu hộ. Nếu đang gặp nguy hiểm tức thời, hãy chủ động dùng dịch vụ khẩn cấp phù hợp tại nơi bạn sống.",
+        )}
       </Text>
     </Screen>
   );

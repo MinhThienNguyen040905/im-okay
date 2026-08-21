@@ -25,7 +25,7 @@ import {
 } from "@/features/alerts/hooks";
 import {
   channelsCopy,
-  deliveryStatusCopy,
+  deliveryStatusText,
   formatAlertCountdown,
   formatAlertTimestamp,
 } from "@/features/alerts/presentation";
@@ -41,22 +41,30 @@ import type { AuthSession } from "@/features/auth/types";
 import { useAuthoritativeCheckIn } from "@/features/check-in/hooks";
 import { formatCheckInOutcomeMessage } from "@/features/check-in/presentation";
 import { safetyStatusQueryKey } from "@/features/check-in/query";
-import {
-  CheckInApiError,
-  type SafetyStatusSnapshot,
-} from "@/features/check-in/types";
+import type { SafetyStatusSnapshot } from "@/features/check-in/types";
 import { useOnboarding } from "@/features/onboarding/OnboardingProvider";
+import {
+  translate,
+  useI18n,
+  type AppLocale,
+} from "@/features/i18n/I18nProvider";
 import { colors, radii, spacing, typography } from "@/theme";
 
-const alertErrorMessage = (error: unknown) =>
-  error instanceof AlertsApiError
-    ? error.message
-    : "Chưa thể tải trạng thái cảnh báo từ máy chủ.";
+const alertErrorMessage = (_error: unknown, locale: AppLocale) =>
+  translate(
+    "warning.loadFailed",
+    "Chưa thể tải trạng thái cảnh báo từ máy chủ.",
+    {},
+    locale,
+  );
 
-const checkInErrorMessage = (error: unknown) =>
-  error instanceof CheckInApiError
-    ? error.message
-    : "Lần xác nhận chưa được máy chủ ghi nhận.";
+const checkInErrorMessage = (_error: unknown, locale: AppLocale) =>
+  translate(
+    "warning.checkInNotRecorded",
+    "Lần xác nhận chưa được máy chủ ghi nhận.",
+    {},
+    locale,
+  );
 
 const WarningResult = ({
   result,
@@ -66,6 +74,7 @@ const WarningResult = ({
   timezone: string;
 }) => {
   const router = useRouter();
+  const { locale, t } = useI18n();
   const outcome = result.status.lastAlertOutcome;
   return (
     <Screen>
@@ -73,23 +82,32 @@ const WarningResult = ({
         <AppIcon color={colors.success} name="verified" size={44} />
       </View>
       <Text accessibilityRole="header" style={styles.resultTitle}>
-        Máy chủ đã ghi nhận bạn an toàn
+        {t("warning.safeTitle", "Máy chủ đã ghi nhận bạn an toàn")}
       </Text>
       <Card muted>
         <Text accessibilityLiveRegion="polite" style={styles.resultBody}>
           {formatCheckInOutcomeMessage(
             outcome,
-            "Không có cảnh báo cần đính chính.",
+            t("warning.noCorrection", "Không có cảnh báo cần đính chính."),
+            locale,
           )}
         </Text>
       </Card>
       <Text style={styles.centerCopy}>
-        Hạn tiếp theo:{" "}
-        {formatAlertTimestamp(result.status.plan.nextDeadlineAt, timezone)}
+        {t("warning.nextDeadline", "Hạn tiếp theo: {time}", {
+          time: formatAlertTimestamp(
+            result.status.plan.nextDeadlineAt,
+            timezone,
+            locale,
+          ),
+        })}
       </Text>
       <Button
-        accessibilityLabel="Về Trang chủ sau khi xác nhận an toàn"
-        label="Về Trang chủ"
+        accessibilityLabel={t(
+          "warning.homeAfterCheckInA11y",
+          "Về Trang chủ sau khi xác nhận an toàn",
+        )}
+        label={t("warning.home", "Về Trang chủ")}
         onPress={() => router.replace("/(main)")}
       />
     </Screen>
@@ -104,26 +122,42 @@ const SnoozeResult = ({
   timezone: string;
 }) => {
   const router = useRouter();
+  const { locale, t } = useI18n();
   return (
     <Screen>
       <View style={styles.resultIconWarning}>
         <AppIcon color={colors.warning} name="schedule" size={44} />
       </View>
       <Text accessibilityRole="header" style={styles.resultTitle}>
-        Đã tạm hoãn có thời hạn
+        {t("warning.snoozedTitle", "Đã tạm hoãn có thời hạn")}
       </Text>
       <Card muted>
         <Text accessibilityLiveRegion="polite" style={styles.resultBody}>
-          Máy chủ xác nhận kế hoạch sẽ được tạm hoãn đến{" "}
-          {formatAlertTimestamp(result.projection.plan.snoozedUntil, timezone)}.
+          {t(
+            "warning.snoozedUntil",
+            "Máy chủ xác nhận kế hoạch sẽ được tạm hoãn đến {time}.",
+            {
+              time: formatAlertTimestamp(
+                result.projection.plan.snoozedUntil,
+                timezone,
+                locale,
+              ),
+            },
+          )}
         </Text>
       </Card>
       <Text style={styles.centerCopy}>
-        Ứng dụng không tự tính hoặc kéo dài thời điểm này.
+        {t(
+          "warning.snoozeAuthoritative",
+          "Ứng dụng không tự tính hoặc kéo dài thời điểm này.",
+        )}
       </Text>
       <Button
-        accessibilityLabel="Về Trang chủ sau khi tạm hoãn"
-        label="Về Trang chủ"
+        accessibilityLabel={t(
+          "warning.homeAfterSnoozeA11y",
+          "Về Trang chủ sau khi tạm hoãn",
+        )}
+        label={t("warning.home", "Về Trang chủ")}
         onPress={() => router.replace("/(main)")}
       />
     </Screen>
@@ -135,6 +169,7 @@ const WarningContent = ({ session }: { session: AuthSession }) => {
   const queryClient = useQueryClient();
   const router = useRouter();
   const { draft } = useOnboarding();
+  const { locale, t } = useI18n();
   const timezone = draft.timezone ?? "UTC";
   const [snoozeOpen, setSnoozeOpen] = useState(false);
   const [checkInResult, setCheckInResult] =
@@ -213,7 +248,9 @@ const WarningContent = ({ session }: { session: AuthSession }) => {
   if (contextQuery.isPending) {
     return (
       <Screen scrollable={false}>
-        <LoadingState label="Đang đồng bộ trạng thái cảnh báo…" />
+        <LoadingState
+          label={t("warning.loading", "Đang đồng bộ trạng thái cảnh báo…")}
+        />
       </Screen>
     );
   }
@@ -221,9 +258,12 @@ const WarningContent = ({ session }: { session: AuthSession }) => {
     return (
       <Screen scrollable={false}>
         <ErrorState
-          message={alertErrorMessage(contextQuery.error)}
+          message={alertErrorMessage(contextQuery.error, locale)}
           onRetry={refresh}
-          title="Chưa có trạng thái từ máy chủ"
+          title={t(
+            "warning.serverStatusUnavailable",
+            "Chưa có trạng thái từ máy chủ",
+          )}
         />
       </Screen>
     );
@@ -240,29 +280,42 @@ const WarningContent = ({ session }: { session: AuthSession }) => {
     ? []
     : projection.availableActions.snoozeDurationsHours;
   const firstContact =
-    projection.contactSummary.firstContactName ?? "chưa có liên hệ đã xác nhận";
+    projection.contactSummary.firstContactName ??
+    t("warning.noConfirmedContact", "chưa có liên hệ đã xác nhận");
   const badge = terminalAlert
     ? {
         label:
           alert.state === "resolved"
-            ? "Cảnh báo đã kết thúc"
-            : "Cảnh báo đã hủy",
+            ? t("warning.resolved", "Cảnh báo đã kết thúc")
+            : t("warning.cancelled", "Cảnh báo đã hủy"),
         variant: "success" as const,
       }
     : alert?.source === "drill"
-      ? { label: "DIỄN TẬP", variant: "neutral" as const }
+      ? { label: t("warning.drill", "DIỄN TẬP"), variant: "neutral" as const }
       : alert?.source === "sos"
-        ? { label: "SOS đã kích hoạt", variant: "danger" as const }
+        ? {
+            label: t("warning.sosTriggered", "SOS đã kích hoạt"),
+            variant: "danger" as const,
+          }
         : alert?.state === "triggering"
-          ? { label: "Đang bắt đầu cảnh báo", variant: "warning" as const }
+          ? {
+              label: t("warning.triggering", "Đang bắt đầu cảnh báo"),
+              variant: "warning" as const,
+            }
           : alert && ["triggered", "acknowledged"].includes(alert.state)
-            ? { label: "Cảnh báo đã kích hoạt", variant: "danger" as const }
+            ? {
+                label: t("warning.triggered", "Cảnh báo đã kích hoạt"),
+                variant: "danger" as const,
+              }
             : countdownEnded
               ? {
-                  label: "Đang đồng bộ trạng thái",
+                  label: t("warning.syncing", "Đang đồng bộ trạng thái"),
                   variant: "warning" as const,
                 }
-              : { label: "Sắp gửi cảnh báo", variant: "warning" as const };
+              : {
+                  label: t("warning.sendingSoon", "Sắp gửi cảnh báo"),
+                  variant: "warning" as const,
+                };
 
   return (
     <Screen>
@@ -273,7 +326,10 @@ const WarningContent = ({ session }: { session: AuthSession }) => {
         <Badge label={badge.label} variant={badge.variant} />
         {env.dataMode === "fixture" ? (
           <Badge
-            label="Dữ liệu mẫu · không gửi cảnh báo thật"
+            label={t(
+              "warning.fixture",
+              "Dữ liệu mẫu · không gửi cảnh báo thật",
+            )}
             variant="warning"
           />
         ) : null}
@@ -281,24 +337,30 @@ const WarningContent = ({ session }: { session: AuthSession }) => {
 
       <Text accessibilityRole="header" style={styles.heading}>
         {terminalAlert
-          ? "Trạng thái cảnh báo đã kết thúc"
+          ? t("warning.terminalTitle", "Trạng thái cảnh báo đã kết thúc")
           : alert?.source === "sos"
-            ? "Yêu cầu trợ giúp đang được xử lý"
+            ? t("warning.sosTitle", "Yêu cầu trợ giúp đang được xử lý")
             : alert?.source === "drill"
-              ? "Đây là một lượt diễn tập"
-              : "Bạn chưa xác nhận an toàn"}
+              ? t("warning.drillTitle", "Đây là một lượt diễn tập")
+              : t("warning.deadlineTitle", "Bạn chưa xác nhận an toàn")}
       </Text>
 
       {isDeadlineAlert ? (
         <View style={styles.countdownArea}>
           <Text
-            accessibilityLabel={`Thời gian còn lại ${formatAlertCountdown(remainingMs)}`}
+            accessibilityLabel={t(
+              "warning.countdownA11y",
+              "Thời gian còn lại {time}",
+              { time: formatAlertCountdown(remainingMs, locale) },
+            )}
             style={styles.countdown}
           >
-            {formatAlertCountdown(remainingMs)}
+            {formatAlertCountdown(remainingMs, locale)}
           </Text>
           <Text style={styles.centerCopy}>
-            trước khi thông báo cho {firstContact}
+            {t("warning.beforeContact", "trước khi thông báo cho {name}", {
+              name: firstContact,
+            })}
           </Text>
         </View>
       ) : null}
@@ -307,22 +369,30 @@ const WarningContent = ({ session }: { session: AuthSession }) => {
         <View style={styles.infoRow}>
           <AppIcon color={colors.textSecondary} name="schedule" />
           <Text style={styles.infoText}>
-            Hạn điểm danh: {formatAlertTimestamp(triggerAt, timezone)}
+            {t("warning.checkInDeadline", "Hạn điểm danh: {time}", {
+              time: formatAlertTimestamp(triggerAt, timezone, locale),
+            })}
           </Text>
         </View>
         <View style={styles.divider} />
         <View style={styles.infoRow}>
           <AppIcon color={colors.textSecondary} name="person-outline" />
-          <Text style={styles.infoText}>Liên hệ đầu tiên: {firstContact}</Text>
+          <Text style={styles.infoText}>
+            {t("warning.firstContact", "Liên hệ đầu tiên: {name}", {
+              name: firstContact,
+            })}
+          </Text>
         </View>
         <View style={styles.divider} />
         <View style={styles.infoRow}>
           <AppIcon color={colors.textSecondary} name="mail-outline" />
           <Text style={styles.infoText}>
-            Kênh hiện tại:{" "}
-            {channelsCopy(
-              alert?.delivery.channels ?? projection.channelSummary.deadline,
-            )}
+            {t("warning.currentChannels", "Kênh hiện tại: {channels}", {
+              channels: channelsCopy(
+                alert?.delivery.channels ?? projection.channelSummary.deadline,
+                locale,
+              ),
+            })}
           </Text>
         </View>
       </Card>
@@ -331,20 +401,32 @@ const WarningContent = ({ session }: { session: AuthSession }) => {
         <Card style={styles.deliveryCard}>
           <Text accessibilityLiveRegion="polite" style={styles.deliveryText}>
             {alert.correction.status === "queued"
-              ? "Bạn đã xác nhận an toàn. Máy chủ đang xếp hàng gửi đính chính tới các liên hệ."
+              ? t(
+                  "warning.correctionQueued",
+                  "Bạn đã xác nhận an toàn. Máy chủ đang xếp hàng gửi đính chính tới các liên hệ.",
+                )
               : alert.correction.status === "sent"
-                ? "Máy chủ đã gửi đính chính tới các liên hệ từng nhận cảnh báo."
+                ? t(
+                    "warning.correctionSent",
+                    "Máy chủ đã gửi đính chính tới các liên hệ từng nhận cảnh báo.",
+                  )
                 : alert.correction.status === "failed"
-                  ? "Đính chính chưa gửi được. Hệ thống cần thử lại hoặc được kiểm tra."
-                  : deliveryStatusCopy[alert.delivery.status]}
+                  ? t(
+                      "warning.correctionFailed",
+                      "Đính chính chưa gửi được. Hệ thống cần thử lại hoặc được kiểm tra.",
+                    )
+                  : deliveryStatusText(alert.delivery.status, locale)}
           </Text>
         </Card>
       ) : null}
 
       <Button
-        accessibilityLabel="Xác nhận tôi vẫn ổn từ màn hình cảnh báo"
+        accessibilityLabel={t(
+          "warning.checkInA11y",
+          "Xác nhận tôi vẫn ổn từ màn hình cảnh báo",
+        )}
         disabled={!projection.availableActions.canCheckIn}
-        label="Tôi vẫn ổn"
+        label={t("checkIn.button", "Tôi vẫn ổn")}
         loading={checkInMutation.isPending}
         onPress={() => checkInMutation.mutate()}
       />
@@ -352,8 +434,11 @@ const WarningContent = ({ session }: { session: AuthSession }) => {
       {checkInMutation.error ? (
         <Card style={styles.errorCard}>
           <Text accessibilityLiveRegion="assertive" style={styles.errorText}>
-            {checkInErrorMessage(checkInMutation.error)} Cảnh báo cũ chưa được
-            app tự hủy.
+            {checkInErrorMessage(checkInMutation.error, locale)}{" "}
+            {t(
+              "warning.oldAlertNotCancelled",
+              "Cảnh báo cũ chưa được app tự hủy.",
+            )}
           </Text>
         </Card>
       ) : null}
@@ -362,11 +447,14 @@ const WarningContent = ({ session }: { session: AuthSession }) => {
         <Button
           accessibilityLabel={
             snoozeDurations.length
-              ? "Mở lựa chọn tạm hoãn có thời hạn"
-              : "Không thể tạm hoãn ở trạng thái hiện tại"
+              ? t("warning.openSnoozeA11y", "Mở lựa chọn tạm hoãn có thời hạn")
+              : t(
+                  "warning.snoozeUnavailableA11y",
+                  "Không thể tạm hoãn ở trạng thái hiện tại",
+                )
           }
           disabled={snoozeDurations.length === 0}
-          label="Tạm hoãn"
+          label={t("warning.snooze", "Tạm hoãn")}
           onPress={() => {
             snoozeMutation.reset();
             setSnoozeOpen(true);
@@ -376,21 +464,29 @@ const WarningContent = ({ session }: { session: AuthSession }) => {
       ) : null}
 
       <Button
-        accessibilityLabel="Xem tất cả liên hệ sẽ được báo"
-        label="Xem tất cả liên hệ sẽ được báo"
+        accessibilityLabel={t(
+          "warning.viewContactsA11y",
+          "Xem tất cả liên hệ sẽ được báo",
+        )}
+        label={t("warning.viewContacts", "Xem tất cả liên hệ sẽ được báo")}
         onPress={() => router.push("/contacts")}
         variant="secondary"
       />
 
       <Text style={styles.explanation}>
-        Nếu bạn không phản hồi, I&apos;m Okay sẽ bắt đầu quy trình cảnh báo tự
-        động. Ứng dụng không tự gọi dịch vụ cứu hộ.
+        {t(
+          "warning.explanation",
+          "Nếu bạn không phản hồi, I'm Okay sẽ bắt đầu quy trình cảnh báo tự động. Ứng dụng không tự gọi dịch vụ cứu hộ.",
+        )}
       </Text>
 
       {contextQuery.isError ? (
         <Card muted>
           <Text accessibilityLiveRegion="polite" style={styles.staleText}>
-            Chưa thể làm mới. Trạng thái đang hiển thị là lần đồng bộ gần nhất.
+            {t(
+              "warning.stale",
+              "Chưa thể làm mới. Trạng thái đang hiển thị là lần đồng bộ gần nhất.",
+            )}
           </Text>
         </Card>
       ) : null}
@@ -399,7 +495,7 @@ const WarningContent = ({ session }: { session: AuthSession }) => {
         durations={snoozeDurations}
         error={
           snoozeMutation.error
-            ? `${alertErrorMessage(snoozeMutation.error)} Tạm hoãn chưa được xác nhận.`
+            ? `${alertErrorMessage(snoozeMutation.error, locale)} ${t("warning.snoozeNotConfirmed", "Tạm hoãn chưa được xác nhận.")}`
             : undefined
         }
         loading={snoozeMutation.isPending}

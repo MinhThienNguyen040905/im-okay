@@ -1,9 +1,10 @@
 import { StyleSheet, Text, View } from "react-native";
 
 import { AppIcon, Badge, Button, Card, Screen } from "@/components";
+import { useI18n } from "@/features/i18n/I18nProvider";
 import { colors, radii, spacing, typography } from "@/theme";
 
-import { deliveryStatusCopy } from "./presentation";
+import { deliveryStatusText } from "./presentation";
 import type { AlertContextSnapshot, AlertSource } from "./types";
 
 type AlertAcceptedStateProps = {
@@ -19,13 +20,17 @@ export const AlertAcceptedState = ({
   snapshot,
   source,
 }: AlertAcceptedStateProps) => {
+  const { locale, t } = useI18n();
   const alert = snapshot.projection.currentAlert;
   const isDrill = source === "drill";
   return (
     <Screen>
       {isDrill ? (
         <View style={styles.centered}>
-          <Badge label="DIỄN TẬP · KHÔNG PHẢI SOS" variant="neutral" />
+          <Badge
+            label={t("alerts.acceptedDrillBadge", "DIỄN TẬP · KHÔNG PHẢI SOS")}
+            variant="neutral"
+          />
         </View>
       ) : null}
       <View style={isDrill ? styles.drillIcon : styles.successIcon}>
@@ -41,36 +46,60 @@ export const AlertAcceptedState = ({
         style={styles.title}
       >
         {isDrill
-          ? "Máy chủ đã tiếp nhận lượt diễn tập"
-          : "Máy chủ đã tiếp nhận yêu cầu trợ giúp"}
+          ? t("alerts.acceptedDrillTitle", "Máy chủ đã tiếp nhận lượt diễn tập")
+          : t(
+              "alerts.acceptedSosTitle",
+              "Máy chủ đã tiếp nhận yêu cầu trợ giúp",
+            )}
       </Text>
       <Text style={styles.body}>
         {snapshot.projection.contactSummary.displayNames.length > 0
-          ? `${isDrill ? "Nhãn diễn tập" : "Yêu cầu"} đang được xử lý cho ${snapshot.projection.contactSummary.displayNames.join(", ")}.`
-          : "Chưa có liên hệ đủ điều kiện nhận thông báo."}
+          ? t(
+              "alerts.acceptedRecipients",
+              "{label} đang được xử lý cho {names}.",
+              {
+                label: isDrill
+                  ? t("alerts.acceptedDrillLabel", "Nhãn diễn tập")
+                  : t("alerts.acceptedRequestLabel", "Yêu cầu"),
+                names:
+                  snapshot.projection.contactSummary.displayNames.join(", "),
+              },
+            )
+          : t(
+              "alerts.noEligibleContacts",
+              "Chưa có liên hệ đủ điều kiện nhận thông báo.",
+            )}
       </Text>
       <Card muted>
         <View style={styles.infoRow}>
           <AppIcon color={colors.textSecondary} name="info-outline" />
           <Text accessibilityLiveRegion="polite" style={styles.infoText}>
             {alert
-              ? deliveryStatusCopy[alert.delivery.status]
-              : "Máy chủ chưa trả về alert projection."}
+              ? deliveryStatusText(alert.delivery.status, locale)
+              : t(
+                  "alerts.noProjection",
+                  "Máy chủ chưa trả về alert projection.",
+                )}
           </Text>
         </View>
       </Card>
       <Text style={styles.disclaimer}>
-        I’m Okay không tự gọi dịch vụ cứu hộ và không chia sẻ vị trí. Trạng thái
-        gửi không đồng nghĩa người thân đã đọc hoặc nhận xử lý.
+        {t(
+          "alerts.acceptedDisclaimer",
+          "I’m Okay không tự gọi dịch vụ cứu hộ và không chia sẻ vị trí. Trạng thái gửi không đồng nghĩa người thân đã đọc hoặc nhận xử lý.",
+        )}
       </Text>
       <Button
-        accessibilityLabel="Về Trang chủ"
-        label="Về Trang chủ"
+        accessibilityLabel={t("warning.home", "Về Trang chủ")}
+        label={t("warning.home", "Về Trang chủ")}
         onPress={onHome}
       />
       <Button
-        accessibilityLabel="Xem trạng thái cảnh báo"
-        label="Xem trạng thái cảnh báo"
+        accessibilityLabel={t(
+          "alerts.viewStatusA11y",
+          "Xem trạng thái cảnh báo",
+        )}
+        label={t("alerts.viewStatus", "Xem trạng thái cảnh báo")}
         onPress={onStatus}
         variant="secondary"
       />

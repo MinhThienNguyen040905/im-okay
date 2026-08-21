@@ -13,6 +13,7 @@ import {
   useAccessibilityPreferences,
 } from "@/features/accessibility/AccessibilityProvider";
 import { useAccessibilityFocus } from "@/features/accessibility/focus";
+import { useI18n } from "@/features/i18n/I18nProvider";
 import { colors, radii, spacing, typography } from "@/theme";
 
 import { formatCheckInOutcomeMessage } from "./presentation";
@@ -32,8 +33,9 @@ export const CheckInSuccessSheet = ({
   visible,
 }: CheckInSuccessSheetProps) => {
   const { reduceMotionEnabled } = useAccessibilityPreferences();
+  const { locale, t } = useI18n();
   const { focus, ref } = useAccessibilityFocus<Text>(
-    "Máy chủ đã ghi nhận lần xác nhận an toàn.",
+    t("checkIn.successFocus", "Máy chủ đã ghi nhận lần xác nhận an toàn."),
   );
 
   return (
@@ -45,7 +47,7 @@ export const CheckInSuccessSheet = ({
       visible={visible}
     >
       <Pressable
-        accessibilityLabel="Đóng xác nhận"
+        accessibilityLabel={t("checkIn.closeConfirmation", "Đóng xác nhận")}
         onPress={onClose}
         style={styles.backdrop}
       >
@@ -64,17 +66,25 @@ export const CheckInSuccessSheet = ({
               ref={ref}
               style={styles.title}
             >
-              Máy chủ đã ghi nhận
+              {t("checkIn.recorded", "Máy chủ đã ghi nhận")}
             </Text>
             <Text accessibilityLiveRegion="polite" style={styles.message}>
               {formatCheckInOutcomeMessage(
                 alertOutcome,
-                `Lần xác nhận của bạn đã thành công. Thời hạn tiếp theo: ${nextDeadline}.`,
+                t(
+                  "checkIn.successFallback",
+                  "Lần xác nhận của bạn đã thành công. Thời hạn tiếp theo: {time}.",
+                  { time: nextDeadline },
+                ),
+                locale,
               )}
             </Text>
             <Button
-              accessibilityLabel="Đóng thông báo xác nhận thành công"
-              label="Đóng"
+              accessibilityLabel={t(
+                "checkIn.closeSuccessA11y",
+                "Đóng thông báo xác nhận thành công",
+              )}
+              label={t("checkIn.close", "Đóng")}
               onPress={onClose}
               testID="check-in-success-close"
             />

@@ -2,6 +2,7 @@ import { ActivityIndicator, Pressable, StyleSheet, Text } from "react-native";
 
 import { AppIcon } from "@/components";
 import { useAccessibilityPreferences } from "@/features/accessibility/AccessibilityProvider";
+import { useI18n } from "@/features/i18n/I18nProvider";
 import { colors, radii, spacing, typography } from "@/theme";
 
 type CheckInButtonProps = {
@@ -17,11 +18,19 @@ export const CheckInButton = ({
 }: CheckInButtonProps) => {
   const isDisabled = disabled || loading;
   const { reduceMotionEnabled } = useAccessibilityPreferences();
+  const { t } = useI18n();
 
   return (
     <Pressable
-      accessibilityHint="Gửi xác nhận tới máy chủ và chờ phản hồi"
-      accessibilityLabel={loading ? "Đang ghi nhận xác nhận" : "Tôi vẫn ổn"}
+      accessibilityHint={t(
+        "checkIn.submitHint",
+        "Gửi xác nhận tới máy chủ và chờ phản hồi",
+      )}
+      accessibilityLabel={
+        loading
+          ? t("checkIn.recordingA11y", "Đang ghi nhận xác nhận")
+          : t("checkIn.button", "Tôi vẫn ổn")
+      }
       accessibilityRole="button"
       accessibilityState={{ busy: loading, disabled: isDisabled }}
       disabled={isDisabled}
@@ -43,7 +52,9 @@ export const CheckInButton = ({
         />
       )}
       <Text style={styles.label}>
-        {loading ? "Đang ghi nhận…" : "Tôi vẫn ổn"}
+        {loading
+          ? t("checkIn.recording", "Đang ghi nhận…")
+          : t("checkIn.button", "Tôi vẫn ổn")}
       </Text>
     </Pressable>
   );

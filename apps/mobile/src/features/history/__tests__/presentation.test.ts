@@ -28,6 +28,7 @@ describe("history presentation", () => {
   it("labels drill in text in addition to color", () => {
     expect(historyCopy(items[1]!).drill).toBe(true);
     expect(historyCopy(items[1]!).title).toContain("Diễn tập");
+    expect(historyCopy(items[1]!, "en").title).toContain("drill");
   });
 
   it("groups days in the account timezone", () => {

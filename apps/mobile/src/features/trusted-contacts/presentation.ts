@@ -1,4 +1,5 @@
 import type { Badge } from "@/components";
+import { translate, type AppLocale } from "@/features/i18n/I18nProvider";
 
 import type { InvitationStatus, TrustedContact } from "./types";
 
@@ -13,6 +14,34 @@ export const invitationStatusPresentation: Record<
   declined: { label: "Đã từ chối", variant: "danger" },
   expired: { label: "Lời mời hết hạn", variant: "danger" },
   revoked: { label: "Lời mời đã thu hồi", variant: "neutral" },
+};
+
+export const invitationStatusCopy = (
+  status: InvitationStatus,
+  locale: AppLocale = "vi",
+) => {
+  const copy: Record<
+    InvitationStatus,
+    readonly [
+      key:
+        | "contacts.statusAccepted"
+        | "contacts.statusPending"
+        | "contacts.statusDeclined"
+        | "contacts.statusExpired"
+        | "contacts.statusRevoked",
+      fallback: string,
+    ]
+  > = {
+    accepted: ["contacts.statusAccepted", "Đã xác nhận"],
+    pending: ["contacts.statusPending", "Đang chờ"],
+    declined: ["contacts.statusDeclined", "Đã từ chối"],
+    expired: ["contacts.statusExpired", "Lời mời hết hạn"],
+    revoked: ["contacts.statusRevoked", "Lời mời đã thu hồi"],
+  };
+  return {
+    ...invitationStatusPresentation[status],
+    label: translate(copy[status][0], copy[status][1], {}, locale),
+  };
 };
 
 export const moveContactIds = (
@@ -37,9 +66,24 @@ export const moveContactIds = (
   return ordered.map(({ id }) => id);
 };
 
-export const formatResendCooldown = (remainingMs: number | null) => {
+export const formatResendCooldown = (
+  remainingMs: number | null,
+  locale: AppLocale = "vi",
+) => {
   if (!remainingMs) return null;
   const seconds = Math.max(1, Math.ceil(remainingMs / 1_000));
-  if (seconds < 60) return `${seconds} giây`;
-  return `${Math.ceil(seconds / 60)} phút`;
+  if (seconds < 60) {
+    return translate(
+      "contacts.seconds",
+      "{count} giây",
+      { count: seconds },
+      locale,
+    );
+  }
+  return translate(
+    "contacts.minutes",
+    "{count} phút",
+    { count: Math.ceil(seconds / 60) },
+    locale,
+  );
 };

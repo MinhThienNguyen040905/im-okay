@@ -17,25 +17,35 @@ import {
 import { env } from "@/config/env";
 import { useAuth } from "@/features/auth/AuthProvider";
 import { LanguageSwitcher } from "@/features/i18n/LanguageSwitcher";
-import { translate, useI18n } from "@/features/i18n/I18nProvider";
+import {
+  translate,
+  useI18n,
+  type AppLocale,
+} from "@/features/i18n/I18nProvider";
 import { colors, radii, spacing, typography } from "@/theme";
 
-const formSchema = z.object({
-  email: z.email(
-    translate("auth.invalidEmail", "Hãy nhập một địa chỉ email hợp lệ."),
-  ),
-});
+const formSchema = (locale: AppLocale) =>
+  z.object({
+    email: z.email(
+      translate(
+        "auth.invalidEmail",
+        "Hãy nhập một địa chỉ email hợp lệ.",
+        {},
+        locale,
+      ),
+    ),
+  });
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<ReturnType<typeof formSchema>>;
 
 export default function SignInScreen() {
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
   const router = useRouter();
   const auth = useAuth();
   const [sentTo, setSentTo] = useState<string | null>(null);
   const { control, handleSubmit } = useForm<FormValues>({
     defaultValues: { email: "" },
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(formSchema(locale)),
   });
 
   useEffect(() => {

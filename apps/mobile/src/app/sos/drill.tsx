@@ -29,20 +29,26 @@ import {
 } from "@/features/alerts/types";
 import { useAuth } from "@/features/auth/AuthProvider";
 import type { AuthSession } from "@/features/auth/types";
+import {
+  translate,
+  useI18n,
+  type AppLocale,
+} from "@/features/i18n/I18nProvider";
 import { colors, radii, spacing, typography } from "@/theme";
 
-const errorMessage = (error: unknown) =>
-  error instanceof AlertsApiError
-    ? error.message
-    : "Chưa thể xử lý lượt diễn tập.";
+const errorMessage = (_error: unknown, locale: AppLocale) =>
+  translate("drill.error", "Chưa thể xử lý lượt diễn tập.", {}, locale);
 
 const DrillContent = ({ session }: { session: AuthSession }) => {
+  const { locale, t } = useI18n();
   const api = useMemo(() => createAlertsApi(session), [session]);
   const queryClient = useQueryClient();
   const router = useRouter();
   const [armed, setArmed] = useState(false);
   const { focus: focusConfirmation, ref: confirmationTitleRef } =
-    useAccessibilityFocus<Text>("Bước hai trên hai, xác nhận diễn tập.");
+    useAccessibilityFocus<Text>(
+      t("drill.focus", "Bước hai trên hai, xác nhận diễn tập."),
+    );
   const [accepted, setAccepted] = useState<AlertContextSnapshot | null>(null);
   const queryKey = alertContextQueryKey(session.user.id);
 
@@ -91,7 +97,7 @@ const DrillContent = ({ session }: { session: AuthSession }) => {
   if (contextQuery.isPending) {
     return (
       <Screen scrollable={false}>
-        <LoadingState label="Đang chuẩn bị diễn tập…" />
+        <LoadingState label={t("drill.loading", "Đang chuẩn bị diễn tập…")} />
       </Screen>
     );
   }
@@ -100,9 +106,9 @@ const DrillContent = ({ session }: { session: AuthSession }) => {
     return (
       <Screen scrollable={false}>
         <ErrorState
-          message={errorMessage(contextQuery.error)}
+          message={errorMessage(contextQuery.error, locale)}
           onRetry={refresh}
-          title="Chưa thể chuẩn bị diễn tập"
+          title={t("drill.unavailable", "Chưa thể chuẩn bị diễn tập")}
         />
       </Screen>
     );
@@ -116,10 +122,13 @@ const DrillContent = ({ session }: { session: AuthSession }) => {
   return (
     <Screen>
       <View style={styles.centered}>
-        <Badge label="DIỄN TẬP · KHÔNG PHẢI SOS" variant="neutral" />
+        <Badge
+          label={t("drill.badge", "DIỄN TẬP · KHÔNG PHẢI SOS")}
+          variant="neutral"
+        />
         {env.dataMode === "fixture" ? (
           <Badge
-            label="Dữ liệu mẫu · không gửi thông báo thật"
+            label={t("drill.fixture", "Dữ liệu mẫu · không gửi thông báo thật")}
             variant="warning"
           />
         ) : null}
@@ -128,37 +137,50 @@ const DrillContent = ({ session }: { session: AuthSession }) => {
         <AppIcon color={colors.primary} name="science" size={44} />
       </View>
       <Text accessibilityRole="header" style={styles.heading}>
-        Kiểm tra quy trình với nhãn diễn tập
+        {t("drill.title", "Kiểm tra quy trình với nhãn diễn tập")}
       </Text>
       <Text style={styles.intro}>
-        Mọi projection và thông báo của lượt này phải mang source “drill” để
-        không bị hiểu nhầm là bạn đang gặp nguy hiểm.
+        {t(
+          "drill.intro",
+          "Mọi projection và thông báo của lượt này phải mang source “drill” để không bị hiểu nhầm là bạn đang gặp nguy hiểm.",
+        )}
       </Text>
 
       <Card muted>
         <Text style={styles.infoText}>
-          {projection.contactSummary.eligibleCount} liên hệ đã xác nhận sẽ nhận
-          nội dung có nhãn DIỄN TẬP.
+          {t(
+            "drill.eligibleContacts",
+            "{count} liên hệ đã xác nhận sẽ nhận nội dung có nhãn DIỄN TẬP.",
+            { count: projection.contactSummary.eligibleCount },
+          )}
         </Text>
         <Text style={styles.infoText}>
-          Không tự gọi dịch vụ cứu hộ và không chia sẻ vị trí.
+          {t(
+            "drill.noEmergency",
+            "Không tự gọi dịch vụ cứu hộ và không chia sẻ vị trí.",
+          )}
         </Text>
       </Card>
 
       {!canSend ? (
         <Card style={styles.warningCard}>
           <Text accessibilityLiveRegion="polite" style={styles.warningText}>
-            Chưa thể diễn tập: cần ít nhất một liên hệ đã xác nhận và không có
-            alert khác đang hoạt động.
+            {t(
+              "drill.unavailableBody",
+              "Chưa thể diễn tập: cần ít nhất một liên hệ đã xác nhận và không có alert khác đang hoạt động.",
+            )}
           </Text>
         </Card>
       ) : null}
 
       {!armed ? (
         <Button
-          accessibilityLabel="Bước một, chuẩn bị xác nhận diễn tập"
+          accessibilityLabel={t(
+            "drill.armA11y",
+            "Bước một, chuẩn bị xác nhận diễn tập",
+          )}
           disabled={!canSend}
-          label="Bước 1 · Chuẩn bị diễn tập"
+          label={t("drill.arm", "Bước 1 · Chuẩn bị diễn tập")}
           onPress={() => {
             drillMutation.reset();
             setArmed(true);
@@ -173,22 +195,27 @@ const DrillContent = ({ session }: { session: AuthSession }) => {
             ref={confirmationTitleRef}
             style={styles.confirmTitle}
           >
-            Bước 2/2 · Xác nhận diễn tập
+            {t("drill.confirmTitle", "Bước 2/2 · Xác nhận diễn tập")}
           </Text>
           <Text style={styles.infoText}>
-            Nút tiếp theo tạo một alert loại drill trên máy chủ. Nội dung gửi ra
-            phải luôn có nhãn diễn tập.
+            {t(
+              "drill.confirmBody",
+              "Nút tiếp theo tạo một alert loại drill trên máy chủ. Nội dung gửi ra phải luôn có nhãn diễn tập.",
+            )}
           </Text>
           <Button
-            accessibilityLabel="Bước hai, xác nhận gửi diễn tập tới máy chủ"
-            label="Xác nhận gửi diễn tập"
+            accessibilityLabel={t(
+              "drill.confirmA11y",
+              "Bước hai, xác nhận gửi diễn tập tới máy chủ",
+            )}
+            label={t("drill.confirm", "Xác nhận gửi diễn tập")}
             loading={drillMutation.isPending}
             onPress={() => drillMutation.mutate()}
           />
           <Button
-            accessibilityLabel="Hủy xác nhận diễn tập"
+            accessibilityLabel={t("drill.cancelA11y", "Hủy xác nhận diễn tập")}
             disabled={drillMutation.isPending}
-            label="Quay lại"
+            label={t("common.back", "Quay lại")}
             onPress={() => setArmed(false)}
             variant="secondary"
           />
@@ -198,12 +225,18 @@ const DrillContent = ({ session }: { session: AuthSession }) => {
       {drillMutation.error ? (
         <Card style={styles.errorCard}>
           <Text accessibilityLiveRegion="assertive" style={styles.errorText}>
-            {errorMessage(drillMutation.error)} Không hiển thị hoàn tất khi máy
-            chủ chưa xác nhận source drill.
+            {errorMessage(drillMutation.error, locale)}{" "}
+            {t(
+              "drill.notConfirmed",
+              "Không hiển thị hoàn tất khi máy chủ chưa xác nhận source drill.",
+            )}
           </Text>
           <Button
-            accessibilityLabel="Kiểm tra trạng thái diễn tập"
-            label="Kiểm tra trạng thái"
+            accessibilityLabel={t(
+              "drill.checkA11y",
+              "Kiểm tra trạng thái diễn tập",
+            )}
+            label={t("sos.checkStatus", "Kiểm tra trạng thái")}
             onPress={refresh}
             variant="secondary"
           />
@@ -211,9 +244,9 @@ const DrillContent = ({ session }: { session: AuthSession }) => {
       ) : null}
 
       <Button
-        accessibilityLabel="Đóng diễn tập mà không gửi"
+        accessibilityLabel={t("drill.closeA11y", "Đóng diễn tập mà không gửi")}
         disabled={drillMutation.isPending}
-        label="Hủy — không gửi diễn tập"
+        label={t("drill.close", "Hủy — không gửi diễn tập")}
         onPress={() => router.back()}
         variant="secondary"
       />

@@ -10,6 +10,7 @@ import {
 
 import { AppIcon } from "@/components";
 import { useAccessibilityPreferences } from "@/features/accessibility/AccessibilityProvider";
+import { useI18n } from "@/features/i18n/I18nProvider";
 import { colors, radii, sizes, spacing, typography } from "@/theme";
 
 const HOLD_DURATION_MS = 3_000;
@@ -26,6 +27,7 @@ export const SosHoldButton = ({
   loading = false,
   onComplete,
 }: SosHoldButtonProps) => {
+  const { t } = useI18n();
   const [progress, setProgress] = useState(0);
   const { reduceMotionEnabled } = useAccessibilityPreferences();
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -93,8 +95,11 @@ export const SosHoldButton = ({
   return (
     <View style={styles.wrapper}>
       <Pressable
-        accessibilityHint="Giữ liên tục đủ ba giây. Thả tay trước thời gian sẽ hủy."
-        accessibilityLabel="Giữ 3 giây để gửi SOS"
+        accessibilityHint={t(
+          "sos.holdHint",
+          "Giữ liên tục đủ ba giây. Thả tay trước thời gian sẽ hủy.",
+        )}
+        accessibilityLabel={t("sos.holdA11y", "Giữ 3 giây để gửi SOS")}
         accessibilityRole="button"
         accessibilityState={{ busy: loading, disabled: isDisabled }}
         disabled={isDisabled}
@@ -115,19 +120,27 @@ export const SosHoldButton = ({
           <AppIcon color={colors.onPrimary} name="touch-app" />
           <Text style={styles.label}>
             {loading
-              ? "Đang chờ máy chủ…"
+              ? t("home.pending", "Đang chờ máy chủ…")
               : progress > 0
-                ? `Tiếp tục giữ · ${percentage}%`
-                : "Giữ 3 giây để gửi SOS"}
+                ? t("sos.holding", "Tiếp tục giữ · {percentage}%", {
+                    percentage,
+                  })
+                : t("sos.holdA11y", "Giữ 3 giây để gửi SOS")}
           </Text>
         </View>
       </Pressable>
       <View
-        accessibilityLabel={`Tiến trình giữ ${percentage}%`}
+        accessibilityLabel={t(
+          "sos.holdingProgressA11y",
+          "Tiến trình giữ {percentage}%",
+          { percentage },
+        )}
         accessibilityRole="progressbar"
         accessibilityValue={{ min: 0, max: 100, now: percentage }}
       />
-      <Text style={styles.instruction}>Thả tay để hủy</Text>
+      <Text style={styles.instruction}>
+        {t("sos.release", "Thả tay để hủy")}
+      </Text>
     </View>
   );
 };
