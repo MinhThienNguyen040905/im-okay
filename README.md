@@ -169,6 +169,7 @@ window với recipient/device đã đồng thuận và operator đã xác minh k
 | Nhu cầu                   | Tài liệu                                                                                   |
 | ------------------------- | ------------------------------------------------------------------------------------------ |
 | Tiến độ và việc tiếp theo | [`docs/PROJECT-STATUS.md`](docs/PROJECT-STATUS.md)                                         |
+| Hướng dẫn sử dụng app     | [`docs/USER-GUIDE.md`](docs/USER-GUIDE.md)                                                 |
 | Hướng dẫn agent           | [`AGENTS.md`](AGENTS.md)                                                                   |
 | UI/UX                     | [`design/stitch/README.md`](design/stitch/README.md)                                       |
 | Design tokens             | [`design/stitch/DESIGN.md`](design/stitch/DESIGN.md)                                       |

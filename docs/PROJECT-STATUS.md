@@ -170,6 +170,7 @@ Các lệnh staging có thể cần env/secret của operator. Không chép secr
 ## Tài liệu liên quan
 
 - Tổng quan và setup: `README.md`.
+- Hướng dẫn người dùng mobile: `docs/USER-GUIDE.md`.
 - Hướng dẫn session mới: `AGENTS.md`.
 - Thiết kế: `design/stitch/README.md` và `design/stitch/DESIGN.md`.
 - Quyết định kiến trúc: `docs/adr/`.
