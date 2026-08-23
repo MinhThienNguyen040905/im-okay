@@ -27,6 +27,13 @@ export type AlertProjection = {
   deadlineAt?: string;
   endedAt?: string | null;
   lastCheckInAt?: string | null;
+  location?: {
+    accuracyMeters: number;
+    capturedAt: string;
+    latitude: number;
+    longitude: number;
+    source: "check_in" | "sos";
+  } | null;
   ownerDisplayName?: string;
   priority?: number;
   responseAction?: string | null;

@@ -4,6 +4,7 @@ import * as Notifications from "expo-notifications";
 import { AppState } from "react-native";
 
 import type { AuthSession } from "@/features/auth/types";
+import type { LocationShareInput } from "@/features/location/types";
 
 import { createCheckInApi } from "./api";
 import {
@@ -55,9 +56,12 @@ export const useAuthoritativeCheckIn = (
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async () => {
-      const idempotencyKey = await getOrCreateCheckInAttempt(session.user.id);
-      return api.checkIn(idempotencyKey);
+    mutationFn: async (location: LocationShareInput | null = null) => {
+      const attempt = await getOrCreateCheckInAttempt(
+        session.user.id,
+        location,
+      );
+      return api.checkIn(attempt.idempotencyKey, attempt.location);
     },
     onSuccess: async (snapshot) => {
       await clearCheckInAttempt(session.user.id);

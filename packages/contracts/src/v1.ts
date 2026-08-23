@@ -55,7 +55,16 @@ export const safetyPlanInputSchema = z.object({
   checkInIntervalHours: intervalSchema,
 });
 
-export const checkInInputSchema = z.object({ source: z.literal("mobile") });
+export const locationShareInputSchema = z.object({
+  accuracyMeters: z.number().finite().positive().max(50_000),
+  latitude: z.number().finite().min(-90).max(90),
+  longitude: z.number().finite().min(-180).max(180),
+});
+
+export const checkInInputSchema = z.object({
+  location: locationShareInputSchema.optional(),
+  source: z.literal("mobile"),
+});
 
 export const trustedContactInputSchema = z.object({
   consentConfirmed: z.literal(true),
@@ -120,6 +129,16 @@ export const publicAlertProjectionSchema = z.object({
   deadlineAt: timestampSchema.optional(),
   endedAt: timestampSchema.nullable().optional(),
   lastCheckInAt: timestampSchema.nullable().optional(),
+  location: z
+    .object({
+      accuracyMeters: z.number().positive(),
+      capturedAt: timestampSchema,
+      latitude: z.number().min(-90).max(90),
+      longitude: z.number().min(-180).max(180),
+      source: z.enum(["check_in", "sos"]),
+    })
+    .nullable()
+    .optional(),
   ownerDisplayName: z.string().max(80).optional(),
   priority: z.number().int().min(1).max(3).optional(),
   responseAction: z

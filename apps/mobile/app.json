@@ -29,6 +29,12 @@
           "defaultChannel": "safety-reminders"
         }
       ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Cho phép I'm Okay lấy vị trí hiện tại khi bạn chủ động chọn chia sẻ cùng SOS hoặc check-in."
+        }
+      ],
       "@sentry/react-native/expo"
     ],
     "experiments": {

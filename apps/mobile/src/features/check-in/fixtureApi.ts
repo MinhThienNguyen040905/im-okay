@@ -93,7 +93,7 @@ export const createFixtureCheckInApi = (session: AuthSession): CheckInApi => ({
     return snapshot(safetyStatusSchema.parse(status), startedAtMs, Date.now());
   },
 
-  checkIn(idempotencyKey) {
+  checkIn(idempotencyKey, _location) {
     return serializeFixtureMutation(session.user.id, async () => {
       const startedAtMs = Date.now();
       const record = await readFixture(session.user.id);

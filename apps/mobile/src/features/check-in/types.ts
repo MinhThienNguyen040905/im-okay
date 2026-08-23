@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { locationShareInputSchema } from "@/features/location/types";
+
 const timestampSchema = z.iso.datetime({ offset: true });
 const intervalSchema = z.union([z.literal(24), z.literal(36), z.literal(48)]);
 
@@ -54,7 +56,10 @@ export type SafetyStatusSnapshot = {
 
 export type CheckInApi = {
   getStatus: () => Promise<SafetyStatusSnapshot>;
-  checkIn: (idempotencyKey: string) => Promise<SafetyStatusSnapshot>;
+  checkIn: (
+    idempotencyKey: string,
+    location?: z.infer<typeof locationShareInputSchema> | null,
+  ) => Promise<SafetyStatusSnapshot>;
 };
 
 export type CheckInErrorKind = "offline" | "timeout" | "server" | "contract";

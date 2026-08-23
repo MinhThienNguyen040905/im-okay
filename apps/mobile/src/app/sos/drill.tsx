@@ -69,8 +69,8 @@ const DrillContent = ({ session }: { session: AuthSession }) => {
 
   const drillMutation = useMutation({
     mutationFn: async () => {
-      const key = await getOrCreateAlertAttempt(session.user.id, "drill");
-      return api.sendDrill(key);
+      const attempt = await getOrCreateAlertAttempt(session.user.id, "drill");
+      return api.sendDrill(attempt.idempotencyKey);
     },
     onSuccess: async (result) => {
       await clearAlertAttempt(session.user.id, "drill");

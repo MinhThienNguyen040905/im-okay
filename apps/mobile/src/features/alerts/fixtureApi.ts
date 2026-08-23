@@ -311,7 +311,7 @@ export const createFixtureAlertsApi = (session: AuthSession): AlertsApi => {
       });
     },
 
-    sendSos: (idempotencyKey) => sendAlert("sos", idempotencyKey),
+    sendSos: (idempotencyKey, _location) => sendAlert("sos", idempotencyKey),
     sendDrill: (idempotencyKey) => sendAlert("drill", idempotencyKey),
   };
 };

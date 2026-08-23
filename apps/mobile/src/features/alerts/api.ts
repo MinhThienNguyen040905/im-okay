@@ -170,9 +170,10 @@ export const createRemoteAlertsApi = (
       }
       return value;
     },
-    sendSos: async (idempotencyKey) =>
+    sendSos: async (idempotencyKey, location) =>
       assertAlertSource(
         await request("/alerts/sos", {
+          body: location ? { location } : {},
           method: "POST",
           key: idempotencyKey,
         }),

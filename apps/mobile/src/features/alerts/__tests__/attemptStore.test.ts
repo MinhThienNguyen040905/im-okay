@@ -19,9 +19,9 @@ describe("critical alert attempt store", () => {
 
   it("reuses the same SOS key during a retry window", async () => {
     randomUUID.mockReturnValue("11111111-1111-4111-8111-111111111111");
-    const first = await getOrCreateAlertAttempt("user-1", "sos", 1_000);
-    const retry = await getOrCreateAlertAttempt("user-1", "sos", 2_000);
-    expect(retry).toBe(first);
+    const first = await getOrCreateAlertAttempt("user-1", "sos", null, 1_000);
+    const retry = await getOrCreateAlertAttempt("user-1", "sos", null, 2_000);
+    expect(retry.idempotencyKey).toBe(first.idempotencyKey);
     expect(randomUUID).toHaveBeenCalledTimes(1);
   });
 
@@ -30,11 +30,14 @@ describe("critical alert attempt store", () => {
       .mockReturnValueOnce("11111111-1111-4111-8111-111111111111")
       .mockReturnValueOnce("22222222-2222-4222-8222-222222222222")
       .mockReturnValueOnce("33333333-3333-4333-8333-333333333333");
-    const sos = await getOrCreateAlertAttempt("user-1", "sos", 1_000);
-    const drill = await getOrCreateAlertAttempt("user-1", "drill", 1_000);
-    expect(drill).not.toBe(sos);
+    const sos = await getOrCreateAlertAttempt("user-1", "sos", null, 1_000);
+    const drill = await getOrCreateAlertAttempt("user-1", "drill", null, 1_000);
+    expect(drill.idempotencyKey).not.toBe(sos.idempotencyKey);
     await clearAlertAttempt("user-1", "sos");
-    expect(await getOrCreateAlertAttempt("user-1", "sos", 2_000)).not.toBe(sos);
+    expect(
+      (await getOrCreateAlertAttempt("user-1", "sos", null, 2_000))
+        .idempotencyKey,
+    ).not.toBe(sos.idempotencyKey);
   });
 
   it("retains only retryable uncertain outcomes", () => {

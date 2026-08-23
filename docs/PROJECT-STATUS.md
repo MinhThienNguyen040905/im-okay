@@ -3,7 +3,7 @@
 Đây là **nguồn duy nhất cho tiến độ hiện tại**. Cập nhật file này khi có build, deploy, test evidence,
 blocker hoặc thay đổi thứ tự ưu tiên. Không tạo thêm plan/roadmap tiến độ song song.
 
-Mốc cập nhật: **22/08/2026**.
+Mốc cập nhật: **23/08/2026**.
 
 ## Kết luận hiện tại
 
@@ -24,6 +24,12 @@ Google Play/App Store và chưa vượt toàn bộ gate của internal release.
 | Push/email E2E         | Đã chứng minh cho personal pilot      | Expo receipt và Gmail invitation/alert/correction đã pass trong supervised cycle                                                             |
 | Security baseline      | Đạt mức staging                       | JWT/actor/IDOR/RLS/public-token/rate-limit negative matrix đã pass                                                                           |
 | Store/internal release | Chưa hoàn thành                       | Chưa có Google Play Internal Testing hoặc TestFlight                                                                                         |
+
+## Chia sẻ vị trí theo sự kiện
+
+- Đã triển khai source cho vị trí một lần cùng SOS và vị trí tự nguyện cho đúng lần check-in; mặc định tắt, chỉ dùng foreground permission và không có background tracking.
+- Migration mới thêm `location_shares` với force RLS, expiry, validation, idempotency và public projection chỉ dành cho contact token đang active. Tọa độ không nằm trong notification/audit payload hoặc log.
+- Contact web chỉ hiển thị thời điểm/sai số cùng nút chủ động mở bản đồ. Cần chạy migration trên staging, build native mới, privacy-policy/Data Safety review và device verification trước khi coi feature sẵn sàng cho pilot.
 
 ## Trạng thái dữ liệu staging
 

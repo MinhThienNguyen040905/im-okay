@@ -620,6 +620,18 @@ export const englishMessages = {
   "app.restoringSession": "Restoring your secure session...",
   "home.loadingStatus": "Loading safety status",
   "sos.closeA11y": "Close without sending an alert",
+  "location.checkInTitle": "Share location with this check-in",
+  "location.checkInBody":
+    "Only this location may be shared with trusted contacts if the next alert happens.",
+  "location.checkInA11y": "Share location voluntarily with this check-in",
+  "location.checkInUnavailable":
+    "Unable to get your location. Your check-in will still be sent without it.",
+  "location.sosTitle": "Share current location with SOS",
+  "location.sosBody":
+    "Optional. Only one current location is sent to SOS recipients; there is no background tracking.",
+  "location.sosA11y": "Share current location with this SOS request",
+  "location.sosUnavailable":
+    "Unable to get your location. Your SOS will still be sent without it.",
   "sos.headerTitle": "Emergency help",
   "drill.headerTitle": "Alert drill",
 } as const;

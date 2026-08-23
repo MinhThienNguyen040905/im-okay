@@ -86,6 +86,57 @@ test("check-in forwards the stable key and never accepts an actor from JSON", as
   );
 });
 
+test("check-in forwards an explicitly supplied foreground location only", async () => {
+  const database = createDatabase({ accepted: true });
+  const response = await router(database.gateway)(
+    new Request("http://local.test/functions/v1/api/v1/check-ins", {
+      body: JSON.stringify({
+        location: {
+          accuracyMeters: 18,
+          latitude: 10.7769,
+          longitude: 106.7009,
+        },
+        source: "mobile",
+      }),
+      headers: {
+        "content-type": "application/json",
+        "idempotency-key": "check-in-location-1",
+      },
+      method: "POST",
+    }),
+  );
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(
+    {
+      p_accuracy_meters: database.calls[0].parameters.p_accuracy_meters,
+      p_latitude: database.calls[0].parameters.p_latitude,
+      p_longitude: database.calls[0].parameters.p_longitude,
+    },
+    { p_accuracy_meters: 18, p_latitude: 10.7769, p_longitude: 106.7009 },
+  );
+});
+
+test("check-in rejects an invalid location before database access", async () => {
+  const database = createDatabase({ accepted: true });
+  const response = await router(database.gateway)(
+    new Request("http://local.test/functions/v1/api/v1/check-ins", {
+      body: JSON.stringify({
+        location: { accuracyMeters: 12, latitude: 91, longitude: 106.7009 },
+        source: "mobile",
+      }),
+      headers: {
+        "content-type": "application/json",
+        "idempotency-key": "check-in-location-invalid",
+      },
+      method: "POST",
+    }),
+  );
+
+  assert.equal(response.status, 400);
+  assert.equal(database.calls.length, 0);
+});
+
 test("check-in rejects a missing idempotency key before database access", async () => {
   const database = createDatabase({ accepted: true });
   const response = await router(database.gateway)(

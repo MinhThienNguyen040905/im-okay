@@ -1,6 +1,6 @@
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Linking, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { LinkState } from "@/components/LinkState";
 import { Shell, webStyles } from "@/components/Shell";
@@ -12,6 +12,9 @@ import {
 
 type Screen = "details" | "handling" | "method";
 type Method = "call" | "delegate" | "visit";
+
+const mapUrl = (latitude: number, longitude: number) =>
+  `https://www.openstreetmap.org/?mlat=${encodeURIComponent(String(latitude))}&mlon=${encodeURIComponent(String(longitude))}#map=16/${latitude}/${longitude}`;
 
 const formatTime = (value?: string | null): string =>
   value
@@ -103,6 +106,38 @@ export default function AlertPage() {
               label="Mã cảnh báo"
               value={`#${projection.alertReference ?? "—"}`}
             />
+            {projection.location ? (
+              <View style={styles.locationBlock}>
+                <Detail
+                  label={
+                    projection.location.source === "sos"
+                      ? "Vị trí được chia sẻ cùng SOS"
+                      : "Vị trí được chia sẻ lúc check-in"
+                  }
+                  value={`${formatTime(projection.location.capturedAt)} · chính xác khoảng ±${Math.round(projection.location.accuracyMeters)} m`}
+                />
+                <Text style={styles.locationHint}>
+                  Vị trí do thiết bị cung cấp, có thể không chính xác. Chỉ mở
+                  bản đồ khi cần.
+                </Text>
+                <Pressable
+                  accessibilityRole="link"
+                  onPress={() =>
+                    void Linking.openURL(
+                      mapUrl(
+                        projection.location!.latitude,
+                        projection.location!.longitude,
+                      ),
+                    )
+                  }
+                  style={webStyles.secondaryButton}
+                >
+                  <Text style={webStyles.secondaryText}>
+                    Mở vị trí trong bản đồ
+                  </Text>
+                </Pressable>
+              </View>
+            ) : null}
           </View>
           <Pressable
             accessibilityRole="button"
@@ -275,6 +310,8 @@ const styles = StyleSheet.create({
     gap: 14,
     padding: 16,
   },
+  locationBlock: { gap: 10 },
+  locationHint: { color: "#526463", fontSize: 14, lineHeight: 20 },
   radio: {
     borderColor: "#64748b",
     borderRadius: 10,

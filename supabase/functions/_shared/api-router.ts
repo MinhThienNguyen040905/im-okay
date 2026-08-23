@@ -86,9 +86,42 @@ const disableSafetyPlanSchema = objectSchema<DisableSafetyPlanBody>(
     value.confirmation === "disable_safety_plan",
 );
 
-type CheckInBody = { source: "mobile" };
+type LocationBody = {
+  accuracyMeters: number;
+  latitude: number;
+  longitude: number;
+};
+
+const validLocation = (value: unknown): value is LocationBody => {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const location = value as Partial<LocationBody>;
+  return (
+    typeof location.latitude === "number" &&
+    Number.isFinite(location.latitude) &&
+    location.latitude >= -90 &&
+    location.latitude <= 90 &&
+    typeof location.longitude === "number" &&
+    Number.isFinite(location.longitude) &&
+    location.longitude >= -180 &&
+    location.longitude <= 180 &&
+    typeof location.accuracyMeters === "number" &&
+    Number.isFinite(location.accuracyMeters) &&
+    location.accuracyMeters > 0 &&
+    location.accuracyMeters <= 50_000
+  );
+};
+
+type CheckInBody = { location?: LocationBody; source: "mobile" };
 const checkInSchema = objectSchema<CheckInBody>(
-  (value): value is CheckInBody => value.source === "mobile",
+  (value): value is CheckInBody =>
+    value.source === "mobile" &&
+    (value.location === undefined || validLocation(value.location)),
+);
+
+type ImmediateAlertBody = { location?: LocationBody };
+const immediateAlertSchema = objectSchema<ImmediateAlertBody>(
+  (value): value is ImmediateAlertBody =>
+    value.location === undefined || validLocation(value.location),
 );
 
 type ContactBody = {
@@ -365,6 +398,9 @@ const routeDatabaseRequest = async (
     return call(database, "internal_perform_check_in", {
       ...common,
       p_idempotency_key: key,
+      p_accuracy_meters: body.location?.accuracyMeters ?? null,
+      p_latitude: body.location?.latitude ?? null,
+      p_longitude: body.location?.longitude ?? null,
       p_source: body.source,
     });
   }
@@ -431,10 +467,21 @@ const routeDatabaseRequest = async (
     request.method === "POST"
   ) {
     const key = idempotencyKey(request);
-    if (!key) return { invalid: true };
+    const body: ImmediateAlertBody | null = request.headers
+      .get("content-type")
+      ?.toLowerCase()
+      .includes("application/json")
+      ? await parseJson(request, immediateAlertSchema).catch(() => null)
+      : {};
+    if (!key || !body || (path.endsWith("/drill") && body.location)) {
+      return { invalid: true };
+    }
     return call(database, "internal_start_alert", {
       ...common,
       p_idempotency_key: key,
+      p_accuracy_meters: body.location?.accuracyMeters ?? null,
+      p_latitude: body.location?.latitude ?? null,
+      p_longitude: body.location?.longitude ?? null,
       p_source: path.endsWith("/sos") ? "sos" : "drill",
     });
   }

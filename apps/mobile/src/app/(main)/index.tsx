@@ -2,7 +2,14 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Redirect, useRouter } from "expo-router";
 import * as Linking from "expo-linking";
-import { AppState, Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  AppState,
+  Pressable,
+  StyleSheet,
+  Switch,
+  Text,
+  View,
+} from "react-native";
 
 import { AppIcon, Badge, Button, Card, ErrorState, Screen } from "@/components";
 import { env } from "@/config/env";
@@ -29,6 +36,7 @@ import {
   type SafetyStatusSnapshot,
 } from "@/features/check-in/types";
 import { getPushPermission } from "@/features/notifications/push";
+import { captureCurrentLocation } from "@/features/location/capture";
 import { useOnboarding } from "@/features/onboarding/OnboardingProvider";
 import {
   translate,
@@ -144,6 +152,32 @@ const HomeContent = ({ session }: { session: AuthSession }) => {
   }, [refreshPushPermission]);
 
   const checkInMutation = useAuthoritativeCheckIn(session, setSuccess);
+  const [shareLocation, setShareLocation] = useState(false);
+  const [capturingLocation, setCapturingLocation] = useState(false);
+  const [locationNotice, setLocationNotice] = useState<string | null>(null);
+
+  const submitCheckIn = useCallback(async () => {
+    checkInMutation.reset();
+    setLocationNotice(null);
+    if (!shareLocation) {
+      checkInMutation.mutate(null);
+      return;
+    }
+    setCapturingLocation(true);
+    const capture = await captureCurrentLocation();
+    setCapturingLocation(false);
+    if (capture.status !== "captured") {
+      setLocationNotice(
+        t(
+          "location.checkInUnavailable",
+          "Không thể lấy vị trí. Check-in vẫn sẽ được gửi mà không kèm vị trí.",
+        ),
+      );
+      checkInMutation.mutate(null);
+      return;
+    }
+    checkInMutation.mutate(capture.location);
+  }, [checkInMutation, shareLocation, t]);
 
   const snapshot = statusQuery.data;
   const remainingMs = useServerCountdown(
@@ -255,10 +289,32 @@ const HomeContent = ({ session }: { session: AuthSession }) => {
       </View>
 
       <View style={styles.checkInArea}>
+        <View style={styles.locationOption}>
+          <View style={styles.locationCopy}>
+            <Text style={styles.locationTitle}>
+              {t("location.checkInTitle", "Chia sẻ vị trí cùng check-in")}
+            </Text>
+            <Text style={styles.locationBody}>
+              {t(
+                "location.checkInBody",
+                "Chỉ vị trí này có thể được chia sẻ với liên hệ tin cậy nếu cảnh báo kế tiếp xảy ra.",
+              )}
+            </Text>
+          </View>
+          <Switch
+            accessibilityLabel={t(
+              "location.checkInA11y",
+              "Bật chia sẻ vị trí tự nguyện cùng lần check-in này",
+            )}
+            disabled={checkInMutation.isPending || capturingLocation}
+            onValueChange={setShareLocation}
+            value={shareLocation}
+          />
+        </View>
         <CheckInButton
           disabled={status.plan.state === "inactive"}
-          loading={checkInMutation.isPending}
-          onPress={() => checkInMutation.mutate()}
+          loading={checkInMutation.isPending || capturingLocation}
+          onPress={() => void submitCheckIn()}
         />
         <Text style={styles.lastCheckIn}>
           {t("home.lastCheckInValue", "Lần xác nhận gần nhất: {time}", {
@@ -271,6 +327,11 @@ const HomeContent = ({ session }: { session: AuthSession }) => {
               "home.pendingConfirmation",
               "Đang chờ máy chủ xác nhận. Không đóng app nếu có thể.",
             )}
+          </Text>
+        ) : null}
+        {locationNotice ? (
+          <Text accessibilityLiveRegion="polite" style={styles.locationNotice}>
+            {locationNotice}
           </Text>
         ) : null}
       </View>
@@ -331,7 +392,7 @@ const HomeContent = ({ session }: { session: AuthSession }) => {
               "Thử gửi lại cùng mã xác nhận",
             )}
             label={t("common.retry", "Thử lại")}
-            onPress={() => checkInMutation.mutate()}
+            onPress={() => void submitCheckIn()}
             variant="secondary"
           />
         </Card>
@@ -468,6 +529,25 @@ const styles = StyleSheet.create({
   countdownApproaching: { color: colors.warning },
   deadline: { ...typography.caption, color: colors.textSecondary },
   checkInArea: { alignItems: "center", gap: spacing.sm },
+  locationOption: {
+    alignItems: "center",
+    backgroundColor: colors.surfaceMuted,
+    borderColor: colors.border,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: spacing.sm,
+    padding: spacing.sm,
+    width: "100%",
+  },
+  locationCopy: { flex: 1, gap: spacing.xxs },
+  locationTitle: { ...typography.label, color: colors.textPrimary },
+  locationBody: { ...typography.caption, color: colors.textSecondary },
+  locationNotice: {
+    ...typography.caption,
+    color: colors.warning,
+    textAlign: "center",
+  },
   lastCheckIn: {
     ...typography.caption,
     color: colors.textSecondary,

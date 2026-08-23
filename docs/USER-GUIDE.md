@@ -55,6 +55,8 @@ Nên có ít nhất hai liên hệ đã xác nhận để giảm rủi ro không
 
 Khi bạn vẫn ổn, chọn **Tôi vẫn ổn**. Hãy chờ thông báo xác nhận từ máy chủ trước khi rời ứng dụng. Khi thành công, máy chủ ghi lần điểm danh mới và tạo thời hạn tiếp theo.
 
+Bạn có thể bật **Chia sẻ vị trí cùng check-in** cho riêng lần xác nhận đó. Đây là tùy chọn, mặc định tắt: app chỉ xin vị trí khi bạn gửi check-in, không theo dõi nền. Nếu cảnh báo của chu kỳ này xảy ra, liên hệ nhận cảnh báo có thể xem vị trí đã được chia sẻ, cùng thời điểm và độ chính xác. Nếu không cấp quyền hoặc GPS không lấy được vị trí, check-in vẫn được gửi bình thường.
+
 Nếu không có kết nối, yêu cầu quá thời gian chờ hoặc máy chủ chưa xác nhận, ứng dụng không coi thao tác là thành công. Hãy dùng nút **Thử lại** hoặc đồng bộ lại khi kết nối ổn định.
 
 ## 4. Khi sắp quá hạn hoặc có cảnh báo
@@ -81,7 +83,9 @@ Trong Trang chủ, chọn **Cần trợ giúp ngay** khi bạn muốn yêu cầu
 - Nếu không thể nhấn giữ, chọn phương án xác nhận hai bước.
 - SOS chỉ khả dụng khi có liên hệ đã xác nhận đủ điều kiện nhận cảnh báo.
 
-SOS không tự gọi dịch vụ khẩn cấp và phiên bản hiện tại không chia sẻ vị trí của bạn. Trong nguy hiểm tức thời, hãy liên hệ dịch vụ khẩn cấp địa phương trước.
+Bạn có thể bật **Chia sẻ vị trí hiện tại cùng SOS** trước khi gửi. App chỉ lấy một vị trí khi bạn đang dùng SOS; không theo dõi nền. Vị trí chỉ có thể xem bởi liên hệ nhận cảnh báo, kèm thời điểm/sai số và chỉ trong thời gian cảnh báo còn hiệu lực. Nếu không cấp quyền hoặc GPS lỗi, SOS vẫn được gửi không kèm vị trí.
+
+SOS không tự gọi dịch vụ khẩn cấp. Trong nguy hiểm tức thời, hãy liên hệ dịch vụ khẩn cấp địa phương trước.
 
 ### Diễn tập cảnh báo
 
@@ -133,6 +137,7 @@ Các yêu cầu xuất/xóa dữ liệu là quy trình phía máy chủ. Việc 
 - Chỉ thêm người đã đồng ý nhận lời mời và cảnh báo.
 - Không chia sẻ liên kết đăng nhập, liên kết lời mời hoặc liên kết cảnh báo với người khác.
 - Không dùng diễn tập để gây hoang mang; luôn báo trước cho liên hệ tham gia.
+- Vị trí chỉ nên bật khi bạn hiểu rõ liên hệ nào sẽ nhận cảnh báo. Không coi vị trí thiết bị là chính xác tuyệt đối; kiểm tra cả thời điểm và bán kính sai số.
 - Thường xuyên kiểm tra múi giờ, tình trạng thông báo và số liên hệ đã xác nhận.
 - Trong giai đoạn pilot, hãy báo lỗi hoặc phản hồi cho quản trị viên thử nghiệm của bạn; không gửi thông tin nhạy cảm qua kênh không an toàn.
 
@@ -149,4 +154,4 @@ Trước khi dựa vào I’m Okay trong sinh hoạt hằng ngày, hãy kiểm t
 
 ---
 
-Phiên bản hướng dẫn: Android personal pilot, cập nhật ngày 22/08/2026.
+Phiên bản hướng dẫn: Android personal pilot, cập nhật ngày 23/08/2026.

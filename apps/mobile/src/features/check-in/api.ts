@@ -63,7 +63,11 @@ export const createRemoteCheckInApi = (
 ): CheckInApi => {
   const request = async (
     path: string,
-    options?: { idempotencyKey?: string; method?: "GET" | "POST" },
+    options?: {
+      body?: unknown;
+      idempotencyKey?: string;
+      method?: "GET" | "POST";
+    },
   ) => {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
@@ -82,9 +86,7 @@ export const createRemoteCheckInApi = (
             : {}),
         },
         body:
-          options?.method === "POST"
-            ? JSON.stringify({ source: "mobile" })
-            : undefined,
+          options?.method === "POST" ? JSON.stringify(options.body) : undefined,
         signal: controller.signal,
       });
       const receivedAtMs = Date.now();
@@ -138,8 +140,12 @@ export const createRemoteCheckInApi = (
 
   return {
     getStatus: () => request("/safety-plan/status"),
-    checkIn: (idempotencyKey) =>
-      request("/check-ins", { idempotencyKey, method: "POST" }),
+    checkIn: (idempotencyKey, location) =>
+      request("/check-ins", {
+        body: { source: "mobile", ...(location ? { location } : {}) },
+        idempotencyKey,
+        method: "POST",
+      }),
   };
 };
 

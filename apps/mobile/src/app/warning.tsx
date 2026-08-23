@@ -199,8 +199,8 @@ const WarningContent = ({ session }: { session: AuthSession }) => {
   const snoozeMutation = useMutation({
     mutationFn: async (duration: SnoozeDuration) => {
       const scope = `snooze-${duration}` as const;
-      const key = await getOrCreateAlertAttempt(session.user.id, scope);
-      return api.snooze(duration, key);
+      const attempt = await getOrCreateAlertAttempt(session.user.id, scope);
+      return api.snooze(duration, attempt.idempotencyKey);
     },
     onSuccess: async (result, duration) => {
       await clearAlertAttempt(session.user.id, `snooze-${duration}`);
@@ -428,7 +428,7 @@ const WarningContent = ({ session }: { session: AuthSession }) => {
         disabled={!projection.availableActions.canCheckIn}
         label={t("checkIn.button", "Tôi vẫn ổn")}
         loading={checkInMutation.isPending}
-        onPress={() => checkInMutation.mutate()}
+        onPress={() => checkInMutation.mutate(null)}
       />
 
       {checkInMutation.error ? (

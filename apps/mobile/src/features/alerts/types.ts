@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import type { LocationShareInput } from "@/features/location/types";
+
 const timestampSchema = z.iso.datetime({ offset: true });
 export const snoozeDurationSchema = z.union([
   z.literal(1),
@@ -121,7 +123,10 @@ export type AlertsApi = {
     durationHours: SnoozeDuration,
     idempotencyKey: string,
   ) => Promise<AlertContextSnapshot>;
-  sendSos: (idempotencyKey: string) => Promise<AlertContextSnapshot>;
+  sendSos: (
+    idempotencyKey: string,
+    location?: LocationShareInput | null,
+  ) => Promise<AlertContextSnapshot>;
   sendDrill: (idempotencyKey: string) => Promise<AlertContextSnapshot>;
 };
 

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Redirect, useRouter } from "expo-router";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Switch, Text, View } from "react-native";
 
 import {
   AppIcon,
@@ -31,6 +31,8 @@ import {
 } from "@/features/alerts/types";
 import { useAuth } from "@/features/auth/AuthProvider";
 import type { AuthSession } from "@/features/auth/types";
+import { captureCurrentLocation } from "@/features/location/capture";
+import type { LocationShareInput } from "@/features/location/types";
 import {
   translate,
   useI18n,
@@ -47,6 +49,9 @@ const SosContent = ({ session }: { session: AuthSession }) => {
   const queryClient = useQueryClient();
   const router = useRouter();
   const [twoStep, setTwoStep] = useState(false);
+  const [shareLocation, setShareLocation] = useState(false);
+  const [capturingLocation, setCapturingLocation] = useState(false);
+  const [locationNotice, setLocationNotice] = useState<string | null>(null);
   const { focus: focusTwoStep, ref: twoStepTitleRef } =
     useAccessibilityFocus<Text>(
       t("sos.twoStepFocus", "Bước hai trên hai, xác nhận gửi SOS."),
@@ -70,9 +75,13 @@ const SosContent = ({ session }: { session: AuthSession }) => {
   }, [focusTwoStep, twoStep]);
 
   const sosMutation = useMutation({
-    mutationFn: async () => {
-      const key = await getOrCreateAlertAttempt(session.user.id, "sos");
-      return api.sendSos(key);
+    mutationFn: async (location: LocationShareInput | null = null) => {
+      const attempt = await getOrCreateAlertAttempt(
+        session.user.id,
+        "sos",
+        location,
+      );
+      return api.sendSos(attempt.idempotencyKey, attempt.location);
     },
     onSuccess: async (result) => {
       await clearAlertAttempt(session.user.id, "sos");
@@ -85,6 +94,29 @@ const SosContent = ({ session }: { session: AuthSession }) => {
       }
     },
   });
+
+  const submitSos = useCallback(async () => {
+    sosMutation.reset();
+    setLocationNotice(null);
+    if (!shareLocation) {
+      sosMutation.mutate(null);
+      return;
+    }
+    setCapturingLocation(true);
+    const capture = await captureCurrentLocation();
+    setCapturingLocation(false);
+    if (capture.status !== "captured") {
+      setLocationNotice(
+        t(
+          "location.sosUnavailable",
+          "Không thể lấy vị trí. SOS vẫn sẽ được gửi mà không kèm vị trí.",
+        ),
+      );
+      sosMutation.mutate(null);
+      return;
+    }
+    sosMutation.mutate(capture.location);
+  }, [shareLocation, sosMutation, t]);
 
   if (accepted) {
     return (
@@ -168,15 +200,34 @@ const SosContent = ({ session }: { session: AuthSession }) => {
         </View>
         <View style={styles.divider} />
         <View style={styles.infoRow}>
-          <AppIcon color={colors.primary} name="location-off" />
-          <Text style={styles.infoText}>
-            {t(
-              "sos.locationNotShared",
-              "Vị trí không được chia sẻ trong phiên bản này",
+          <AppIcon color={colors.primary} name="location-on" />
+          <View style={styles.locationCopy}>
+            <Text style={styles.locationTitle}>
+              {t("location.sosTitle", "Chia sẻ vị trí hiện tại cùng SOS")}
+            </Text>
+            <Text style={styles.infoText}>
+              {t(
+                "location.sosBody",
+                "Tùy chọn. Chỉ gửi một vị trí hiện tại cho các liên hệ nhận SOS; không theo dõi nền.",
+              )}
+            </Text>
+          </View>
+          <Switch
+            accessibilityLabel={t(
+              "location.sosA11y",
+              "Bật chia sẻ vị trí hiện tại cùng yêu cầu SOS",
             )}
-          </Text>
+            disabled={sosMutation.isPending || capturingLocation}
+            onValueChange={setShareLocation}
+            value={shareLocation}
+          />
         </View>
       </Card>
+      {locationNotice ? (
+        <Text accessibilityLiveRegion="polite" style={styles.locationNotice}>
+          {locationNotice}
+        </Text>
+      ) : null}
 
       {names.length > 0 ? (
         <Text style={styles.names}>
@@ -208,10 +259,9 @@ const SosContent = ({ session }: { session: AuthSession }) => {
         <>
           <SosHoldButton
             disabled={!canSend}
-            loading={sosMutation.isPending}
+            loading={sosMutation.isPending || capturingLocation}
             onComplete={() => {
-              sosMutation.reset();
-              sosMutation.mutate();
+              void submitSos();
             }}
           />
           <Button
@@ -219,7 +269,7 @@ const SosContent = ({ session }: { session: AuthSession }) => {
               "sos.twoStepA11y",
               "Dùng xác nhận SOS hai bước thay cho nhấn giữ",
             )}
-            disabled={!canSend || sosMutation.isPending}
+            disabled={!canSend || sosMutation.isPending || capturingLocation}
             label={t(
               "sos.twoStep",
               "Không thể nhấn giữ? Dùng xác nhận hai bước",
@@ -253,8 +303,8 @@ const SosContent = ({ session }: { session: AuthSession }) => {
               "Bước hai, xác nhận gửi SOS tới máy chủ",
             )}
             label={t("sos.confirm", "Xác nhận gửi SOS")}
-            loading={sosMutation.isPending}
-            onPress={() => sosMutation.mutate()}
+            loading={sosMutation.isPending || capturingLocation}
+            onPress={() => void submitSos()}
             variant="danger"
           />
           <Button
@@ -262,7 +312,7 @@ const SosContent = ({ session }: { session: AuthSession }) => {
               "sos.cancelTwoStepA11y",
               "Hủy xác nhận SOS hai bước",
             )}
-            disabled={sosMutation.isPending}
+            disabled={sosMutation.isPending || capturingLocation}
             label={t("common.back", "Quay lại")}
             onPress={() => setTwoStep(false)}
             variant="secondary"
@@ -296,7 +346,7 @@ const SosContent = ({ session }: { session: AuthSession }) => {
           "sos.noHelpA11y",
           "Tôi không cần trợ giúp, đóng mà không gửi SOS",
         )}
-        disabled={sosMutation.isPending}
+        disabled={sosMutation.isPending || capturingLocation}
         label={t("sos.noHelp", "Tôi không cần trợ giúp")}
         onPress={() => router.back()}
         variant="secondary"
@@ -306,7 +356,7 @@ const SosContent = ({ session }: { session: AuthSession }) => {
           "sos.openDrillA11y",
           "Mở diễn tập cảnh báo, không phải SOS thật",
         )}
-        disabled={sosMutation.isPending}
+        disabled={sosMutation.isPending || capturingLocation}
         label={t("sos.openDrill", "Mở diễn tập cảnh báo")}
         onPress={() => router.push("/sos/drill")}
         variant="secondary"
@@ -350,6 +400,13 @@ const styles = StyleSheet.create({
   },
   infoRow: { alignItems: "center", flexDirection: "row", gap: spacing.sm },
   infoText: { ...typography.bodyMedium, color: colors.textPrimary, flex: 1 },
+  locationCopy: { flex: 1, gap: spacing.xxs },
+  locationTitle: { ...typography.label, color: colors.textPrimary },
+  locationNotice: {
+    ...typography.caption,
+    color: colors.warning,
+    textAlign: "center",
+  },
   divider: { backgroundColor: colors.border, height: 1 },
   names: {
     ...typography.bodyMedium,
